@@ -1,0 +1,79 @@
+name: Build + publish release
+
+# Runs when a version tag is pushed (e.g. `git push --follow-tags` after
+# `npm version minor`) or when manually dispatched from the Actions tab.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Why this manual build? (logged in run name)'
+        required: false
+        default: 'manual dispatch'
+
+# electron-builder uploads to the same repo's Releases via the auto-provided
+# GITHUB_TOKEN. The token needs `contents: write` to create draft releases
+# and upload assets.
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Windows installer
+    runs-on: windows-latest
+    timeout-minutes: 90
+
+    env:
+      # electron-builder reads GH_TOKEN to authenticate against the GitHub
+      # provider. Mapping the auto-provided GITHUB_TOKEN is enough for
+      # same-repo release uploads.
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Where setup-resources.ps1 fetches the bundled avr-gcc from. Pinned
+      # to the tools-v1 release asset on this same repo so there is no
+      # third-party dependency.
+      LOTUS_AVR_TOOLCHAIN_URL: https://github.com/jaturong-kamonlers/LotusIDE/releases/download/tools-v1/avr-toolchain.zip
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      # arduino-cli core install caches under
+      # resources/arduino-cli/data/packages/. We let it run cold on each
+      # build for now (15-25 min) — caching can be added later if CI minutes
+      # become a constraint. Each cache layer would key on the core
+      # version we install, which isn't pinned yet.
+      - name: Populate resources/ (arduino-cli + cores + avr-toolchain)
+        shell: pwsh
+        run: |
+          ./scripts/setup-resources.ps1
+          if (-not (Test-Path 'resources/avr-toolchain/tools/bin/avr-gcc.exe')) {
+            throw 'avr-gcc.exe missing after setup — install failed'
+          }
+
+      - name: Build + publish to GitHub Releases
+        shell: pwsh
+        # The `--publish always` flag tells electron-builder to upload even
+        # when the tree is "dirty" relative to the tag. Output is a DRAFT
+        # release — the user clicks Publish from the Releases page to make
+        # it visible to auto-update clients.
+        run: |
+          npm run build -- --publish always
+
+      - name: Summary
+        if: success()
+        shell: pwsh
+        run: |
+          Write-Host "✓ Built + published"
+          Write-Host "  Draft release: https://github.com/${{ github.repository }}/releases"
+          Write-Host "  Click 'Publish release' to make it visible to auto-update clients."
