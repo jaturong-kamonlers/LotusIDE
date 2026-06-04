@@ -74,6 +74,7 @@ const menus = [
     items: [
       { label: 'New', icon: 'mdi-file-plus-outline', shortcut: 'Ctrl+N', action: () => { appStore.currentFile = null; appStore.isDirty = false; appStore.loadWorkspaceRequest = JSON.parse(JSON.stringify(INITIAL_WORKSPACE)) } },
       { label: 'Open...', icon: 'mdi-folder-open-outline', shortcut: 'Ctrl+O', action: openFile },
+      { label: 'Import from URL...', icon: 'mdi-link-variant', action: () => appStore.showImportUrl = true },
       '---',
       { label: 'Save', icon: 'mdi-content-save-outline', shortcut: 'Ctrl+S', action: saveFile },
       { label: 'Save As...', icon: 'mdi-content-save-edit-outline', shortcut: 'Ctrl+Shift+S', action: saveAs },
@@ -175,6 +176,7 @@ const menus = [
       '---',
       { label: 'About Lotus IDE', icon: 'mdi-information-outline', action: showAbout },
       { label: 'Website', icon: 'mdi-web', action: () => appStore.log('www.lotus-arduibot.com', 'info') },
+      { label: 'Report Bug...', icon: 'mdi-bug-outline', action: reportBug },
       '---',
       { label: 'Getting Started', icon: 'mdi-book-open-page-variant-outline', action: () => appStore.log('Documentation coming soon', 'info') },
     ],
@@ -254,6 +256,48 @@ function loadExample(name) {
 }
 function showAbout() {
   appStore.log('Lotus IDE v1.0.0 — ArduiBot Version — Learning by Doing — www.lotus-arduibot.com', 'info')
+}
+
+// Open GitHub's "New Issue" page with a pre-filled bug template. We pass
+// the user's environment via query params so they don't have to retype it.
+// The URL is intentionally constructed in the renderer (not the main
+// process) so the user sees the body before they submit.
+function reportBug() {
+  const board    = appStore.selectedBoard?.title || appStore.selectedBoard?.id || '(none)'
+  const platform = window.lotusAPI?.platform || 'unknown'
+  const lastLog  = (appStore.consoleLog || []).slice(-10)
+    .map(l => `[${l.time}] ${l.type}: ${l.msg}`)
+    .join('\n')
+  const body = `**Describe the bug**
+A clear and concise description of what the bug is.
+
+**To reproduce**
+1.
+2.
+3.
+
+**Expected behavior**
+
+
+**Environment**
+- LotusIDE version: 1.1.0
+- OS: ${platform}
+- Board: ${board}
+
+**Recent console log**
+\`\`\`
+${lastLog || '(empty)'}
+\`\`\`
+
+**Additional context**
+`
+  const params = new URLSearchParams({
+    title: '[Bug] ',
+    body,
+    labels: 'bug',
+  })
+  const url = `https://github.com/jaturong-kamonlers/LotusIDE/issues/new?${params.toString()}`
+  window.lotusAPI?.shell?.openExternal(url)
 }
 </script>
 

@@ -84,6 +84,17 @@ ipcMain.handle('marketplace:downloadZip', async (_e, url) => {
   } catch (e) { return { ok: false, error: e.message } }
 })
 
+// Generic text fetch — used by "Import sketch from URL". Returns the raw
+// body so the renderer can JSON.parse / route it as needed. Same proxy +
+// timeout semantics as the other helpers here.
+ipcMain.handle('marketplace:fetchUrl', async (_e, url) => {
+  try {
+    if (typeof url !== 'string' || !/^https?:\/\//i.test(url)) throw new Error('url must be http(s)')
+    const text = await fetchText(url)
+    return { ok: true, text }
+  } catch (e) { return { ok: false, error: e.message } }
+})
+
 function parseRepoSpec(spec) {
   if (typeof spec !== 'string') throw new Error('Repo spec required')
   // Strip github.com URL prefix if present

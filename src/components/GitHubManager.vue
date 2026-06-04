@@ -90,6 +90,14 @@
             <div class="row-actions mt-2">
               <div class="row-title">Save current sketch as Gist</div>
               <v-spacer />
+              <v-btn
+                size="small" variant="tonal"
+                prepend-icon="mdi-share-variant"
+                :loading="sharing"
+                @click="shareAsPublicGist"
+              >
+                Share public link
+              </v-btn>
               <v-btn size="small" variant="tonal" color="primary" :loading="saving" @click="saveCurrentAsGist">
                 Save to Gist
               </v-btn>
@@ -312,6 +320,7 @@ const clientIdInput = ref('')
 const tab = ref('gists')
 const gistDescription = ref('')
 const gistPublic = ref(false)
+const sharing = ref(false)
 
 // repos
 const repoFilter = ref('')
@@ -390,6 +399,32 @@ async function saveCurrentAsGist() {
     else appStore.log(res?.error || 'Failed to save', 'error')
   } finally { saving.value = false }
 }
+// "Share public link" — always creates a NEW public gist, never updates an
+// existing one (so each share is a stable point-in-time snapshot). Copies
+// the gist URL to the clipboard for easy pasting elsewhere.
+async function shareAsPublicGist() {
+  if (!appStore.workspaceJson) { appStore.log('Nothing to share (workspace empty)', 'error'); return }
+  sharing.value = true
+  try {
+    const filename = (appStore.currentFile?.split(/[\\/]/).pop()) || `${appStore.selectedBoard?.id || 'sketch'}.json`
+    const res = await store.saveSketchAsGist({
+      filename,
+      description: gistDescription.value || `Lotus IDE shared sketch — ${new Date().toISOString()}`,
+      content: appStore.workspaceJson,
+      isPublic: true,
+    })
+    if (res?.ok) {
+      const url = res.gist.htmlUrl
+      try { await navigator.clipboard.writeText(url) }
+      catch { /* clipboard may be unavailable */ }
+      appStore.log(`Shared: ${url} (copied to clipboard)`, 'success')
+      store.fetchGists()
+    } else {
+      appStore.log(res?.error || 'Share failed', 'error')
+    }
+  } finally { sharing.value = false }
+}
+
 async function loadGist(g) {
   const res = await store.readGist(g.id)
   if (!res?.ok) { appStore.log(res?.error || 'Failed to read gist', 'error'); return }

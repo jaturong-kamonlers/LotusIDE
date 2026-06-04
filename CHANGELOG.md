@@ -19,11 +19,22 @@ uses [semantic versioning](https://semver.org/).
   when an existing token only has `gist`.
 - GitHub status now reports `login` and granted `scopes` so the UI can
   gate features and show "Connected as @user (repo, gist)".
+- **Share sketch as public link** — Gists tab has a new button that
+  always creates a NEW public gist (point-in-time snapshot) and copies
+  the URL to the clipboard.
+- **Import from URL** (File → Import from URL…) — paste a gist URL, a
+  github.com blob URL, a raw.githubusercontent.com URL, or a plain gist
+  id; the dialog resolves it and loads the workspace.
+- **Report Bug** (Help → Report Bug…) — opens GitHub Issues in a
+  browser with a pre-filled template that includes OS, board, and the
+  last 10 console log lines.
 
 ### Changed
 
 - `electron/ipc/github.js` `ghRequest` now exposes response headers so
   status can read `x-oauth-scopes`.
+- `electron/ipc/marketplace.js` adds `fetchUrl` — generic HTTPS text
+  fetcher used by Import-from-URL.
 
 ## [1.1.0] — 2026-06-04
 

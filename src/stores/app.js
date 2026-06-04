@@ -22,6 +22,7 @@ export const useAppStore = defineStore('app', () => {
   const showBoardManager = ref(false)
   const showGithubManager = ref(false)
   const showUpdater = ref(false)
+  const showImportUrl = ref(false)
   const arduinoCode = ref('void setup() {\n}\n\nvoid loop() {\n}\n')
   const showConsole = ref(false)
   const workspaceJson = ref('')          // Blockly workspace JSON kept in sync by BlocklyEditor
@@ -72,7 +73,7 @@ export const useAppStore = defineStore('app', () => {
   return {
     boards, selectedBoard, theme, editorMode,
     currentFile, isDirty, compiling, uploading,
-    consoleLog, showSerial, showBoardSelector, showPluginManager, showBoardManager, showGithubManager, showUpdater, arduinoCode, showConsole,
+    consoleLog, showSerial, showBoardSelector, showPluginManager, showBoardManager, showGithubManager, showUpdater, showImportUrl, arduinoCode, showConsole,
     workspaceJson, loadWorkspaceRequest, showCode, showJson, soundEnabled,
     boardPlatform, canUpload,
     log, clearLog, selectBoard, loadBoards,

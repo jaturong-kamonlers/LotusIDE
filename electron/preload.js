@@ -76,6 +76,7 @@ contextBridge.exposeInMainWorld('lotusAPI', {
     fetchCatalog:          (url)      => ipcRenderer.invoke('marketplace:fetchCatalog', url),
     resolveGithubRelease:  (repoSpec) => ipcRenderer.invoke('marketplace:resolveGithubRelease', repoSpec),
     downloadZip:           (url)      => ipcRenderer.invoke('marketplace:downloadZip', url),
+    fetchUrl:              (url)      => ipcRenderer.invoke('marketplace:fetchUrl', url),
   },
 
   // Auto-update (electron-updater + GitHub Releases)
