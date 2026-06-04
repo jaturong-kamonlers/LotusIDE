@@ -6,7 +6,24 @@ uses [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
-_Nothing yet — add entries here as you work on the next version._
+### Added
+
+- **Full GitHub repo sync** in the GitHub Manager. Pick a repo, browse
+  folders with a breadcrumb, load any `.json` workspace, commit the
+  current sketch with a custom path + message, and inspect per-file
+  commit history (load any historic version into the editor). New repo
+  creation has its own tab. Uses the GitHub Contents API — no local git,
+  no isomorphic-git, no working copy. Trade-off: no offline edits, no
+  merges.
+- OAuth scope upgraded from `gist` → `repo gist`. A re-auth prompt shows
+  when an existing token only has `gist`.
+- GitHub status now reports `login` and granted `scopes` so the UI can
+  gate features and show "Connected as @user (repo, gist)".
+
+### Changed
+
+- `electron/ipc/github.js` `ghRequest` now exposes response headers so
+  status can read `x-oauth-scopes`.
 
 ## [1.1.0] — 2026-06-04
 
