@@ -1,0 +1,61 @@
+export const lotusTheme = {
+  dark: true,
+  colors: {
+    background: '#0d1b2a',
+    surface: '#152232',
+    'surface-variant': '#1e3145',
+    primary: '#f0a500',
+    'primary-darken-1': '#c88a00',
+    secondary: '#00b4d8',
+    'secondary-darken-1': '#0096b7',
+    accent: '#90e0ef',
+    error: '#ff5252',
+    warning: '#fb8c00',
+    success: '#4caf50',
+    info: '#2196f3',
+    'on-background': '#e8f1f2',
+    'on-surface': '#e8f1f2',
+    toolbar: '#0a1520',
+  },
+}
+
+export const darkTheme = {
+  dark: true,
+  colors: {
+    background: '#1a1a2e',
+    surface: '#16213e',
+    'surface-variant': '#0f3460',
+    primary: '#e94560',
+    'primary-darken-1': '#c73652',
+    secondary: '#533483',
+    accent: '#a8dadc',
+    error: '#ff5252',
+    warning: '#fb8c00',
+    success: '#4caf50',
+    info: '#2196f3',
+    'on-background': '#eaeaea',
+    'on-surface': '#eaeaea',
+    toolbar: '#0d0d1a',
+  },
+}
+
+export const lightTheme = {
+  dark: false,
+  colors: {
+    background: '#F4F6FB',
+    surface: '#FFFFFF',
+    'surface-variant': '#E8EDF6',
+    primary: '#1565C0',
+    'primary-darken-1': '#0D47A1',
+    secondary: '#00838F',
+    'secondary-darken-1': '#006978',
+    accent: '#F57C00',
+    error: '#C62828',
+    warning: '#E65100',
+    success: '#2E7D32',
+    info: '#0277BD',
+    'on-background': '#1A237E',
+    'on-surface': '#212121',
+    toolbar: '#1e3a5f',
+  },
+}

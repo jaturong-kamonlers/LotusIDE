@@ -1,0 +1,52 @@
+# ─── Dependencies ─────────────────────────────────────────────────────────────
+node_modules/
+
+# ─── Build output ─────────────────────────────────────────────────────────────
+dist/
+dist-electron/
+build/Output/
+
+# ─── Bundled toolchains (8+ GB — downloaded by setup script, not committed) ──
+# resources/arduino-cli/ holds ESP32 / SAM cores + downloaded staging packages.
+# resources/avr-toolchain/ holds avr-gcc + avrdude binaries.
+# Both are reproducible from arduino-cli + vendor releases — keep out of git.
+resources/
+
+# ─── User-local config / secrets ──────────────────────────────────────────────
+.env
+.env.local
+*.local
+github-token.bin
+github-settings.json
+
+# ─── Claude Code workspace (personal, not project state) ─────────────────────
+.claude/
+
+# ─── Local notes / session logs (kept on disk, not synced) ───────────────────
+SESSION_LOG_*.md
+bug/
+
+# ─── IDE / OS scratch ─────────────────────────────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ─── Cache / temp ─────────────────────────────────────────────────────────────
+.cache/
+.parcel-cache/
+.vite/
+tmp/
+temp/
+*.tmp
+
+# ─── Build artifacts the dev workflow produces locally ───────────────────────
+arduino-cli-temp/

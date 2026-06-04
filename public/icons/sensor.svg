@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- tube -->
+  <rect x="13.5" y="3" width="5" height="20" rx="2.5" fill="#0D1117" stroke="#FF6E40" stroke-width="1.2"/>
+  <!-- mercury fill -->
+  <rect x="14.7" y="13" width="2.6" height="10" fill="#FF6E40"/>
+  <!-- bulb -->
+  <circle cx="16" cy="26" r="5" fill="#0D1117" stroke="#FF6E40" stroke-width="1.2"/>
+  <circle cx="16" cy="26" r="3.5" fill="#FF6E40"/>
+  <!-- scale ticks -->
+  <line x1="18.5" y1="7"  x2="21" y2="7"  stroke="#FF6E40" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="18.5" y1="11" x2="21" y2="11" stroke="#FF6E40" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="18.5" y1="15" x2="20" y2="15" stroke="#FF6E40" stroke-width="1"   stroke-linecap="round"/>
+</svg>

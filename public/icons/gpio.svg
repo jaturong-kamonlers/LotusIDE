@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <rect x="1.5" y="4" width="29" height="24" rx="3" fill="#0D1117" stroke="#FF9800" stroke-width="1.2"/>
+  <polyline points="3,22 7,22 7,10 12,10 12,22 17,22 17,10 22,10 22,22 27,22 27,10 29,10"
+    fill="none" stroke="#FFEB3B" stroke-width="2.5" stroke-linejoin="miter" stroke-linecap="square"/>
+  <text x="29" y="9" text-anchor="end" font-family="monospace" font-size="4" fill="#4CAF50" font-weight="bold">H</text>
+  <text x="29" y="27" text-anchor="end" font-family="monospace" font-size="4" fill="#EF5350" font-weight="bold">L</text>
+</svg>

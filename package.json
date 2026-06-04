@@ -1,0 +1,87 @@
+{
+  "name": "lotus-ide",
+  "version": "1.0.0",
+  "description": "Lotus ArduiBot IDE - Learning by Doing",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "taskkill /F /IM electron.exe /T 2>nul & concurrently -k \"npm run vite\" \"npm run electron:dev\"",
+    "kill": "taskkill /F /IM electron.exe /T 2>nul & npx kill-port 5173 2>nul",
+    "vite": "vite",
+    "electron:dev": "wait-on http://localhost:5173 && electron .",
+    "build": "vite build && electron-builder",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "@mdi/js": "^7.4.47",
+    "blockly": "^10.4.3",
+    "jszip": "^3.10.1",
+    "pinia": "^2.1.7",
+    "serialport": "^12.0.0",
+    "vue": "^3.4.0",
+    "vuetify": "^3.6.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "concurrently": "^8.2.2",
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.0",
+    "kill-port": "^2.0.1",
+    "vite": "^5.2.0",
+    "vite-plugin-vuetify": "^2.0.3",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.lotus-arduibot.ide",
+    "productName": "Lotus IDE",
+    "asar": false,
+    "compression": "normal",
+    "directories": {
+      "output": "E:/LotusIDE-build/dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "shared/**/*",
+      "public/boards/**/*",
+      "public/icons/**/*",
+      "public/logo/**/*",
+      "sounds/**/*",
+      "drivers/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "resources",
+        "to": "app/resources",
+        "filter": [
+          "**/*",
+          "!arduino-cli/staging${/*}",
+          "!arduino-cli/staging"
+        ]
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/logo/lotus.ico",
+      "signAndEditExecutable": false
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "public/logo/lotus.png",
+      "category": "Development",
+      "synopsis": "Arduino-style IDE for Lotus robotics boards"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Lotus IDE",
+      "differentialPackage": false,
+      "include": "build/installer.nsh"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "com.lotus.example.blink-twice",
+  "name": "Blink Twice",
+  "version": "1.0.0",
+  "author": "Lotus IDE",
+  "description": "Example plugin — adds a 'blink twice' block",
+  "main": "index.js",
+  "minLotusVersion": "1.0.0"
+}

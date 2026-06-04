@@ -1,0 +1,17 @@
+{
+    "mcu" : "ATmega2560",
+    "arch" : "AVR_MEGA2560",
+    "baudrate" : 115200,
+    "protocol" : "wiring",
+    "cpu_clock" : 16000000,
+    "arduino_version" : 18,
+    "board_setup" : "display.begin(SSD1306_SWITCHCAPVCC, 0x3C); display.setTextColor(WHITE, BLACK); pinMode(AIN1, OUTPUT); pinMode(AIN2, OUTPUT); pinMode(PWMA, OUTPUT); pinMode(BIN1, OUTPUT); pinMode(BIN2, OUTPUT); pinMode(PWMB, OUTPUT); pinMode(AIN1b, OUTPUT); pinMode(AIN2b, OUTPUT); pinMode(PWMAb, OUTPUT); pinMode(BIN1b, OUTPUT); pinMode(BIN2b, OUTPUT); pinMode(PWMBb, OUTPUT); pinMode(AIN1c, OUTPUT); pinMode(AIN2c, OUTPUT); pinMode(PWMAc, OUTPUT); pinMode(BIN1c, OUTPUT); pinMode(BIN2c, OUTPUT); pinMode(PWMBc, OUTPUT); pinMode(_BT, INPUT_PULLUP); pinMode(_BZ, OUTPUT);",
+
+    "cflags": [
+        "-I\"{board}/include\""
+    ],
+    "libflags" : [
+        "-L\"{board}/lib\"",
+        "-mmcu=atmega2560"
+    ]
+}
