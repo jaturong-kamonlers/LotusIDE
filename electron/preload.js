@@ -99,6 +99,14 @@ contextBridge.exposeInMainWorld('lotusAPI', {
     listGists:             ()         => ipcRenderer.invoke('github:listGists'),
     readGist:              (id)       => ipcRenderer.invoke('github:readGist', id),
     saveSketchAsGist:      (payload)  => ipcRenderer.invoke('github:saveSketchAsGist', payload),
+
+    // Repo operations (Contents API)
+    listRepos:             (opts)     => ipcRenderer.invoke('github:listRepos', opts || {}),
+    listRepoContents:      (opts)     => ipcRenderer.invoke('github:listRepoContents', opts),
+    readRepoFile:          (opts)     => ipcRenderer.invoke('github:readRepoFile', opts),
+    saveSketchAsRepoFile:  (opts)     => ipcRenderer.invoke('github:saveSketchAsRepoFile', opts),
+    listFileCommits:       (opts)     => ipcRenderer.invoke('github:listFileCommits', opts),
+    createRepo:            (opts)     => ipcRenderer.invoke('github:createRepo', opts),
   },
 
   // Plugins (third-party Blockly extensions)

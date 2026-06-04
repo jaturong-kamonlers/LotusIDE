@@ -10,8 +10,10 @@
 // libsecret/kwallet on Linux). The encrypted blob lives at
 // <userData>/github-token.bin so it does NOT sync via roaming profiles.
 //
-// We default to gist-only scope. Repo sync can be added later — until then,
-// "save sketch to GitHub" = create or update a gist with the workspace JSON.
+// Scopes requested: `repo gist`. `repo` covers both public and private repos
+// (and grants full write access — needed to commit sketches back). `gist`
+// keeps the old Gist sync working. If a user already authorized with only
+// `gist`, the UI prompts them to re-auth so repo operations become available.
 
 const { app, ipcMain, net, safeStorage, shell } = require('electron')
 const fs   = require('fs')
@@ -60,8 +62,10 @@ function ghRequest({ method, url, headers = {}, body = null }) {
       res.on('data', (c) => chunks.push(c))
       res.on('end', () => {
         const buf = Buffer.concat(chunks).toString('utf8')
-        try { resolve({ status: res.statusCode, body: JSON.parse(buf) }) }
-        catch { resolve({ status: res.statusCode, body: buf }) }
+        const result = { status: res.statusCode, headers: res.headers || {} }
+        try { result.body = JSON.parse(buf) }
+        catch { result.body = buf }
+        resolve(result)
       })
       res.on('error', reject)
     })
@@ -78,10 +82,32 @@ function ghRequest({ method, url, headers = {}, body = null }) {
 
 let pollingState = null  // { deviceCode, interval, expiresAt }
 
-ipcMain.handle('github:status', () => {
+ipcMain.handle('github:status', async () => {
   const settings = readSettings()
+  const hasToken = !!loadToken()
+  let scopes = null
+  let login = null
+  // Probe /user to read the granted scopes header — null when no token.
+  if (hasToken) {
+    try {
+      const token = loadToken()
+      const res = await ghRequest({
+        method: 'GET', url: 'https://api.github.com/user',
+        headers: { Authorization: `token ${token}` },
+      })
+      if (res.status === 200) {
+        login = res.body?.login || null
+        // GitHub headers are case-insensitive; net.IncomingMessage exposes them
+        // as lowercase keys via res.body — but here we use req's response
+        // headers field which is also lowercase.
+        scopes = res.headers?.['x-oauth-scopes'] ?? null
+      }
+    } catch { /* ignore — keep scopes null */ }
+  }
   return {
-    hasToken: !!loadToken(),
+    hasToken,
+    login,
+    scopes,
     clientId: settings.clientId || null,
     encryptionAvailable: safeStorage.isEncryptionAvailable(),
   }
@@ -104,7 +130,7 @@ ipcMain.handle('github:startDeviceFlow', async () => {
   const res = await ghRequest({
     method: 'POST',
     url: 'https://github.com/login/device/code',
-    body: { client_id: settings.clientId, scope: 'gist' },
+    body: { client_id: settings.clientId, scope: 'repo gist' },
   })
   if (res.status !== 200 || !res.body?.device_code) {
     return { error: `GitHub returned ${res.status}: ${JSON.stringify(res.body)}` }
@@ -206,5 +232,107 @@ ipcMain.handle('github:saveSketchAsGist', async (_e, { gistId, filename, descrip
       const g = await api('POST', '/gists', { description, public: !!isPublic, files })
       return { ok: true, gist: { id: g.id, htmlUrl: g.html_url } }
     }
+  } catch (e) { return { ok: false, error: e.message } }
+})
+
+// ── Repo operations (Contents API — no local working copy, no isomorphic-git) ─
+//
+// LotusIDE treats a GitHub repo as a "project folder" holding many sketches.
+// Each sketch is a single .json file at any path inside the repo. We read
+// and write files through GitHub's Contents API:
+//   GET    /repos/:owner/:repo/contents/:path   — read or list
+//   PUT    /repos/:owner/:repo/contents/:path   — create or update (needs sha for update)
+// History comes from the Commits API filtered by path. This gives us
+// "version history" without needing a local clone.
+
+ipcMain.handle('github:listRepos', async (_e, { visibility = 'all', sort = 'updated', perPage = 50 } = {}) => {
+  try {
+    const list = await api('GET', `/user/repos?visibility=${visibility}&sort=${sort}&per_page=${perPage}`)
+    return { ok: true, repos: (list || []).map(r => ({
+      fullName:    r.full_name,
+      owner:       r.owner?.login,
+      name:        r.name,
+      description: r.description || '',
+      private:     r.private,
+      defaultBranch: r.default_branch,
+      updatedAt:   r.updated_at,
+      htmlUrl:     r.html_url,
+    })) }
+  } catch (e) { return { ok: false, error: e.message } }
+})
+
+ipcMain.handle('github:listRepoContents', async (_e, { owner, repo, path: dirPath = '', ref = null }) => {
+  try {
+    const safe = encodeURI(dirPath || '').replace(/#/g, '%23')
+    let url = `/repos/${owner}/${repo}/contents/${safe}`
+    if (ref) url += `?ref=${encodeURIComponent(ref)}`
+    const data = await api('GET', url)
+    // Single-file responses come back as an object, dirs as an array
+    const entries = Array.isArray(data) ? data : [data]
+    return { ok: true, entries: entries.map(e => ({
+      name: e.name,
+      path: e.path,
+      type: e.type,            // 'file' | 'dir' | 'submodule' | 'symlink'
+      sha:  e.sha,
+      size: e.size,
+      downloadUrl: e.download_url,
+    })) }
+  } catch (e) { return { ok: false, error: e.message } }
+})
+
+ipcMain.handle('github:readRepoFile', async (_e, { owner, repo, path: filePath, ref = null }) => {
+  try {
+    const safe = encodeURI(filePath || '').replace(/#/g, '%23')
+    let url = `/repos/${owner}/${repo}/contents/${safe}`
+    if (ref) url += `?ref=${encodeURIComponent(ref)}`
+    const data = await api('GET', url)
+    if (data?.type !== 'file') throw new Error('Path is not a file')
+    const content = Buffer.from(data.content || '', 'base64').toString('utf8')
+    return { ok: true, sha: data.sha, content, encoding: data.encoding }
+  } catch (e) { return { ok: false, error: e.message } }
+})
+
+ipcMain.handle('github:saveSketchAsRepoFile', async (_e, { owner, repo, path: filePath, content, message, branch = null, sha = null }) => {
+  try {
+    const safe = encodeURI(filePath || '').replace(/#/g, '%23')
+    const body = {
+      message: message || `Update ${filePath} via Lotus IDE`,
+      content: Buffer.from(content, 'utf8').toString('base64'),
+    }
+    if (sha)    body.sha = sha
+    if (branch) body.branch = branch
+    const data = await api('PUT', `/repos/${owner}/${repo}/contents/${safe}`, body)
+    return { ok: true, commit: { sha: data.commit?.sha, htmlUrl: data.commit?.html_url }, sha: data.content?.sha }
+  } catch (e) { return { ok: false, error: e.message } }
+})
+
+ipcMain.handle('github:listFileCommits', async (_e, { owner, repo, path: filePath, perPage = 20 }) => {
+  try {
+    const safe = encodeURI(filePath || '').replace(/#/g, '%23')
+    const data = await api('GET', `/repos/${owner}/${repo}/commits?path=${safe}&per_page=${perPage}`)
+    return { ok: true, commits: (data || []).map(c => ({
+      sha:     c.sha,
+      message: c.commit?.message,
+      author:  c.commit?.author?.name,
+      date:    c.commit?.author?.date,
+      htmlUrl: c.html_url,
+    })) }
+  } catch (e) { return { ok: false, error: e.message } }
+})
+
+ipcMain.handle('github:createRepo', async (_e, { name, description, private: isPrivate = true, autoInit = true }) => {
+  try {
+    const data = await api('POST', '/user/repos', {
+      name, description: description || '',
+      private: isPrivate,
+      auto_init: autoInit,
+    })
+    return { ok: true, repo: {
+      fullName: data.full_name,
+      owner:    data.owner?.login,
+      name:     data.name,
+      defaultBranch: data.default_branch,
+      htmlUrl:  data.html_url,
+    } }
   } catch (e) { return { ok: false, error: e.message } }
 })
