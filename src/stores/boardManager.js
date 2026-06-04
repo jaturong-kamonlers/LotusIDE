@@ -91,6 +91,25 @@ export const useBoardManagerStore = defineStore('boardManager', () => {
     return installFromZipBase64(entry.id, res.base64)
   }
 
+  async function installFromGithubRepo(repoSpec) {
+    if (!window.lotusAPI?.marketplace) return { error: 'Marketplace API not available' }
+    busy.value = true
+    try {
+      const meta = await window.lotusAPI.marketplace.resolveGithubRelease(repoSpec)
+      if (!meta?.ok) { appStore.log(`Resolve failed: ${meta?.error}`, 'error'); return meta }
+      const dl = await window.lotusAPI.marketplace.downloadZip(meta.downloadUrl)
+      if (!dl?.ok) { appStore.log(`Download failed: ${dl?.error}`, 'error'); return dl }
+      // Use the repo name as the board id if the catalog entry doesn't supply one.
+      const res = await installFromZipBase64(meta.repo, dl.base64)
+      if (res?.ok) { appStore.log(`Installed board: ${meta.repo} (${meta.version})`, 'success'); await refresh() }
+      else        appStore.log(`Install failed: ${res?.error || 'unknown'}`, 'error')
+      return res
+    } catch (e) {
+      appStore.log(`Install failed: ${e.message}`, 'error')
+      return { ok: false, error: e.message }
+    } finally { busy.value = false }
+  }
+
   async function uninstall(id) {
     return window.lotusAPI.boards.uninstall(id)
   }
@@ -98,7 +117,7 @@ export const useBoardManagerStore = defineStore('boardManager', () => {
   return {
     installed, catalog, userRoot, busy, catalogUrl,
     refresh, fetchCatalog, setCatalogUrl,
-    installFromFile, downloadAndInstall, uninstall,
+    installFromFile, downloadAndInstall, installFromGithubRepo, uninstall,
   }
 })
 

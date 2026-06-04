@@ -11,6 +11,7 @@
       <v-tabs v-model="tab" density="compact" color="primary">
         <v-tab value="installed">Installed</v-tab>
         <v-tab value="catalog">Available</v-tab>
+        <v-tab value="github">From GitHub</v-tab>
         <v-tab value="settings">Settings</v-tab>
       </v-tabs>
 
@@ -90,6 +91,38 @@
           </div>
         </div>
 
+        <!-- FROM GITHUB -->
+        <div v-else-if="tab === 'github'">
+          <div class="row-title">Install board package from GitHub</div>
+          <div class="row-desc">
+            Paste a GitHub URL or <code>owner/repo</code>. The latest release's
+            <code>.zip</code> asset will be downloaded and installed as a board.
+          </div>
+          <v-text-field
+            v-model="repoSpec"
+            density="compact" variant="outlined" hide-details
+            placeholder="https://github.com/owner/lotus-my-board   or   owner/lotus-my-board"
+            class="mt-3"
+            @keydown.enter="installFromGithub"
+          />
+          <div class="row-actions mt-2">
+            <v-spacer />
+            <v-btn
+              size="small" variant="tonal" color="primary"
+              :loading="store.busy"
+              prepend-icon="mdi-github"
+              @click="installFromGithub"
+            >
+              Install latest release
+            </v-btn>
+          </div>
+          <v-alert type="info" density="compact" variant="tonal" class="mt-3">
+            The board package zip must contain <code>config.js</code> at the
+            root (KBIDE-format). It will be installed under the repo name as the
+            board id.
+          </v-alert>
+        </div>
+
         <!-- SETTINGS -->
         <div v-else-if="tab === 'settings'" class="settings-pane">
           <div class="row-title">Catalog URL</div>
@@ -119,6 +152,13 @@ const store = useBoardManagerStore()
 const tab = ref('installed')
 const downloading = ref(null)
 const catalogUrlInput = ref(store.catalogUrl)
+const repoSpec = ref('')
+
+async function installFromGithub() {
+  if (!repoSpec.value.trim()) return
+  const res = await store.installFromGithubRepo(repoSpec.value.trim())
+  if (res?.ok) repoSpec.value = ''
+}
 
 watch(() => appStore.showBoardManager, (v) => {
   if (v) {

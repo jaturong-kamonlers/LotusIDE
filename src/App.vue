@@ -20,6 +20,7 @@
       <PluginManager v-if="appStore.showPluginManager" />
       <BoardManager v-if="appStore.showBoardManager" />
       <GitHubManager v-if="appStore.showGithubManager" />
+      <UpdaterPanel v-if="appStore.showUpdater" />
     </template>
   </v-app>
 </template>
@@ -29,6 +30,7 @@ import { ref, onMounted } from 'vue'
 import { useAppStore } from './stores/app'
 import { useSerialStore } from './stores/serial'
 import { usePluginStore } from './stores/plugins'
+import { useUpdaterStore } from './stores/updater'
 import SplashScreen from './components/SplashScreen.vue'
 import TitleBar from './components/TitleBar.vue'
 import MenuBar from './components/MenuBar.vue'
@@ -41,15 +43,19 @@ import BoardSelector from './components/BoardSelector.vue'
 import PluginManager from './components/PluginManager.vue'
 import BoardManager from './components/BoardManager.vue'
 import GitHubManager from './components/GitHubManager.vue'
+import UpdaterPanel from './components/UpdaterPanel.vue'
 
 const appStore = useAppStore()
 const serialStore = useSerialStore()
 const pluginStore = usePluginStore()
+const updaterStore = useUpdaterStore()
 const showSplash = ref(true)
 
 onMounted(() => {
   appStore.loadBoards()
   pluginStore.refresh()
+  updaterStore.setupListener()
+  updaterStore.refresh()
   if (window.lotusAPI) {
     window.lotusAPI.serial.onData((line) => serialStore.addLine(line))
     window.lotusAPI.serial.onStatus((status) => {

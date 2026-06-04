@@ -67,6 +67,8 @@ app.whenReady().then(() => {
   require('./ipc/window')(mainWindow)
   require('./ipc/plugins')
   require('./ipc/github')
+  require('./ipc/updater')
+  require('./ipc/marketplace')
 
   // Open URL in the user's default browser. Only allow http(s) so a malicious
   // renderer call can't launch arbitrary `file:` / shell handlers.

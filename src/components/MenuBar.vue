@@ -166,6 +166,8 @@ const menus = [
   {
     label: 'Help',
     items: [
+      { label: 'Check for Updates...', icon: 'mdi-cloud-download-outline', action: () => appStore.showUpdater = true },
+      '---',
       { label: 'About Lotus IDE', icon: 'mdi-information-outline', action: showAbout },
       { label: 'Website', icon: 'mdi-web', action: () => appStore.log('www.lotus-arduibot.com', 'info') },
       '---',

@@ -68,6 +68,23 @@ contextBridge.exposeInMainWorld('lotusAPI', {
     install: (name) => ipcRenderer.invoke('drivers:install', name),
   },
 
+  // Marketplace (catalogs + GitHub repo install — shared by plugins + boards)
+  marketplace: {
+    fetchCatalog:          (url)      => ipcRenderer.invoke('marketplace:fetchCatalog', url),
+    resolveGithubRelease:  (repoSpec) => ipcRenderer.invoke('marketplace:resolveGithubRelease', repoSpec),
+    downloadZip:           (url)      => ipcRenderer.invoke('marketplace:downloadZip', url),
+  },
+
+  // Auto-update (electron-updater + GitHub Releases)
+  updater: {
+    state:    ()  => ipcRenderer.invoke('updater:state'),
+    check:    ()  => ipcRenderer.invoke('updater:check'),
+    download: ()  => ipcRenderer.invoke('updater:download'),
+    install:  ()  => ipcRenderer.invoke('updater:install'),
+    onState:  (cb) => ipcRenderer.on('updater:state', (_e, state) => cb(state)),
+    removeStateListener: () => ipcRenderer.removeAllListeners('updater:state'),
+  },
+
   // GitHub integration (OAuth Device Flow + Gist sync)
   github: {
     status:                ()         => ipcRenderer.invoke('github:status'),
