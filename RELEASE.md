@@ -4,6 +4,27 @@ LotusIDE uses `electron-updater` against GitHub Releases. Users get an
 in-app "Update available" notification within seconds of launching, and a
 one-click "Restart and install" button replaces the running binary in place.
 
+## Build output location
+
+`package.json` → `build.directories.output` is the relative path
+`dist-electron`. On a fresh clone this creates `C:\LotusIDE\dist-electron`
+(or `~/LotusIDE/dist-electron`).
+
+If your `C:` drive is short on space (the installer + intermediate
+artifacts can hit 5+ GB), use a **junction** to redirect the output to
+another drive:
+
+```powershell
+# One-time, before the first build, from C:\LotusIDE
+mkdir 'E:\LotusIDE-build\dist-electron' -Force | Out-Null
+cmd /c mklink /J 'C:\LotusIDE\dist-electron' 'E:\LotusIDE-build\dist-electron'
+```
+
+The junction is transparent — `npm run build` writes to `dist-electron`,
+which physically lands on the E: drive.
+
+CI runners do not need this; they have plenty of workspace disk.
+
 ## Prerequisites (one-time)
 
 1. **Personal Access Token with `repo` scope** for the `LotusIDE` repository.

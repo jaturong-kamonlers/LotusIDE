@@ -50,7 +50,7 @@
       "repo": "LotusIDE"
     },
     "directories": {
-      "output": "E:/LotusIDE-build/dist-electron"
+      "output": "dist-electron"
     },
     "files": [
       "dist/**/*",
