@@ -31,9 +31,11 @@ jobs:
       # same-repo release uploads.
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # Where setup-resources.ps1 fetches the bundled avr-gcc from. Pinned
-      # to the tools-v1 release asset on this same repo so there is no
-      # third-party dependency.
-      LOTUS_AVR_TOOLCHAIN_URL: https://github.com/jaturong-kamonlers/LotusIDE/releases/download/tools-v1/avr-toolchain.zip
+      # to the tools-v1 release asset on this same repo. We use the API URL
+      # (releases/assets/<id>) instead of browser_download_url so the same
+      # token-auth flow works whether the repo is public or private.
+      LOTUS_AVR_TOOLCHAIN_URL: https://api.github.com/repos/jaturong-kamonlers/LotusIDE/releases/assets/438239994
+      LOTUS_AVR_TOOLCHAIN_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout source

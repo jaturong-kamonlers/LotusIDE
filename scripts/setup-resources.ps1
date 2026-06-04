@@ -123,7 +123,17 @@ elseif ($AvrToolchainZip) {
 elseif ($AvrToolchainUrl) {
   $tmp = Join-Path $env:TEMP "avr-toolchain-$(Get-Random).zip"
   Write-Action "downloading $AvrToolchainUrl"
-  Invoke-WebRequest -Uri $AvrToolchainUrl -OutFile $tmp -UseBasicParsing
+  # Private-repo release assets return 404 unless the request carries an
+  # auth token; LOTUS_AVR_TOOLCHAIN_TOKEN (or a generic GH_TOKEN) lets us
+  # use the same URL on private + public repos with consistent behavior.
+  $dlHeaders = @{}
+  $authToken = if ($env:LOTUS_AVR_TOOLCHAIN_TOKEN) { $env:LOTUS_AVR_TOOLCHAIN_TOKEN } elseif ($env:GH_TOKEN) { $env:GH_TOKEN } else { $null }
+  if ($authToken) {
+    $dlHeaders['Authorization'] = "token $authToken"
+    $dlHeaders['Accept']        = 'application/octet-stream'
+    Write-Action "using auth token from env"
+  }
+  Invoke-WebRequest -Uri $AvrToolchainUrl -OutFile $tmp -Headers $dlHeaders -UseBasicParsing
   Write-Action "extracting to $ResourcesRoot"
   Expand-Archive -Path $tmp -DestinationPath $ResourcesRoot -Force
   Remove-Item $tmp -ErrorAction SilentlyContinue

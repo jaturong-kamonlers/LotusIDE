@@ -124,7 +124,18 @@ elif [[ -n "$AVR_TOOLCHAIN_ZIP" ]]; then
 elif [[ -n "$AVR_TOOLCHAIN_URL" ]]; then
   tmp="$(mktemp -t avr-toolchain.XXXXXX.zip)"
   yellow "downloading $AVR_TOOLCHAIN_URL"
-  curl -fsSL -o "$tmp" "$AVR_TOOLCHAIN_URL"
+  # Private-repo release assets need auth — LOTUS_AVR_TOOLCHAIN_TOKEN
+  # (or generic GH_TOKEN) gets added as a Bearer header when present.
+  auth_token="${LOTUS_AVR_TOOLCHAIN_TOKEN:-${GH_TOKEN:-}}"
+  if [[ -n "$auth_token" ]]; then
+    yellow "using auth token from env"
+    curl -fsSL -o "$tmp" \
+      -H "Authorization: token $auth_token" \
+      -H "Accept: application/octet-stream" \
+      "$AVR_TOOLCHAIN_URL"
+  else
+    curl -fsSL -o "$tmp" "$AVR_TOOLCHAIN_URL"
+  fi
   yellow "extracting to $RESOURCES_ROOT"
   unzip -q -o "$tmp" -d "$RESOURCES_ROOT"
   rm -f "$tmp"
