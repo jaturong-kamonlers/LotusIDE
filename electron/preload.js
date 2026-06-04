@@ -1,6 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('lotusAPI', {
+  // Runtime info (renderer uses this to gate platform-specific UI)
+  platform: process.platform,
+
   // Window controls
   window: {
     minimize: () => ipcRenderer.invoke('window:minimize'),

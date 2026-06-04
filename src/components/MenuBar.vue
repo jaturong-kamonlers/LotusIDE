@@ -144,16 +144,21 @@ const menus = [
       { label: 'Serial Plotter', icon: 'mdi-chart-line', shortcut: 'Ctrl+Shift+L', action: () => { appStore.showSerial = true; serialStore.showPlotter = true } },
       '---',
       { label: 'Select Board...', icon: 'mdi-cpu-64-bit', action: () => appStore.showBoardSelector = true },
-      '---',
-      {
-        label: 'Install USB Drivers', icon: 'mdi-usb-port',
-        submenu: [
-          { label: 'CP210x (ESP32 DevKit)', icon: 'mdi-chip', action: () => installDriver('cp210x') },
-          { label: 'CH340 / CH341 (Nano/clones)', icon: 'mdi-chip', action: () => installDriver('ch340') },
-          '---',
-          { label: 'Open Drivers Folder', icon: 'mdi-folder-open-outline', action: () => installDriver('open-folder') },
-        ],
-      },
+      // USB-to-serial driver installers are Windows-only — on Linux the
+      // ch341 / cp210x kernel modules are in-tree, on macOS they ship via
+      // the system driver. Hide the submenu off-Windows to avoid dead UI.
+      ...(window.lotusAPI?.platform === 'win32' ? [
+        '---',
+        {
+          label: 'Install USB Drivers', icon: 'mdi-usb-port',
+          submenu: [
+            { label: 'CP210x (ESP32 DevKit)', icon: 'mdi-chip', action: () => installDriver('cp210x') },
+            { label: 'CH340 / CH341 (Nano/clones)', icon: 'mdi-chip', action: () => installDriver('ch340') },
+            '---',
+            { label: 'Open Drivers Folder', icon: 'mdi-folder-open-outline', action: () => installDriver('open-folder') },
+          ],
+        },
+      ] : []),
     ],
   },
   {
