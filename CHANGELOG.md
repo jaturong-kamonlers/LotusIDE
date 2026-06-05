@@ -6,50 +6,25 @@ uses [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
-### Changed
+## [1.3.0] — 2026-06-05
 
-- **Installer is ~4× smaller** (~200 MB vs ~780 MB). ESP32 core is no longer
-  bundled — it lazy-installs to userData on the first ESP32 compile, or
-  ahead of time via `Lotus → Manage Boards → Cores → Download`. AVR and
-  SAM are still bundled so Uno/Nano/Mega/Due/Lotus AVR boards work
-  immediately after install with no network.
-- `electron/ipc/arduino.js` — `ARDUINO_DIRECTORIES_DATA` moved from
-  `<install>/resources/arduino-cli/data` (read-only in `C:\Program Files`)
-  to `<userData>/arduino-cli/data`. On first launch we seed it from the
-  bundled AVR+SAM copy so existing users see no behaviour change beyond
-  a one-time ~150 MB copy.
-- `package.json` `build.nsis.differentialPackage` now `true` — future
-  auto-updates download only the delta (typically 30–100 MB) instead of
-  the full installer.
-- `scripts/setup-resources.ps1` — new `-WithEsp32` flag to opt into the
-  old "full" bundle. CI uses the default lean build.
+Community/sharing trio, library manager, and a much smaller installer.
+
+(v1.2.0 was drafted internally then superseded by this release before any
+public installer was published; the v1.2.0 git tag was retired to avoid
+implying a release that never reached users.)
 
 ### Added
 
-- **Manage Libraries** (Sketch → Include Library → Manage Libraries…) — the
-  last "coming soon" item in the Lotus menu is now wired up. Backed by
-  `arduino-cli lib`, so the install set is the full Arduino Library Index
-  (10000+ libs). Tabs: Installed (list/uninstall), Search (the Arduino
-  index), From Git/Zip (clones or unzips into the user lib dir), and
-  Settings (update-index + show install path). Libraries land at
-  `<userData>/arduino-cli/user/libraries/` — the same dir arduino-cli uses
-  when compiling, so installs are picked up automatically without
+- **Manage Libraries** (Sketch → Include Library → Manage Libraries…) —
+  the last "coming soon" item in the Lotus menu is now wired up. Backed
+  by `arduino-cli lib`, so the install set is the full Arduino Library
+  Index (10 000+ libs). Tabs: Installed (list/uninstall), Search (the
+  Arduino index), From Git/Zip (clones or unzips into the user lib
+  dir), and Settings (update-index + show install path). Libraries land
+  at `<userData>/arduino-cli/user/libraries/` — the same dir arduino-cli
+  uses when compiling, so installs are picked up automatically without
   re-plumbing the build path.
-- **Core download dialog** — `CoreDownloadDialog.vue` shows a real progress
-  modal when arduino-cli installs a new core (instead of just streaming
-  lines into the console panel). Triggered both by the first ESP32
-  compile and by the explicit Pre-download button in Manage Boards.
-- **Cores tab in Manage Boards** — list AVR/SAM/ESP32 with their install
-  status + a Download button. Lets teachers preload ESP32 before class.
-- IPC: `arduino:coreList`, `arduino:installCore`, broadcast event
-  `arduino:coreStatus` (`start` / `done` / `error`).
-
-## [1.2.0] — 2026-06-05
-
-Community, sharing, and CI release pipeline.
-
-### Added
-
 - **Full GitHub repo sync** in the GitHub Manager. Pick a repo, browse
   folders with a breadcrumb, load any `.json` workspace, commit the
   current sketch with a custom path + message, and inspect per-file
@@ -75,9 +50,33 @@ Community, sharing, and CI release pipeline.
   runner, then uploads it as a draft GitHub Release with `latest.yml`
   for auto-update. Auth-aware downloader handles private-repo release
   assets. See `CI.md` for the end-to-end browser workflow.
+- **Core download dialog** — `CoreDownloadDialog.vue` shows a real
+  progress modal when arduino-cli installs a new core (instead of just
+  streaming lines into the console panel). Triggered both by the first
+  ESP32 compile and by the explicit Pre-download button in Manage
+  Boards.
+- **Cores tab in Manage Boards** — list AVR/SAM/ESP32 with their install
+  status + a Download button. Lets teachers preload ESP32 before class.
+- IPC: `arduino:coreList`, `arduino:installCore`, broadcast event
+  `arduino:coreStatus` (`start` / `done` / `error`).
 
 ### Changed
 
+- **Installer is ~4× smaller** (~200 MB vs ~780 MB). ESP32 core is no
+  longer bundled — it lazy-installs to userData on the first ESP32
+  compile, or ahead of time via `Lotus → Manage Boards → Cores →
+  Download`. AVR and SAM are still bundled so Uno/Nano/Mega/Due/Lotus
+  AVR boards work immediately after install with no network.
+- `electron/ipc/arduino.js` — `ARDUINO_DIRECTORIES_DATA` moved from
+  `<install>/resources/arduino-cli/data` (read-only in `C:\Program
+  Files`) to `<userData>/arduino-cli/data`. On first launch we seed it
+  from the bundled AVR+SAM copy so existing users see no behaviour
+  change beyond a one-time ~150 MB copy.
+- `package.json` `build.nsis.differentialPackage` now `true` — future
+  auto-updates download only the delta (typically 30–100 MB) instead of
+  the full installer.
+- `scripts/setup-resources.ps1` — new `-WithEsp32` flag to opt into the
+  old "full" bundle. CI uses the default lean build.
 - `electron/ipc/github.js` `ghRequest` now exposes response headers so
   status can read `x-oauth-scopes`.
 - `electron/ipc/marketplace.js` adds `fetchUrl` — generic HTTPS text
