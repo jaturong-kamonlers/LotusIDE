@@ -6,6 +6,10 @@ uses [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-06-05
+
+Community, sharing, and CI release pipeline.
+
 ### Added
 
 - **Full GitHub repo sync** in the GitHub Manager. Pick a repo, browse
@@ -28,6 +32,11 @@ uses [semantic versioning](https://semver.org/).
 - **Report Bug** (Help → Report Bug…) — opens GitHub Issues in a
   browser with a pre-filled template that includes OS, board, and the
   last 10 console log lines.
+- **GitHub Actions release pipeline** (`.github/workflows/release.yml`)
+  — push a `v*` tag and CI builds the NSIS installer on a Windows
+  runner, then uploads it as a draft GitHub Release with `latest.yml`
+  for auto-update. Auth-aware downloader handles private-repo release
+  assets. See `CI.md` for the end-to-end browser workflow.
 
 ### Changed
 
@@ -35,6 +44,11 @@ uses [semantic versioning](https://semver.org/).
   status can read `x-oauth-scopes`.
 - `electron/ipc/marketplace.js` adds `fetchUrl` — generic HTTPS text
   fetcher used by Import-from-URL.
+- `package.json` `build.directories.output` is now relative
+  (`dist-electron`) instead of an absolute `E:/…` path, so CI runners
+  and fresh clones build without manual config. Local devs who want
+  builds off the system drive can `mklink /J dist-electron E:\…` per
+  `RELEASE.md`.
 
 ## [1.1.0] — 2026-06-04
 
