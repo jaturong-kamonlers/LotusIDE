@@ -8,8 +8,10 @@
 #
 # What it does:
 #   1. Download arduino-cli (Windows x64) → resources/arduino-cli/
-#   2. Install esp32, arduino-avr, arduino-sam cores via arduino-cli
-#      (lands under resources/arduino-cli/data/packages/, ~8.3 GB total)
+#   2. Install arduino:avr + arduino:sam cores via arduino-cli (lands under
+#      resources/arduino-cli/data/packages/, ~250 MB on disk). Pass -WithEsp32
+#      to also bundle esp32:esp32 (~5 GB more). Default: ESP32 NOT bundled —
+#      it lazy-installs at runtime so the installer stays ~200 MB.
 #   3. Restore resources/avr-toolchain/ (188 MB bundled avr-gcc + avrdude)
 #      from EITHER a URL you supply OR a local backup folder.
 #
@@ -24,6 +26,12 @@
 # Flags:
 #   -SkipArduinoCli      don't download arduino-cli (assume it's already there)
 #   -SkipCores           don't install platforms (long step — skip if already done)
+#   -WithEsp32           ALSO bundle the ESP32 core (~5 GB on disk, ~600 MB in
+#                        installer). Default behavior since v1.3 is to leave
+#                        ESP32 out — it lazy-installs to userData at first ESP32
+#                        compile (or via Lotus → Manage Boards → Pre-download
+#                        Cores). Keeps the installer at ~200 MB instead of
+#                        ~780 MB and trims CI build time roughly in half.
 #   -AvrToolchainUrl X   override LOTUS_AVR_TOOLCHAIN_URL env var
 #   -AvrToolchainZip X   path to a local zip to expand (no download)
 
@@ -31,6 +39,7 @@
 param(
   [switch]$SkipArduinoCli,
   [switch]$SkipCores,
+  [switch]$WithEsp32,
   [string]$AvrToolchainUrl = $env:LOTUS_AVR_TOOLCHAIN_URL,
   [string]$AvrToolchainZip
 )
@@ -73,13 +82,17 @@ else {
   Write-Success "arduino-cli installed"
 }
 
-# ─── Step 2: install cores ────────────────────────────────────────────────────
-Write-Step "Step 2/3: install cores (esp32, arduino:avr, arduino:sam)"
+# ─── Step 2: install bundled cores ────────────────────────────────────────────
+$coreLabel = if ($WithEsp32) { 'arduino:avr, arduino:sam, esp32:esp32' } else { 'arduino:avr, arduino:sam' }
+Write-Step "Step 2/3: install cores ($coreLabel)"
 
 if ($SkipCores) { Write-Skip "skipped via -SkipCores" }
 elseif (-not (Test-Path $ArduinoCliExe)) { Write-Skip "arduino-cli not present — re-run without -SkipArduinoCli" }
 else {
-  # Match the env that electron/ipc/arduino.js sets in production.
+  # Match the env that electron/ipc/arduino.js sets in production. NOTE: in
+  # production, arduino.js points DATA at <userData>/arduino-cli/data and
+  # seeds it from the bundled resources/arduino-cli/data on first launch —
+  # so installing cores here writes to the bundle that becomes the seed.
   $env:ARDUINO_DIRECTORIES_DATA      = Join-Path $ArduinoCliRoot 'data'
   $env:ARDUINO_DIRECTORIES_DOWNLOADS = Join-Path $ArduinoCliRoot 'staging'
   $env:ARDUINO_DIRECTORIES_USER      = Join-Path $ArduinoCliRoot 'user'
@@ -88,9 +101,11 @@ else {
   Write-Action "config init"
   & $ArduinoCliExe config init --overwrite | Out-Null
 
-  Write-Action "register ESP32 board manager URL"
-  & $ArduinoCliExe config add board_manager.additional_urls `
-    'https://espressif.github.io/arduino-esp32/package_esp32_index.json' 2>$null
+  if ($WithEsp32) {
+    Write-Action "register ESP32 board manager URL"
+    & $ArduinoCliExe config add board_manager.additional_urls `
+      'https://espressif.github.io/arduino-esp32/package_esp32_index.json' 2>$null
+  }
 
   Write-Action "core update-index (downloads ~5 MB of indexes)"
   & $ArduinoCliExe core update-index
@@ -98,8 +113,12 @@ else {
   $cores = @(
     @{ Name = 'arduino:avr'; ApproxMB = 50 }
     @{ Name = 'arduino:sam'; ApproxMB = 50 }
-    @{ Name = 'esp32:esp32'; ApproxMB = 5800 }
   )
+  if ($WithEsp32) {
+    $cores += @{ Name = 'esp32:esp32'; ApproxMB = 5800 }
+  } else {
+    Write-Skip "esp32:esp32 will be lazy-installed at first ESP32 compile (saves ~600 MB in installer)"
+  }
   foreach ($c in $cores) {
     Write-Action "installing $($c.Name) (~$($c.ApproxMB) MB)"
     & $ArduinoCliExe core install $c.Name
@@ -168,8 +187,9 @@ else {
 Write-Host ""
 Write-Host "Summary:" -ForegroundColor Cyan
 Write-Host "  arduino-cli.exe : $(if (Test-Path $ArduinoCliExe) { 'OK' } else { 'MISSING' })"
-Write-Host "  esp32 core      : $(if (Test-Path (Join-Path $ArduinoCliRoot 'data\packages\esp32'))   { 'OK' } else { 'MISSING' })"
 Write-Host "  arduino:avr     : $(if (Test-Path (Join-Path $ArduinoCliRoot 'data\packages\arduino')) { 'OK' } else { 'MISSING' })"
+$esp32Status = if (Test-Path (Join-Path $ArduinoCliRoot 'data\packages\esp32')) { 'OK (bundled)' } else { 'NOT BUNDLED (lazy-install at runtime)' }
+Write-Host "  esp32 core      : $esp32Status"
 Write-Host "  avr-toolchain   : $(if (Test-Path $AvrGccExe) { 'OK' } else { 'MISSING — see step 3 above' })"
 Write-Host ""
 Write-Host "Next: npm run dev" -ForegroundColor Green

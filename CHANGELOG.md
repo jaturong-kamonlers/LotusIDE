@@ -6,6 +6,24 @@ uses [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Installer is ~4× smaller** (~200 MB vs ~780 MB). ESP32 core is no longer
+  bundled — it lazy-installs to userData on the first ESP32 compile, or
+  ahead of time via `Lotus → Manage Boards → Cores → Download`. AVR and
+  SAM are still bundled so Uno/Nano/Mega/Due/Lotus AVR boards work
+  immediately after install with no network.
+- `electron/ipc/arduino.js` — `ARDUINO_DIRECTORIES_DATA` moved from
+  `<install>/resources/arduino-cli/data` (read-only in `C:\Program Files`)
+  to `<userData>/arduino-cli/data`. On first launch we seed it from the
+  bundled AVR+SAM copy so existing users see no behaviour change beyond
+  a one-time ~150 MB copy.
+- `package.json` `build.nsis.differentialPackage` now `true` — future
+  auto-updates download only the delta (typically 30–100 MB) instead of
+  the full installer.
+- `scripts/setup-resources.ps1` — new `-WithEsp32` flag to opt into the
+  old "full" bundle. CI uses the default lean build.
+
 ### Added
 
 - **Manage Libraries** (Sketch → Include Library → Manage Libraries…) — the
@@ -17,6 +35,14 @@ uses [semantic versioning](https://semver.org/).
   `<userData>/arduino-cli/user/libraries/` — the same dir arduino-cli uses
   when compiling, so installs are picked up automatically without
   re-plumbing the build path.
+- **Core download dialog** — `CoreDownloadDialog.vue` shows a real progress
+  modal when arduino-cli installs a new core (instead of just streaming
+  lines into the console panel). Triggered both by the first ESP32
+  compile and by the explicit Pre-download button in Manage Boards.
+- **Cores tab in Manage Boards** — list AVR/SAM/ESP32 with their install
+  status + a Download button. Lets teachers preload ESP32 before class.
+- IPC: `arduino:coreList`, `arduino:installCore`, broadcast event
+  `arduino:coreStatus` (`start` / `done` / `error`).
 
 ## [1.2.0] — 2026-06-05
 

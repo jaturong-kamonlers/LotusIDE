@@ -32,8 +32,12 @@ contextBridge.exposeInMainWorld('lotusAPI', {
     upload: (opts) => ipcRenderer.invoke('arduino:upload', opts),
     installPlatform: (platform) => ipcRenderer.invoke('arduino:installPlatform', platform),
     listPlatforms: () => ipcRenderer.invoke('arduino:listPlatforms'),
+    coreList: () => ipcRenderer.invoke('arduino:coreList'),
+    installCore: (pkg) => ipcRenderer.invoke('arduino:installCore', pkg),
     onProgress: (callback) => ipcRenderer.on('arduino:progress', (_, msg) => callback(msg)),
     removeProgressListener: () => ipcRenderer.removeAllListeners('arduino:progress'),
+    onCoreStatus: (callback) => ipcRenderer.on('arduino:coreStatus', (_, payload) => callback(payload)),
+    removeCoreStatusListener: () => ipcRenderer.removeAllListeners('arduino:coreStatus'),
   },
 
   // Board block definitions from KBIDE

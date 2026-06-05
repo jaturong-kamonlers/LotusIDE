@@ -23,6 +23,7 @@
       <GitHubManager v-if="appStore.showGithubManager" />
       <UpdaterPanel v-if="appStore.showUpdater" />
       <ImportUrlDialog v-if="appStore.showImportUrl" />
+      <CoreDownloadDialog />
     </template>
   </v-app>
 </template>
@@ -48,6 +49,7 @@ import LibraryManager from './components/LibraryManager.vue'
 import GitHubManager from './components/GitHubManager.vue'
 import UpdaterPanel from './components/UpdaterPanel.vue'
 import ImportUrlDialog from './components/ImportUrlDialog.vue'
+import CoreDownloadDialog from './components/CoreDownloadDialog.vue'
 
 const appStore = useAppStore()
 const serialStore = useSerialStore()

@@ -12,6 +12,7 @@
         <v-tab value="installed">Installed</v-tab>
         <v-tab value="catalog">Available</v-tab>
         <v-tab value="github">From GitHub</v-tab>
+        <v-tab value="cores">Cores</v-tab>
         <v-tab value="settings">Settings</v-tab>
       </v-tabs>
 
@@ -123,6 +124,55 @@
           </v-alert>
         </div>
 
+        <!-- CORES (Arduino platform cores, e.g. ESP32) -->
+        <div v-else-if="tab === 'cores'">
+          <div class="row-title">Arduino cores</div>
+          <div class="row-desc">
+            Cores are the compiler toolchains for each board family. AVR and
+            SAM ship with LotusIDE. ESP32 is downloaded on demand to keep the
+            installer small — install it here ahead of time if you're prepping
+            a classroom or know you'll be offline.
+          </div>
+
+          <div v-if="cores.length === 0" class="empty">
+            <v-icon size="48" color="grey-lighten-1">mdi-chip</v-icon>
+            <div class="empty-text">Loading core list…</div>
+          </div>
+
+          <div v-else class="row-list mt-3">
+            <div v-for="c in cores" :key="c.pkg" class="board-row">
+              <v-icon size="28">mdi-chip</v-icon>
+              <div class="row-meta">
+                <div class="row-title">
+                  {{ c.label }}
+                  <span class="row-ver">{{ c.pkg }}</span>
+                </div>
+                <div class="row-desc">
+                  Download ~{{ c.downloadMb }} MB · on disk ~{{ c.diskMb }} MB
+                </div>
+              </div>
+              <v-chip v-if="c.installed" size="small" color="success" variant="tonal">
+                <v-icon start size="14">mdi-check</v-icon>
+                Installed
+              </v-chip>
+              <v-btn
+                v-else
+                size="small" variant="tonal" color="primary"
+                :loading="installingCore === c.pkg"
+                prepend-icon="mdi-cloud-download-outline"
+                @click="installCore(c)"
+              >
+                Download
+              </v-btn>
+            </div>
+          </div>
+
+          <v-alert type="info" density="compact" variant="tonal" class="mt-4">
+            ESP32 takes ~20–25 min on a typical home connection. The progress
+            dialog will show live arduino-cli output.
+          </v-alert>
+        </div>
+
         <!-- SETTINGS -->
         <div v-else-if="tab === 'settings'" class="settings-pane">
           <div class="row-title">Catalog URL</div>
@@ -153,6 +203,27 @@ const tab = ref('installed')
 const downloading = ref(null)
 const catalogUrlInput = ref(store.catalogUrl)
 const repoSpec = ref('')
+const cores = ref([])
+const installingCore = ref(null)
+
+async function refreshCores() {
+  if (!window.lotusAPI?.arduino?.coreList) return
+  cores.value = await window.lotusAPI.arduino.coreList()
+}
+
+async function installCore(c) {
+  installingCore.value = c.pkg
+  try {
+    const res = await window.lotusAPI.arduino.installCore(c.pkg)
+    if (res?.ok) appStore.log(`Core ${c.pkg} ready`, 'success')
+    else        appStore.log(`Core install failed: ${res?.error || 'unknown'}`, 'error')
+  } catch (e) {
+    appStore.log(`Core install failed: ${e.message}`, 'error')
+  } finally {
+    installingCore.value = null
+    await refreshCores()
+  }
+}
 
 async function installFromGithub() {
   if (!repoSpec.value.trim()) return
@@ -163,8 +234,13 @@ async function installFromGithub() {
 watch(() => appStore.showBoardManager, (v) => {
   if (v) {
     store.refresh()
+    refreshCores()
     catalogUrlInput.value = store.catalogUrl
   }
+})
+
+watch(tab, (v) => {
+  if (v === 'cores') refreshCores()
 })
 
 async function installFromFile() {

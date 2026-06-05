@@ -24,22 +24,59 @@ const AVR_OBJCOPY  = path.join(AVR_TOOLS, `avr-objcopy${EXE}`)
 const AVR_DUDE     = path.join(AVR_TOOLS, `avrdude${EXE}`)
 const AVR_DUDE_CONF = path.join(AVR_DIR, 'tools', 'etc', 'avrdude.conf')
 
-// arduino-cli for ESP32 / SAM boards. We keep its data, downloads, and user
-// directories inside resources/arduino-cli/ so LotusIDE is self-contained:
-// installed cores live alongside the binary instead of in %LOCALAPPDATA%\Arduino15.
+// arduino-cli binary lives at the install path (read-only in Program Files —
+// fine, arduino-cli only reads the .exe). Working dirs (data + downloads +
+// user + cache) MUST be writable for `core install` / `lib install` to work
+// at runtime, so they live under userData.
 const ARDUINO_CLI_DIR        = path.join(LOTUS_ROOT, 'resources', 'arduino-cli')
 const ARDUINO_CLI            = path.join(ARDUINO_CLI_DIR, `arduino-cli${EXE}`)
-// DATA stays at the install path so the bundled esp32 core (~6 GB) is found
-// without copying. arduino-cli treats it read-only — fine in C:\Program Files.
-const ARDUINO_CLI_DATA       = path.join(ARDUINO_CLI_DIR, 'data')
 
 // Writable dirs live under userData (%APPDATA%\Lotus IDE\ in production, the
 // project dir in dev). Putting them under the install path causes EPERM in
 // C:\Program Files where regular users can't write.
 const USER_WRITABLE_BASE     = app && app.isReady() ? app.getPath('userData') : path.join(ARDUINO_CLI_DIR)
+const ARDUINO_CLI_DATA       = path.join(USER_WRITABLE_BASE, 'arduino-cli', 'data')
 const ARDUINO_CLI_DOWNLOADS  = path.join(USER_WRITABLE_BASE, 'arduino-cli', 'staging')
 const ARDUINO_CLI_USER       = path.join(USER_WRITABLE_BASE, 'arduino-cli', 'user')
 const ARDUINO_CLI_CACHE      = path.join(USER_WRITABLE_BASE, 'arduino-cli', 'cache')
+
+// Bundled cores (currently AVR + SAM) ship inside the installer at
+// <install>/resources/arduino-cli-bundled/data/. On first launch we seed
+// userData with these so users can compile AVR/SAM sketches immediately
+// without any download. ESP32 is NOT bundled — it lazy-installs via
+// `ensureCoreInstalled()` on first ESP32 compile (or a Manage Boards
+// pre-download), saving ~600 MB compressed in the installer.
+const BUNDLED_DATA_DIR       = path.join(ARDUINO_CLI_DIR, 'data')
+
+// Seed userData's arduino-cli data dir from the bundled installer copy if
+// userData has no packages yet. Idempotent — no-op once seeded. Runs at
+// require time which is after app.whenReady() (arduino.js is required from
+// main.js's whenReady block).
+function seedArduinoCliData() {
+  try {
+    if (!fs.existsSync(BUNDLED_DATA_DIR)) return
+    const userPkgs = path.join(ARDUINO_CLI_DATA, 'packages')
+    const bundledPkgs = path.join(BUNDLED_DATA_DIR, 'packages')
+    if (!fs.existsSync(bundledPkgs)) return
+    if (fs.existsSync(userPkgs) && fs.readdirSync(userPkgs).length > 0) return
+    fs.mkdirSync(ARDUINO_CLI_DATA, { recursive: true })
+    copyRecursiveSync(BUNDLED_DATA_DIR, ARDUINO_CLI_DATA)
+  } catch (e) {
+    console.warn('[arduino] seed failed:', e.message)
+  }
+}
+function copyRecursiveSync(src, dest) {
+  const stat = fs.statSync(src)
+  if (stat.isDirectory()) {
+    fs.mkdirSync(dest, { recursive: true })
+    for (const entry of fs.readdirSync(src)) {
+      copyRecursiveSync(path.join(src, entry), path.join(dest, entry))
+    }
+  } else {
+    fs.copyFileSync(src, dest)
+  }
+}
+seedArduinoCliData()
 
 // Env block applied to every arduino-cli invocation. arduino-cli reads these
 // before falling back to its default %LOCALAPPDATA%\Arduino15 location.
@@ -109,17 +146,48 @@ async function ensureSketchLibraries(sourceCode) {
 
 // Ensure the platform required by `fqbn` is installed in our local data dir.
 // Returns when the install is finished (or already present).
-function ensureCoreInstalled(fqbn) {
-  const pkg = fqbnToPackage(fqbn)
-  if (!pkg) return Promise.resolve()
-  const platformDir = path.join(ARDUINO_CLI_DATA, 'packages', pkg.split(':')[0], 'hardware', pkg.split(':')[1])
-  if (fs.existsSync(platformDir) && fs.readdirSync(platformDir).length > 0) {
-    return Promise.resolve()
-  }
-  sendProgress(`Installing ${pkg} core (first-time only, ~500MB)...`)
+// Approximate compressed download size of each core. Used to set expectations
+// in the core-install progress dialog. Real disk usage post-extract is
+// typically 2-3× larger; we show the download size since that's what the user
+// is waiting on.
+const CORE_SIZE_HINT = {
+  'esp32:esp32':   { mb: 600,  diskMb: 5000 },
+  'arduino:avr':   { mb: 50,   diskMb: 120  },
+  'arduino:sam':   { mb: 50,   diskMb: 150  },
+}
+
+function sendCoreStatus(payload) {
+  BrowserWindow.getAllWindows().forEach(w => w.webContents.send('arduino:coreStatus', payload))
+}
+
+// Check whether a core (e.g. "esp32:esp32") is already installed in the
+// arduino-cli data dir. Returns true when the platform's hardware dir has
+// at least one version folder.
+function isCoreInstalled(pkg) {
+  if (!pkg) return false
+  const [vendor, platform] = pkg.split(':')
+  if (!vendor || !platform) return false
+  const platformDir = path.join(ARDUINO_CLI_DATA, 'packages', vendor, 'hardware', platform)
+  try {
+    return fs.existsSync(platformDir) && fs.readdirSync(platformDir).length > 0
+  } catch { return false }
+}
+
+// Install a core, streaming output through arduino:progress and announcing
+// start/end through arduino:coreStatus so a UI dialog can show a real
+// progress modal. Idempotent — if already installed, resolves immediately
+// without emitting coreStatus events.
+function installCore(pkg) {
+  if (!pkg) return Promise.resolve({ skipped: true })
+  if (isCoreInstalled(pkg)) return Promise.resolve({ skipped: true })
+
+  const hint = CORE_SIZE_HINT[pkg] || { mb: 500, diskMb: 1500 }
+  sendCoreStatus({ state: 'start', pkg, sizeMb: hint.mb, diskMb: hint.diskMb })
+  sendProgress(`Installing ${pkg} core (~${hint.mb} MB download, ~${hint.diskMb} MB on disk) — one-time`)
+
   return new Promise((resolve, reject) => {
     const proc = execFile(ARDUINO_CLI, ['core', 'install', pkg, '--no-color'],
-      { env: ARDUINO_CLI_ENV, maxBuffer: 40 * 1024 * 1024 })
+      { env: ARDUINO_CLI_ENV, maxBuffer: 80 * 1024 * 1024 })
     let stderr = ''
     proc.stdout.on('data', d => {
       d.toString().split('\n').forEach(line => {
@@ -129,11 +197,25 @@ function ensureCoreInstalled(fqbn) {
     })
     proc.stderr.on('data', d => { stderr += d.toString() })
     proc.on('close', code => {
-      if (code === 0) resolve()
-      else reject(new Error(stderr.split('\n').filter(Boolean).slice(-5).join('\n') || `core install exit ${code}`))
+      if (code === 0) {
+        sendCoreStatus({ state: 'done', pkg })
+        resolve({ ok: true })
+      } else {
+        const err = stderr.split('\n').filter(Boolean).slice(-5).join('\n') || `core install exit ${code}`
+        sendCoreStatus({ state: 'error', pkg, error: err })
+        reject(new Error(err))
+      }
     })
-    proc.on('error', err => reject(err))
+    proc.on('error', err => {
+      sendCoreStatus({ state: 'error', pkg, error: err.message })
+      reject(err)
+    })
   })
+}
+
+function ensureCoreInstalled(fqbn) {
+  const pkg = fqbnToPackage(fqbn)
+  return installCore(pkg)
 }
 
 // Boards that use the bundled AVR toolchain (compileAVR). Anything else falls
@@ -724,6 +806,37 @@ async function tryFastPathIfEsp32(code, boardId, buildDir) {
   sendProgress(`[fast-path skipped: ${fast.reason}] falling back to arduino-cli...`)
   return false
 }
+
+// Public core-management IPC — backs the "Pre-download Cores" UI in Manage
+// Boards so users (especially teachers prepping classrooms) can install
+// ESP32 ahead of time instead of waiting at the first compile.
+ipcMain.handle('arduino:coreList', () => {
+  return Object.keys(CORE_SIZE_HINT).map(pkg => ({
+    pkg,
+    installed: isCoreInstalled(pkg),
+    downloadMb: CORE_SIZE_HINT[pkg].mb,
+    diskMb: CORE_SIZE_HINT[pkg].diskMb,
+    label: pkg === 'esp32:esp32' ? 'ESP32 (Espressif)'
+         : pkg === 'arduino:avr' ? 'Arduino AVR (Uno / Nano / Mega)'
+         : pkg === 'arduino:sam' ? 'Arduino SAM (Due)'
+         : pkg,
+  }))
+})
+
+ipcMain.handle('arduino:installCore', async (_e, pkg) => {
+  if (typeof pkg !== 'string' || !/^[a-z0-9_]+:[a-z0-9_]+$/i.test(pkg)) {
+    return { ok: false, error: 'invalid core package id' }
+  }
+  if (!CORE_SIZE_HINT[pkg]) {
+    return { ok: false, error: 'unknown core — only known cores can be installed via this handler' }
+  }
+  try {
+    const res = await installCore(pkg)
+    return res.skipped ? { ok: true, skipped: true } : { ok: true }
+  } catch (e) {
+    return { ok: false, error: e.message }
+  }
+})
 
 ipcMain.handle('arduino:compile', async (event, { code, fqbn, boardId }) => {
   const buildDir = buildDirFor(boardId)
