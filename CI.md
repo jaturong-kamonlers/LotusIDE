@@ -38,36 +38,62 @@ hit Publish.
    - Subsequent builds are similar (no caching layer yet)
 
 4. **Publish the draft**
-   - When CI is done, Releases will have the v1.2.0 draft populated with:
-     - `Lotus IDE Setup 1.2.0.exe` (~780 MB)
-     - `Lotus IDE Setup 1.2.0.exe.blockmap`
-     - `latest.yml`
+   - When CI is done, Releases will have the v1.2.0 draft populated with
+     **both SKUs** (Slim runs first, Full second — sequentially):
+     - `Lotus-IDE-Setup-1.2.0.exe` (~200 MB) + `.blockmap` + `latest.yml`
+     - `Lotus-IDE-Full-Setup-1.2.0.exe` (~1 GB) + `.blockmap` + `latest-full.yml`
    - Click into the draft → add release notes → **Publish release**
-   - Users on v1.1.0+ get an "Update available" notification on next launch
+   - Slim users on prior versions get an "Update available" notification
+     on next launch via `latest.yml`; Full users get theirs via
+     `latest-full.yml` (separate channel — no cross-SKU updates).
 
 ## What the workflow actually does
 
+The workflow runs as a **matrix** with two SKUs, executed sequentially
+(`max-parallel: 1`) so the two electron-builder invocations don't race
+to create the same draft release.
+
+### Slim SKU (default)
 ```
 checkout
   ↓
 setup-node@v4 (Node 20)
   ↓
-npm ci                                    (~2 min — uses package-lock.json)
+npm ci                                          (~2 min)
   ↓
-scripts/setup-resources.ps1               (~20 min — downloads cores + AVR)
-  ├── arduino-cli                         (50 MB)
-  ├── arduino:avr + arduino:sam cores     (500 MB)
-  ├── esp32:esp32 core                    (5+ GB)
-  └── avr-toolchain.zip from tools-v1     (52 MB)
+setup-resources.ps1                             (~3-5 min)
+  ├── arduino-cli                               (50 MB)
+  ├── arduino:avr + arduino:sam cores           (~250 MB)
+  └── avr-toolchain.zip from tools-v1           (52 MB)
   ↓
-npm run build -- --publish always         (~15 min)
-  ├── vite build                          (~10 s)
-  ├── packaging                           (~3 min)
-  ├── NSIS installer                      (~5 min)
-  └── upload .exe + latest.yml            (~5 min)
+npm run build -- --publish always               (~10 min)
+  ├── packaging                                 (~1 min)
+  ├── NSIS installer                            (~3 min)
+  └── upload Lotus-IDE-Setup + latest.yml       (~3 min)
 ```
+Slim total: **~15-20 min**.
 
-Total: 35–55 minutes per build.
+### Full SKU (offline / classroom)
+```
+checkout / setup-node / npm ci                   (~3 min)
+  ↓
+setup-resources.ps1 -WithEsp32                  (~20 min)
+  └── + esp32:esp32 core                        (5+ GB)
+  ↓
+npm run build -- --publish always               (~25 min)
+      --config.productName='Lotus IDE Full'
+      --config.appId=com.lotus-arduibot.ide.full
+      --config.win.artifactName=Lotus-IDE-Full-Setup-${version}.${ext}
+      --config.publish.channel=latest-full
+  └── upload Lotus-IDE-Full-Setup + latest-full.yml
+```
+Full total: **~45-55 min**.
+
+**Combined Slim + Full per tag: ~60-75 min.**
+
+If you only want the Slim build (e.g. for a quick fix), trigger via the
+Actions tab using workflow_dispatch — by default both SKUs build. To
+skip Full, comment out its matrix entry in `release.yml` temporarily.
 
 ## Permissions / secrets
 

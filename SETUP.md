@@ -1,4 +1,134 @@
-# LotusIDE — Multi-machine setup
+# LotusIDE — Setup guide
+
+This file has two parts:
+
+1. **End-user install** — for students and teachers who downloaded the
+   `.exe` installer. Just want to use LotusIDE? Start here.
+2. **Developer multi-machine setup** — for working on LotusIDE source
+   from more than one computer. Skip to the [Developer setup](#developer-setup--multi-machine)
+   section.
+
+---
+
+# End-user install
+
+## TL;DR
+
+Download `Lotus-IDE-Setup-<version>.exe` from the
+[Releases page](https://github.com/jaturong-kamonlers/LotusIDE/releases),
+double-click it. **Done in 2-5 minutes** for Arduino Uno / Nano / Mega /
+Due / Lotus AVR boards.
+
+ESP32 boards (Lotus DevKit) need an extra ~600 MB download the first
+time you compile for them (one-time, ~15-25 min). You can also do this
+download ahead of time from inside LotusIDE — see [ESP32 pre-download](#esp32-pre-download-for-classrooms).
+
+## Install time + disk requirements
+
+### If you use AVR / SAM boards (Uno, Nano, Mega, Due, Lotus AVR boards)
+
+| Step | Time | What happens |
+|------|------|--------------|
+| Download installer | 30 s – 2 min | `Lotus-IDE-Setup-x.y.z.exe` (~200 MB) |
+| Run NSIS installer | **1–3 min** | Extracts to `C:\Program Files\Lotus IDE\` (~600 MB on disk) |
+| First launch | **10–30 s** | Seeds AVR + SAM cores into `%APPDATA%\Lotus IDE\arduino-cli\data\` (~150 MB) |
+| **Total** | **~2–5 min** | Ready to compile + upload immediately |
+
+### If you ALSO use ESP32 (Lotus DevKit etc.) — first time only
+
+Everything above, plus:
+
+| Extra step | Time | What happens |
+|------------|------|--------------|
+| First ESP32 compile triggers lazy install | 0 s | LotusIDE detects ESP32 core missing |
+| Download ESP32 core | **15–25 min** | arduino-cli pulls ~600 MB from `espressif.github.io` (at 30 Mbps) |
+| Extract + setup | 1–2 min | Expands to ~5 GB at `%APPDATA%\Lotus IDE\arduino-cli\data\packages\esp32\` |
+| Compile resumes | normal | Subsequent ESP32 compiles take ~30 s |
+
+The progress dialog (`CoreDownloadDialog`) shows live arduino-cli output
+the whole time. Keep LotusIDE open. After the first compile, every
+later ESP32 compile is fast.
+
+## Disk space needed
+
+| Scenario | Disk used |
+|----------|-----------|
+| Fresh install (just installed, never launched) | ~600 MB |
+| AVR / SAM user after using LotusIDE | ~750 MB |
+| ESP32 user after first compile | ~5.7 GB |
+| Above + ~10 typical Arduino libraries | +50–100 MB |
+
+## What gets installed
+
+### Bundled inside the installer (no network needed):
+
+- LotusIDE app (~150 MB) — Electron + Vue + Blockly editor
+- `avr-toolchain` (~188 MB) — custom-built `avr-gcc` + `avrdude` for fast AVR builds
+- `arduino-cli.exe` (~50 MB) — used for SAM + lazy ESP32 install
+- `arduino:avr` core seed (~50 MB) — Uno / Nano / Mega works offline
+- `arduino:sam` core seed (~50 MB) — Due works offline
+- Lotus board definitions (~10 MB)
+- USB-serial driver launchers (CP210x, CH340)
+
+### NOT bundled — downloaded on demand:
+
+- `esp32:esp32` core (~600 MB → ~5 GB on disk) — only when you compile an ESP32 board
+- Arduino Library Index (~5 MB) — when you first use Manage Libraries → Search
+- Third-party plugins / extra boards — opt-in via Manage Plugins / Manage Boards
+
+## ESP32 pre-download (for classrooms)
+
+If you're a teacher prepping a classroom that may have spotty internet,
+or you just don't want to wait at the first ESP32 compile:
+
+1. Open LotusIDE
+2. Menu: **Lotus → Manage Boards → Cores tab**
+3. Find `ESP32 (Espressif)` → click **Download**
+4. Wait ~15-25 min — the same `CoreDownloadDialog` shows progress
+
+After it's done, every user (and every ESP32 compile) on this machine
+will use the cached copy. Repeat on each classroom PC, or roll it out
+via a deployment image.
+
+## Things that can slow installation down
+
+- **Windows Defender real-time scan** — can add ~30 s during NSIS
+  extraction. Temporarily disabling real-time protection during the install
+  shaves a noticeable chunk on slower disks. Re-enable it after.
+- **Network firewall** blocking `espressif.github.io` or
+  `downloads.arduino.cc` — the lazy ESP32 install will fail. Either
+  whitelist these or pre-download ESP32 from a machine that can reach
+  them and copy `%APPDATA%\Lotus IDE\arduino-cli\data\packages\esp32\`
+  manually.
+- **Disabled Long Path support** — ESP32's toolchain paths get very
+  long. If compile fails with `path too long` errors, enable long paths:
+  ```powershell
+  # Run elevated PowerShell:
+  Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem `
+    -Name LongPathsEnabled -Value 1
+  ```
+  then restart Windows.
+
+## Two installer SKUs
+
+LotusIDE ships in two variants on the [Releases page](https://github.com/jaturong-kamonlers/LotusIDE/releases):
+
+| SKU | Size | Includes ESP32? | When to pick |
+|-----|------|-----------------|--------------|
+| **Lotus IDE Setup** (default) | ~200 MB | ❌ lazy-install | Most users — students at home, devs with internet |
+| **Lotus IDE Full Setup** | ~1 GB | ✅ bundled | Classrooms / offline labs / teachers handing out USB sticks |
+
+The Slim SKU does NOT prevent ESP32 use — it just defers the ~600 MB
+download to first ESP32 compile (or to the Pre-download button). The
+Full SKU is identical software with the ESP32 toolchain pre-baked, so
+the first ESP32 compile on a fresh machine works without internet.
+
+Both SKUs share the same auto-update channel — if you installed Slim,
+auto-update keeps you on Slim; same for Full.
+
+---
+
+# Developer setup — multi-machine
 
 This guide is for when you work on LotusIDE from more than one computer
 (e.g. morning at home, evening at the office).

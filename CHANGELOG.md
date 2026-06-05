@@ -6,6 +6,21 @@ uses [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Dual-SKU release pipeline** — `release.yml` now matrix-builds two
+  installers per tag: the default **Slim** (`Lotus-IDE-Setup-x.exe`,
+  ~200 MB, lazy ESP32) and **Full** (`Lotus-IDE-Full-Setup-x.exe`, ~1 GB,
+  bundled ESP32). Slim and Full have distinct `productName`, `appId`,
+  and `publish.channel` (`latest.yml` vs `latest-full.yml`) so they sit
+  side-by-side on the same machine and auto-update within their own
+  channel. Sequential matrix (`max-parallel: 1`) avoids two
+  electron-builder processes racing to create the same draft.
+- **End-user install guide** at the top of `SETUP.md` — install time
+  per scenario (AVR/SAM users ~2-5 min, ESP32 first-compile ~17-27 min),
+  disk requirements, what gets bundled vs lazy-downloaded, classroom
+  pre-download instructions, and the Slim-vs-Full SKU comparison.
+
 ## [1.3.0] — 2026-06-05
 
 Community/sharing trio, library manager, and a much smaller installer.

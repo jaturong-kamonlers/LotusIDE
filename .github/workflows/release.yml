@@ -20,10 +20,48 @@ permissions:
   contents: write
 
 jobs:
+  # Two SKUs per release:
+  #   - slim : ~200 MB, ESP32 lazy-downloaded at first compile.
+  #   - full : ~1 GB,   ESP32 bundled. For offline classrooms / USB-stick
+  #             distribution.
+  # Both ship to the same draft GitHub Release, on different update channels
+  # (latest.yml for slim, latest-full.yml for full) so auto-update stays
+  # consistent within each variant.
+  #
+  # Slim runs first; Full waits for Slim to succeed so we never get two
+  # electron-builder processes racing to create the same draft.
   build-windows:
-    name: Windows installer
+    name: Windows installer (${{ matrix.sku.name }})
     runs-on: windows-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
+
+    strategy:
+      fail-fast: false  # if Full fails, the Slim draft still ships
+      max-parallel: 1   # serialize to avoid two builds racing for the same draft release
+      matrix:
+        sku:
+          - name: slim
+            label: Slim (lazy ESP32)
+            setup_flag: ''
+            # Slim uses default productName / appId / channel — exact same
+            # build as before this matrix was introduced.
+            extra_build_args: ''
+          - name: full
+            label: Full (bundled ESP32)
+            setup_flag: '-WithEsp32'
+            # Distinct productName + appId so Full can sit side-by-side with
+            # Slim on the same machine without overwriting it. Distinct
+            # publish.channel so latest-full.yml describes the Full asset
+            # without clobbering slim's latest.yml.
+            # Single-quote any arg with a space — PowerShell would otherwise
+            # split "Lotus IDE Full" into three tokens before npm sees it.
+            # The ${version} / ${ext} below are electron-builder templates
+            # (single-brace), not GitHub Actions expressions (${{ ... }}).
+            extra_build_args: >-
+              '--config.productName=Lotus IDE Full'
+              --config.appId=com.lotus-arduibot.ide.full
+              --config.win.artifactName=Lotus-IDE-Full-Setup-${version}.${ext}
+              --config.publish.channel=latest-full
 
     env:
       # electron-builder reads GH_TOKEN to authenticate against the GitHub
@@ -52,30 +90,32 @@ jobs:
 
       # arduino-cli core install caches under
       # resources/arduino-cli/data/packages/. We let it run cold on each
-      # build for now (15-25 min) — caching can be added later if CI minutes
-      # become a constraint. Each cache layer would key on the core
-      # version we install, which isn't pinned yet.
+      # build for now — caching can be added later if CI minutes become a
+      # constraint. Each cache layer would key on the core version we
+      # install, which isn't pinned yet.
       - name: Populate resources/ (arduino-cli + cores + avr-toolchain)
         shell: pwsh
         run: |
-          ./scripts/setup-resources.ps1
+          $args = @()
+          if ('${{ matrix.sku.setup_flag }}' -ne '') { $args += '${{ matrix.sku.setup_flag }}' }
+          ./scripts/setup-resources.ps1 @args
           if (-not (Test-Path 'resources/avr-toolchain/tools/bin/avr-gcc.exe')) {
             throw 'avr-gcc.exe missing after setup — install failed'
           }
 
-      - name: Build + publish to GitHub Releases
+      - name: Build + publish to GitHub Releases (${{ matrix.sku.name }})
         shell: pwsh
-        # The `--publish always` flag tells electron-builder to upload even
-        # when the tree is "dirty" relative to the tag. Output is a DRAFT
-        # release — the user clicks Publish from the Releases page to make
-        # it visible to auto-update clients.
+        # `--publish always` tells electron-builder to upload even when the
+        # tree is "dirty" relative to the tag. Output is a DRAFT release —
+        # publishing it makes it visible to auto-update clients.
+        # extra_build_args is per-SKU (productName / channel overrides for Full).
         run: |
-          npm run build -- --publish always
+          npm run build -- --publish always ${{ matrix.sku.extra_build_args }}
 
       - name: Summary
         if: success()
         shell: pwsh
         run: |
-          Write-Host "✓ Built + published"
+          Write-Host "✓ Built + published (${{ matrix.sku.label }})"
           Write-Host "  Draft release: https://github.com/${{ github.repository }}/releases"
-          Write-Host "  Click 'Publish release' to make it visible to auto-update clients."
+          Write-Host "  After both SKUs finish, edit the draft and Publish."
