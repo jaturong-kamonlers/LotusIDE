@@ -6,6 +6,22 @@ uses [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.4] — 2026-06-05
+
+CI fix-up #3 — quote the `${version}.${ext}` template so PowerShell
+keeps its hands off it.
+
+### Fixed
+
+- `.github/workflows/release.yml` — PowerShell's `${name}` syntax is
+  also a valid variable expansion (delimited form), so the unquoted
+  electron-builder template `Lotus-IDE-Full-Setup-${version}.${ext}`
+  was being silently expanded to `Lotus-IDE-Full-Setup-.` before
+  reaching npm. electron-builder then ENOENT'd looking for that file
+  at the end of v1.3.3's Full build (after a successful 2-minute
+  setup + 26-minute compile, which is the salt in the wound).
+  Single-quoting the whole arg passes the template through unchanged.
+
 ## [1.3.3] — 2026-06-05
 
 CI fix-up #2 — actually getting Full SKU to build.

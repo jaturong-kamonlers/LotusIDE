@@ -51,14 +51,20 @@ jobs:
             # Slim on the same machine without overwriting it. Distinct
             # publish.channel so latest-full.yml describes the Full asset
             # without clobbering slim's latest.yml.
-            # Single-quote any arg with a space — PowerShell would otherwise
-            # split "Lotus IDE Full" into three tokens before npm sees it.
-            # The ${version} / ${ext} below are electron-builder templates
-            # (single-brace), not GitHub Actions expressions (${{ ... }}).
+            # Single-quote every arg that contains EITHER a space OR a
+            # `$`. Spaces get tokenised by PowerShell otherwise; `${name}`
+            # is ALSO valid PowerShell variable syntax (delimited form),
+            # so unquoted `${version}` and `${ext}` were silently expanded
+            # to empty strings on the way to electron-builder. That made
+            # artifactName collapse to `Lotus-IDE-Full-Setup-.` in v1.3.3
+            # and electron-builder ENOENT'd trying to read it back.
+            # Inside single-quoted PS literals, neither happens — the
+            # template tokens pass through unchanged to electron-builder
+            # which substitutes them via its own ${...} engine.
             extra_build_args: >-
               '--config.productName=Lotus IDE Full'
               --config.appId=com.lotus-arduibot.ide.full
-              --config.win.artifactName=Lotus-IDE-Full-Setup-${version}.${ext}
+              '--config.win.artifactName=Lotus-IDE-Full-Setup-${version}.${ext}'
               --config.publish.channel=latest-full
 
     env:
