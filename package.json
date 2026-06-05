@@ -1,6 +1,6 @@
 {
   "name": "lotus-ide",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Lotus ArduiBot IDE - Learning by Doing",
   "author": "Jaturong Kamonlers <jaturong9999@gmail.com>",
   "homepage": "https://github.com/jaturong-kamonlers/LotusIDE",
@@ -42,7 +42,14 @@
   "build": {
     "appId": "com.lotus-arduibot.ide",
     "productName": "Lotus IDE",
-    "asar": false,
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/serialport/**",
+      "node_modules/@serialport/**",
+      "node_modules/node-gyp-build/**",
+      "node_modules/bindings/**",
+      "drivers/**"
+    ],
     "compression": "normal",
     "publish": {
       "provider": "github",

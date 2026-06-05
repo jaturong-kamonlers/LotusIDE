@@ -6,6 +6,36 @@ uses [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.1] — 2026-06-05
+
+Install-speed fix.
+
+### Changed
+
+- **Installer extracts ~3–5× faster.** `package.json` `build.asar` flipped
+  from `false` to `true`, so the thousands of small electron + node_modules
+  files now ship as a single `app.asar` blob instead of being written
+  individually onto the user's disk. The dominant cost during NSIS
+  install — per-file Windows file-system overhead + per-file Defender
+  scan — collapses to a single big-blob write. The installer download
+  size barely changes (~285 MB → ~270 MB) because LZMA was already
+  compressing the small files; the win is install-time, not download-size.
+- `node_modules/serialport`, `node_modules/@serialport`, `node-gyp-build`,
+  `bindings`, and `drivers/` are listed in `asarUnpack` so they stay on
+  disk. serialport has a native `.node` binding that Node can't load
+  from inside asar; CH341SER.EXE and the CP210x .inf are spawned via
+  `child_process` and pnputil which need real on-disk paths.
+- `electron/ipc/arduino.js` + `electron/ipc/libraries-manage.js` —
+  resource paths (arduino-cli, avr-toolchain, bundled cores) now resolve
+  via `process.resourcesPath` in packaged builds instead of
+  `path.join(__dirname, '../../resources')`. With asar enabled the
+  former gave `<asar>/resources/` which doesn't exist; the new path
+  points at the extraResources copy on disk where execFile / spawn can
+  find arduino-cli.exe and avr-gcc.exe.
+- `electron/main.js` — `DRIVERS_DIR` translates `app.asar` →
+  `app.asar.unpacked` so child_process.spawn finds the actual `.exe` /
+  `.inf` files.
+
 ### Added
 
 - **Dual-SKU release pipeline** — `release.yml` now matrix-builds two

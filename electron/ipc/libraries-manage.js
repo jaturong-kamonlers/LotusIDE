@@ -25,11 +25,19 @@ const fs   = require('fs')
 const fsp  = require('fs/promises')
 const path = require('path')
 
-const isPackaged = () => !!(app && app.isPackaged)
+const isPackagedNow = !!(app && app.isPackaged)
 const LOTUS_ROOT = path.join(__dirname, '../../')
 const EXE = process.platform === 'win32' ? '.exe' : ''
 
-const ARDUINO_CLI_DIR  = path.join(LOTUS_ROOT, 'resources', 'arduino-cli')
+// In packaged builds with asar enabled, extraResources land at
+// <install>/resources/app/resources/ — not inside the asar. We must point
+// arduino-cli at that on-disk path so it can spawn the binary and read
+// bundled cores. In dev it's just <project>/resources/.
+const RESOURCES_BASE = isPackagedNow
+  ? path.join(process.resourcesPath, 'app', 'resources')
+  : path.join(LOTUS_ROOT, 'resources')
+
+const ARDUINO_CLI_DIR  = path.join(RESOURCES_BASE, 'arduino-cli')
 const ARDUINO_CLI      = path.join(ARDUINO_CLI_DIR, `arduino-cli${EXE}`)
 const ARDUINO_CLI_DATA = path.join(ARDUINO_CLI_DIR, 'data')
 

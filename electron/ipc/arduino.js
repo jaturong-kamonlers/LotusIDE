@@ -5,17 +5,33 @@ const fs = require('fs')
 const os = require('os')
 
 // All assets bundled inside LotusIDE — no KBIDE dependency at runtime.
-// In dev arduino.js lives at <project>/electron/ipc/; in a packaged build at
-// <install>/resources/app/electron/ipc/ — both two levels deep, so the same
-// "../.." gets us to the app/project root in either case.
-const isDev = process.env.NODE_ENV === 'development' || !require('electron').app.isPackaged
-const LOTUS_ROOT = path.join(__dirname, '../../')
+//
+// Two location domains in production builds with asar enabled:
+//   * "In-asar" code + small static assets (electron/, dist/, public/) live
+//     inside <install>/resources/app.asar/. Electron's fs reads them
+//     transparently so __dirname-relative joins still work.
+//   * extraResources (resources/, including arduino-cli + avr-toolchain) are
+//     unpacked to <install>/resources/app/resources/ — they need real on-disk
+//     paths because they're handed to execFile() and to external programs.
+//
+// In dev there's no asar — both domains share the project root.
+const electronApp = require('electron').app
+const isPackaged  = !!(electronApp && electronApp.isPackaged)
+const isDev       = process.env.NODE_ENV === 'development' || !isPackaged
+const LOTUS_ROOT  = path.join(__dirname, '../../')
+
+// Base of unpacked extraResources. The package.json `extraResources.to` is
+// `app/resources`, so in a packaged build the on-disk path is
+// <install>/resources/app/resources/. In dev it's just <project>/resources/.
+const RESOURCES_BASE = isPackaged
+  ? path.join(process.resourcesPath, 'app', 'resources')
+  : path.join(LOTUS_ROOT, 'resources')
 
 // Executable suffix — Windows binaries end in .exe; Linux/macOS don't.
 const EXE = process.platform === 'win32' ? '.exe' : ''
 
 const BOARDS_DIR   = path.join(LOTUS_ROOT, 'public/boards')
-const AVR_DIR      = path.join(LOTUS_ROOT, 'resources/avr-toolchain')
+const AVR_DIR      = path.join(RESOURCES_BASE, 'avr-toolchain')
 const AVR_TOOLS    = path.join(AVR_DIR, 'tools', 'bin')
 const AVR_CORES    = path.join(AVR_DIR, 'sdk', 'cores', 'arduino')
 const AVR_GCC      = path.join(AVR_TOOLS, `avr-gcc${EXE}`)
@@ -28,7 +44,7 @@ const AVR_DUDE_CONF = path.join(AVR_DIR, 'tools', 'etc', 'avrdude.conf')
 // fine, arduino-cli only reads the .exe). Working dirs (data + downloads +
 // user + cache) MUST be writable for `core install` / `lib install` to work
 // at runtime, so they live under userData.
-const ARDUINO_CLI_DIR        = path.join(LOTUS_ROOT, 'resources', 'arduino-cli')
+const ARDUINO_CLI_DIR        = path.join(RESOURCES_BASE, 'arduino-cli')
 const ARDUINO_CLI            = path.join(ARDUINO_CLI_DIR, `arduino-cli${EXE}`)
 
 // Writable dirs live under userData (%APPDATA%\Lotus IDE\ in production, the

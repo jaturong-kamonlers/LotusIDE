@@ -79,11 +79,16 @@ app.whenReady().then(() => {
     }
   })
 
-  // USB-to-serial driver launcher. Drivers ship in <install>/resources/app/drivers/.
-  // CP210x is extracted (uses pnputil for silent install); CH340 is a regular
-  // .exe installer launched directly.
+  // USB-to-serial driver launcher. Drivers ship under <app>/drivers/ which
+  // is packed into app.asar — except we add `drivers/**` to asarUnpack so
+  // CH341SER.EXE and the CP210x .inf live on disk where Windows can spawn
+  // them (child_process.spawn + pnputil can't read from inside an asar).
+  // With asar+asarUnpack, the unpacked copy sits at
+  // <install>/resources/app.asar.unpacked/drivers/ — we get there by string-
+  // replacing 'app.asar' in __dirname. In dev there's no asar so the replace
+  // is a no-op and we read directly from the project tree.
   ipcMain.handle('drivers:install', (_e, name) => {
-    const DRIVERS_DIR = path.join(__dirname, '..', 'drivers')
+    const DRIVERS_DIR = path.join(__dirname, '..', 'drivers').replace(/app\.asar([\\/])/, 'app.asar.unpacked$1')
     if (name === 'open-folder') {
       shell.openPath(DRIVERS_DIR)
       return { note: `Drivers folder opened: ${DRIVERS_DIR}` }
