@@ -110,6 +110,19 @@ contextBridge.exposeInMainWorld('lotusAPI', {
     createRepo:            (opts)     => ipcRenderer.invoke('github:createRepo', opts),
   },
 
+  // Arduino libraries (managed via arduino-cli)
+  libraries: {
+    userRoot:        ()        => ipcRenderer.invoke('libraries:userRoot'),
+    list:            ()        => ipcRenderer.invoke('libraries:list'),
+    search:          (q)       => ipcRenderer.invoke('libraries:search', q),
+    install:         (spec)    => ipcRenderer.invoke('libraries:install', spec),
+    installFromGit:  (url)     => ipcRenderer.invoke('libraries:installFromGit', url),
+    installFromZip:  (zipPath) => ipcRenderer.invoke('libraries:installFromZip', zipPath),
+    pickZip:         ()        => ipcRenderer.invoke('libraries:pickZip'),
+    uninstall:       (name)    => ipcRenderer.invoke('libraries:uninstall', name),
+    updateIndex:     ()        => ipcRenderer.invoke('libraries:updateIndex'),
+  },
+
   // Plugins (third-party Blockly extensions)
   plugins: {
     root:               ()            => ipcRenderer.invoke('plugins:root'),

@@ -19,6 +19,7 @@
       <BoardSelector v-if="appStore.showBoardSelector" />
       <PluginManager v-if="appStore.showPluginManager" />
       <BoardManager v-if="appStore.showBoardManager" />
+      <LibraryManager v-if="appStore.showLibraryManager" />
       <GitHubManager v-if="appStore.showGithubManager" />
       <UpdaterPanel v-if="appStore.showUpdater" />
       <ImportUrlDialog v-if="appStore.showImportUrl" />
@@ -43,6 +44,7 @@ import SerialMonitor from './components/SerialMonitor.vue'
 import BoardSelector from './components/BoardSelector.vue'
 import PluginManager from './components/PluginManager.vue'
 import BoardManager from './components/BoardManager.vue'
+import LibraryManager from './components/LibraryManager.vue'
 import GitHubManager from './components/GitHubManager.vue'
 import UpdaterPanel from './components/UpdaterPanel.vue'
 import ImportUrlDialog from './components/ImportUrlDialog.vue'

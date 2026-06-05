@@ -20,6 +20,7 @@ export const useAppStore = defineStore('app', () => {
   const showBoardSelector = ref(false)
   const showPluginManager = ref(false)
   const showBoardManager = ref(false)
+  const showLibraryManager = ref(false)
   const showGithubManager = ref(false)
   const showUpdater = ref(false)
   const showImportUrl = ref(false)
@@ -73,7 +74,7 @@ export const useAppStore = defineStore('app', () => {
   return {
     boards, selectedBoard, theme, editorMode,
     currentFile, isDirty, compiling, uploading,
-    consoleLog, showSerial, showBoardSelector, showPluginManager, showBoardManager, showGithubManager, showUpdater, showImportUrl, arduinoCode, showConsole,
+    consoleLog, showSerial, showBoardSelector, showPluginManager, showBoardManager, showLibraryManager, showGithubManager, showUpdater, showImportUrl, arduinoCode, showConsole,
     workspaceJson, loadWorkspaceRequest, showCode, showJson, soundEnabled,
     boardPlatform, canUpload,
     log, clearLog, selectBoard, loadBoards,

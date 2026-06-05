@@ -117,7 +117,7 @@ const menus = [
       {
         label: 'Include Library', icon: 'mdi-library-outline',
         submenu: [
-          { label: 'Manage Libraries...', icon: 'mdi-package-variant', action: () => appStore.log('Library manager — coming soon', 'info') },
+          { label: 'Manage Libraries...', icon: 'mdi-package-variant', action: () => appStore.showLibraryManager = true },
         ],
       },
     ],

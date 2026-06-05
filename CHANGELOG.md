@@ -6,6 +6,18 @@ uses [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Manage Libraries** (Sketch → Include Library → Manage Libraries…) — the
+  last "coming soon" item in the Lotus menu is now wired up. Backed by
+  `arduino-cli lib`, so the install set is the full Arduino Library Index
+  (10000+ libs). Tabs: Installed (list/uninstall), Search (the Arduino
+  index), From Git/Zip (clones or unzips into the user lib dir), and
+  Settings (update-index + show install path). Libraries land at
+  `<userData>/arduino-cli/user/libraries/` — the same dir arduino-cli uses
+  when compiling, so installs are picked up automatically without
+  re-plumbing the build path.
+
 ## [1.2.0] — 2026-06-05
 
 Community, sharing, and CI release pipeline.
