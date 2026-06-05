@@ -6,6 +6,21 @@ uses [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.3] — 2026-06-05
+
+CI fix-up #2 — actually getting Full SKU to build.
+
+### Fixed
+
+- `.github/workflows/release.yml` — replaced PowerShell splatting
+  (`@setupArgs`) with a direct `if/else` conditional. Splat expansion
+  in `pwsh -command` context treated `-WithEsp32` as a positional
+  string and bound it to `[string]$AvrToolchainUrl` instead of toggling
+  the `[switch]$WithEsp32` parameter. The script then ran in slim mode
+  AND tried to download the literal string `-WithEsp32` as the AVR
+  toolchain URL (visible in v1.3.2 log: `downloading -WithEsp32`,
+  `No such host is known. (-withesp32:80)`).
+
 ## [1.3.2] — 2026-06-05
 
 CI fix-up so the Full SKU actually builds.

@@ -42,13 +42,11 @@ jobs:
         sku:
           - name: slim
             label: Slim (lazy ESP32)
-            setup_flag: ''
             # Slim uses default productName / appId / channel — exact same
             # build as before this matrix was introduced.
             extra_build_args: ''
           - name: full
             label: Full (bundled ESP32)
-            setup_flag: '-WithEsp32'
             # Distinct productName + appId so Full can sit side-by-side with
             # Slim on the same machine without overwriting it. Distinct
             # publish.channel so latest-full.yml describes the Full asset
@@ -95,16 +93,22 @@ jobs:
       # install, which isn't pinned yet.
       - name: Populate resources/ (arduino-cli + cores + avr-toolchain)
         shell: pwsh
-        # Use $setupArgs (not $args — $args is a PowerShell automatic
-        # variable for script parameters; splatting it from a custom
-        # assignment silently dropped the -WithEsp32 flag in v1.3.1's
-        # Full job, causing that build to run a slim setup.)
+        # Direct conditional invocation — NO splatting. PowerShell's
+        # splat operator (@setupArgs with @('-WithEsp32')) silently
+        # treats the dash-prefixed string as a POSITIONAL string arg
+        # rather than a named switch. In v1.3.2 the Full job's
+        # `@setupArgs` got bound to `[string]$AvrToolchainUrl` instead
+        # of toggling `[switch]$WithEsp32`, so the script ran in slim
+        # mode AND tried to download the literal string `-WithEsp32` as
+        # the AVR toolchain URL. Conditional invocation skips the
+        # splat-binding mess entirely.
         run: |
-          $setupArgs = @()
-          $flag = '${{ matrix.sku.setup_flag }}'.Trim()
-          if ($flag) { $setupArgs += $flag }
-          Write-Host "Running setup-resources with args: $($setupArgs -join ' ')  (matrix sku: ${{ matrix.sku.name }})"
-          ./scripts/setup-resources.ps1 @setupArgs
+          Write-Host "Setup-resources mode: ${{ matrix.sku.name }}"
+          if ('${{ matrix.sku.name }}' -eq 'full') {
+            ./scripts/setup-resources.ps1 -WithEsp32
+          } else {
+            ./scripts/setup-resources.ps1
+          }
           if (-not (Test-Path 'resources/avr-toolchain/tools/bin/avr-gcc.exe')) {
             throw 'avr-gcc.exe missing after setup — install failed'
           }
