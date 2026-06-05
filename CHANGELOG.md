@@ -6,6 +6,25 @@ uses [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.2] — 2026-06-05
+
+CI fix-up so the Full SKU actually builds.
+
+### Fixed
+
+- `.github/workflows/release.yml` — the splat into setup-resources used
+  `$args`, which is a PowerShell automatic variable. Custom assignment
+  to it silently dropped the `-WithEsp32` flag in v1.3.1's Full job,
+  causing that build to run the slim setup and then fail at a later
+  step. Renamed to `$setupArgs` and added a debug log line so the
+  effective args are visible in the run output.
+- `scripts/setup-resources.ps1` — the AVR-toolchain download now
+  retries on transient DNS / connection failures (linear back-off:
+  5 s, 15 s, 30 s). GitHub-hosted runners occasionally lose the first
+  DNS lookup before the resolver settles — Slim and Full hit the same
+  URL on different runners and only Full saw "No such host is known"
+  in v1.3.1.
+
 ## [1.3.1] — 2026-06-05
 
 Install-speed fix.

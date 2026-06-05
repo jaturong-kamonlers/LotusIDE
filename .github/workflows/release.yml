@@ -95,10 +95,16 @@ jobs:
       # install, which isn't pinned yet.
       - name: Populate resources/ (arduino-cli + cores + avr-toolchain)
         shell: pwsh
+        # Use $setupArgs (not $args — $args is a PowerShell automatic
+        # variable for script parameters; splatting it from a custom
+        # assignment silently dropped the -WithEsp32 flag in v1.3.1's
+        # Full job, causing that build to run a slim setup.)
         run: |
-          $args = @()
-          if ('${{ matrix.sku.setup_flag }}' -ne '') { $args += '${{ matrix.sku.setup_flag }}' }
-          ./scripts/setup-resources.ps1 @args
+          $setupArgs = @()
+          $flag = '${{ matrix.sku.setup_flag }}'.Trim()
+          if ($flag) { $setupArgs += $flag }
+          Write-Host "Running setup-resources with args: $($setupArgs -join ' ')  (matrix sku: ${{ matrix.sku.name }})"
+          ./scripts/setup-resources.ps1 @setupArgs
           if (-not (Test-Path 'resources/avr-toolchain/tools/bin/avr-gcc.exe')) {
             throw 'avr-gcc.exe missing after setup — install failed'
           }

@@ -152,7 +152,25 @@ elseif ($AvrToolchainUrl) {
     $dlHeaders['Accept']        = 'application/octet-stream'
     Write-Action "using auth token from env"
   }
-  Invoke-WebRequest -Uri $AvrToolchainUrl -OutFile $tmp -Headers $dlHeaders -UseBasicParsing
+  # Retry transient DNS / connection failures — GitHub-hosted runners
+  # occasionally lose their first lookup before the resolver settles.
+  # Linear back-off (5 s, 15 s, 30 s) is enough for the runner network
+  # stack to recover in practice.
+  $maxAttempts = 4
+  $delays = @(0, 5, 15, 30)
+  for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+    if ($delays[$attempt - 1] -gt 0) {
+      Write-Action "retry $($attempt-1) — waiting $($delays[$attempt-1])s"
+      Start-Sleep -Seconds $delays[$attempt - 1]
+    }
+    try {
+      Invoke-WebRequest -Uri $AvrToolchainUrl -OutFile $tmp -Headers $dlHeaders -UseBasicParsing -ErrorAction Stop
+      break
+    } catch {
+      if ($attempt -eq $maxAttempts) { throw }
+      Write-Host "  ! download attempt $attempt failed: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
+  }
   Write-Action "extracting to $ResourcesRoot"
   Expand-Archive -Path $tmp -DestinationPath $ResourcesRoot -Force
   Remove-Item $tmp -ErrorAction SilentlyContinue
