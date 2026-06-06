@@ -125,6 +125,34 @@ function parsePropertiesFile(text) {
   return out
 }
 
+// Headers that the Lotus → Include Library submenu should offer for one-click
+// `#include <Foo.h>` insertion. Per Arduino library spec, if `library.properties`
+// declares an `includes=` field we use that verbatim (comma-separated). Otherwise
+// we scan the library's source root: 1.5-format libs have headers under `src/`,
+// 1.0-format libs keep them at the lib root. We only look one level deep —
+// nested subfolders (e.g. `src/internal/`) are private headers users shouldn't
+// be `#include`'ing directly.
+function scanLibraryHeaders(libDir, manifest) {
+  if (manifest && typeof manifest.includes === 'string' && manifest.includes.trim()) {
+    return manifest.includes.split(',').map(s => s.trim()).filter(Boolean)
+  }
+  const found = new Set()
+  const tryDir = (dir) => {
+    try {
+      if (!fs.existsSync(dir)) return
+      for (const name of fs.readdirSync(dir)) {
+        if (name.toLowerCase().endsWith('.h')) found.add(name)
+      }
+    } catch { /* ignore unreadable dirs */ }
+  }
+  tryDir(path.join(libDir, 'src'))
+  // 1.0-format fallback only — if src/ has any .h, the lib is 1.5-format and
+  // root .h files are typically private implementation artifacts not meant for
+  // sketches to include.
+  if (found.size === 0) tryDir(libDir)
+  return Array.from(found).sort((a, b) => a.localeCompare(b))
+}
+
 ipcMain.handle('libraries:userRoot', () => librariesRoot())
 
 ipcMain.handle('libraries:list', async () => {
@@ -157,6 +185,7 @@ ipcMain.handle('libraries:list', async () => {
           architectures: manifest.architectures || '',
           url:         manifest.url         || '',
         },
+        headers: scanLibraryHeaders(libDir, manifest),
       })
     }
     items.sort((a, b) => a.manifest.name.localeCompare(b.manifest.name))

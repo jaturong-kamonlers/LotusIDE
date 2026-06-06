@@ -46,14 +46,21 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAppStore } from '../stores/app'
 import { useSerialStore } from '../stores/serial'
+import { useLibraryManagerStore } from '../stores/libraryManager'
 
 const appStore = useAppStore()
 const serialStore = useSerialStore()
+const libStore = useLibraryManagerStore()
 const openMenu = ref(null)
 const openSub = ref(null)
+
+// One refresh on mount populates libStore.installed for the Include Library
+// submenu. Install/uninstall via the Manage dialog calls refresh() itself, so
+// the menu stays current without extra plumbing.
+onMounted(() => { libStore.refresh() })
 
 function toggleMenu(label) {
   openMenu.value = openMenu.value === label ? null : label
@@ -66,9 +73,63 @@ async function run(item) {
   if (item.action) item.action()
 }
 
+// Insert `#include <Foo.h>` at the top of the sketch, immediately after any
+// existing leading `#include` lines. No-op if the include is already present.
+// Mutates appStore.arduinoCode — works in code mode. In Blockly mode the
+// generated code will overwrite this on the next regeneration, which matches
+// the Arduino IDE convention (this menu is a code-mode feature).
+function insertIncludeAtTop(header) {
+  if (!header) return
+  const code = appStore.arduinoCode || ''
+  const line = `#include <${header}>`
+  const lines = code.split('\n')
+  if (lines.some(l => l.trim() === line)) {
+    appStore.log(`Already included: <${header}>`, 'info')
+    return
+  }
+  let insertAt = 0
+  for (let i = 0; i < lines.length; i++) {
+    const t = lines[i].trim()
+    if (t === '' || t.startsWith('//') || t.startsWith('#include')) {
+      insertAt = i + 1
+      continue
+    }
+    break
+  }
+  lines.splice(insertAt, 0, line)
+  appStore.arduinoCode = lines.join('\n')
+  appStore.isDirty = true
+  appStore.log(`Inserted #include <${header}>`, 'success')
+}
+
+// Build the Include Library submenu from currently installed libraries. Each
+// library contributes one entry per header it exposes (per library.properties
+// `includes=`, or scanned .h files as fallback). Libraries with zero detected
+// headers fall back to a single entry using `<id>.h` — matches the common
+// Arduino convention where the library folder name doubles as the header.
+const includeLibrarySubmenu = computed(() => {
+  const items = [
+    { label: 'Manage Libraries...', icon: 'mdi-package-variant', action: () => appStore.showLibraryManager = true },
+  ]
+  const libs = (libStore.installed || []).filter(l => l && l.ok !== false)
+  if (libs.length === 0) return items
+  items.push('---')
+  for (const lib of libs) {
+    const headers = (lib.headers && lib.headers.length > 0) ? lib.headers : [`${lib.id}.h`]
+    for (const h of headers) {
+      items.push({
+        label: h,
+        icon: 'mdi-code-tags',
+        action: () => insertIncludeAtTop(h),
+      })
+    }
+  }
+  return items
+})
+
 const INITIAL_WORKSPACE = { blocks: { languageVersion: 0, blocks: [{ type: 'lotus_setup', x: 30, y: 30 }, { type: 'lotus_loop', x: 30, y: 180 }] } }
 
-const menus = [
+const menus = computed(() => [
   {
     label: 'File',
     items: [
@@ -116,9 +177,7 @@ const menus = [
       '---',
       {
         label: 'Include Library', icon: 'mdi-library-outline',
-        submenu: [
-          { label: 'Manage Libraries...', icon: 'mdi-package-variant', action: () => appStore.showLibraryManager = true },
-        ],
+        submenu: includeLibrarySubmenu.value,
       },
     ],
   },
@@ -181,7 +240,7 @@ const menus = [
       { label: 'Getting Started', icon: 'mdi-book-open-page-variant-outline', action: () => appStore.log('Documentation coming soon', 'info') },
     ],
   },
-]
+])
 
 async function installDriver(name) {
   if (!window.lotusAPI?.drivers) {
