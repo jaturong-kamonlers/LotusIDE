@@ -15,7 +15,7 @@ This file has two parts:
 ## TL;DR
 
 Download `Lotus-IDE-Setup-<version>.exe` from the
-[Releases page](https://github.com/jaturong-kamonlers/LotusIDE/releases),
+[Releases page](https://github.com/jaturong-kamonlers/LotusIDE-Releases/releases),
 double-click it. **Done in 2-5 minutes** for Arduino Uno / Nano / Mega /
 Due / Lotus AVR boards.
 
@@ -112,7 +112,7 @@ via a deployment image.
 ## Installer variants
 
 LotusIDE ships in two SKUs × two formats on the
-[Releases page](https://github.com/jaturong-kamonlers/LotusIDE/releases):
+[Releases page](https://github.com/jaturong-kamonlers/LotusIDE-Releases/releases):
 
 | File pattern | Size | Format | ESP32 bundled? | When to pick |
 |--------------|------|--------|----------------|--------------|

@@ -69,9 +69,13 @@ jobs:
 
     env:
       # electron-builder reads GH_TOKEN to authenticate against the GitHub
-      # provider. Mapping the auto-provided GITHUB_TOKEN is enough for
-      # same-repo release uploads.
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # provider. We publish to a SEPARATE public repo (LotusIDE-Releases)
+      # so end users can download without seeing the source. The default
+      # GITHUB_TOKEN is only scoped to this source repo, so we use a PAT
+      # stored as RELEASES_TOKEN with `public_repo` scope on the releases
+      # repo. Configure once at:
+      #   github.com/jaturong-kamonlers/LotusIDE/settings/secrets/actions
+      GH_TOKEN: ${{ secrets.RELEASES_TOKEN }}
       # Where setup-resources.ps1 fetches the bundled avr-gcc from. Pinned
       # to the tools-v1 release asset on this same repo. We use the API URL
       # (releases/assets/<id>) instead of browser_download_url so the same

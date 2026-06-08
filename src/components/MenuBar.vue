@@ -355,7 +355,7 @@ ${lastLog || '(empty)'}
     body,
     labels: 'bug',
   })
-  const url = `https://github.com/jaturong-kamonlers/LotusIDE/issues/new?${params.toString()}`
+  const url = `https://github.com/jaturong-kamonlers/LotusIDE-Releases/issues/new?${params.toString()}`
   window.lotusAPI?.shell?.openExternal(url)
 }
 </script>
