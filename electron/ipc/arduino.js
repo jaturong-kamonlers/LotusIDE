@@ -77,6 +77,13 @@ function seedArduinoCliData() {
     if (fs.existsSync(userPkgs) && fs.readdirSync(userPkgs).length > 0) return
     fs.mkdirSync(ARDUINO_CLI_DATA, { recursive: true })
     copyRecursiveSync(BUNDLED_DATA_DIR, ARDUINO_CLI_DATA)
+    // The bundled arduino-cli.yaml was generated on the CI runner and bakes
+    // in `D:\a\LotusIDE\LotusIDE\...` paths for build_cache + directories.
+    // Runtime env vars in ARDUINO_CLI_ENV override every directory entry,
+    // but any direct arduino-cli call that forgets an env var would fail
+    // with "device is not ready". Drop the seeded yaml so arduino-cli
+    // regenerates a fresh one against ENV the first time it needs to.
+    try { fs.unlinkSync(path.join(ARDUINO_CLI_DATA, 'arduino-cli.yaml')) } catch { /* ok */ }
   } catch (e) {
     console.warn('[arduino] seed failed:', e.message)
   }
@@ -176,17 +183,48 @@ function sendCoreStatus(payload) {
   BrowserWindow.getAllWindows().forEach(w => w.webContents.send('arduino:coreStatus', payload))
 }
 
-// Check whether a core (e.g. "esp32:esp32") is already installed in the
-// arduino-cli data dir. Returns true when the platform's hardware dir has
-// at least one version folder.
+// Tools that MUST be on disk for a core to actually compile/upload. The
+// platform folder alone isn't enough — earlier releases of LotusIDE shipped a
+// version where an interrupted `core install` left the platform sources on
+// disk but with the tool downloads missing, then `isCoreInstalled` returned
+// true forever after and the first compile failed with
+//   "The system cannot find the path specified."
+// (the recipe's {runtime.tools.esptool_py.path} placeholder never expanded).
+//
+// Pattern matches handle Espressif's chip-variant tool names: e.g. the libs
+// package is `esp32-arduino-libs` in some index versions and `esp32-libs` /
+// `esp32s3-libs` in others — any folder ending in `-libs` counts.
+const REQUIRED_TOOL_PATTERNS = {
+  'esp32:esp32': [/^esptool_py$/, /-libs$/],
+}
+
 function isCoreInstalled(pkg) {
   if (!pkg) return false
   const [vendor, platform] = pkg.split(':')
   if (!vendor || !platform) return false
   const platformDir = path.join(ARDUINO_CLI_DATA, 'packages', vendor, 'hardware', platform)
   try {
-    return fs.existsSync(platformDir) && fs.readdirSync(platformDir).length > 0
+    if (!fs.existsSync(platformDir) || fs.readdirSync(platformDir).length === 0) return false
   } catch { return false }
+
+  const patterns = REQUIRED_TOOL_PATTERNS[pkg]
+  if (patterns) {
+    const toolsDir = path.join(ARDUINO_CLI_DATA, 'packages', vendor, 'tools')
+    let toolFolders = []
+    try {
+      toolFolders = fs.existsSync(toolsDir) ? fs.readdirSync(toolsDir) : []
+    } catch { return false }
+    for (const pattern of patterns) {
+      const match = toolFolders.find(name => {
+        if (!pattern.test(name)) return false
+        try {
+          return fs.readdirSync(path.join(toolsDir, name)).length > 0
+        } catch { return false }
+      })
+      if (!match) return false
+    }
+  }
+  return true
 }
 
 // Install a core, streaming output through arduino:progress and announcing

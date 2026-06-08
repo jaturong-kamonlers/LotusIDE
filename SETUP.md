@@ -109,19 +109,31 @@ via a deployment image.
   ```
   then restart Windows.
 
-## Two installer SKUs
+## Installer variants
 
-LotusIDE ships in two variants on the [Releases page](https://github.com/jaturong-kamonlers/LotusIDE/releases):
+LotusIDE ships in two SKUs × two formats on the
+[Releases page](https://github.com/jaturong-kamonlers/LotusIDE/releases):
 
-| SKU | Size | Includes ESP32? | When to pick |
-|-----|------|-----------------|--------------|
-| **Lotus IDE Setup** (default) | ~200 MB | ❌ lazy-install | Most users — students at home, devs with internet |
-| **Lotus IDE Full Setup** | ~1 GB | ✅ bundled | Classrooms / offline labs / teachers handing out USB sticks |
+| File pattern | Size | Format | ESP32 bundled? | When to pick |
+|--------------|------|--------|----------------|--------------|
+| `Lotus-IDE-Setup-x.y.z.exe` | ~260 MB | NSIS installer | ❌ lazy-install | Most users — students at home, devs with internet |
+| `Lotus-IDE-x.y.z-win.zip` | ~260 MB | Portable zip | ❌ lazy-install | No admin rights / portable USB |
+| `Lotus-IDE-Full-Setup-x.y.z.exe` | ~1 GB | NSIS installer | ✅ bundled | Classrooms / offline labs |
+| `Lotus-IDE-Full-x.y.z-win.zip` | ~1 GB | Portable zip | ✅ bundled | USB-stick deployment to many classroom PCs |
 
 The Slim SKU does NOT prevent ESP32 use — it just defers the ~600 MB
 download to first ESP32 compile (or to the Pre-download button). The
 Full SKU is identical software with the ESP32 toolchain pre-baked, so
 the first ESP32 compile on a fresh machine works without internet.
+
+**Portable zip:** extract and double-click `Lotus IDE.exe` — no admin
+prompt, no installer, no registry changes. Best for school computer labs
+where students can't run installers. Auto-update does NOT work in the
+portable build — to update, download a fresh zip and replace the folder.
+
+**Install speed (v1.3.6+):** the NSIS installer uses uncompressed (store)
+mode, trading ~30% more download for ~2× faster extract. Slim now installs
+in roughly 30–90 seconds on most hardware (was 1–3 min in v1.3.5).
 
 Both SKUs share the same auto-update channel — if you installed Slim,
 auto-update keeps you on Slim; same for Full.

@@ -50,7 +50,7 @@
       "node_modules/bindings/**",
       "drivers/**"
     ],
-    "compression": "normal",
+    "compression": "store",
     "publish": {
       "provider": "github",
       "owner": "jaturong-kamonlers",
@@ -81,7 +81,10 @@
       }
     ],
     "win": {
-      "target": "nsis",
+      "target": [
+        "nsis",
+        "zip"
+      ],
       "icon": "public/logo/lotus.ico",
       "signAndEditExecutable": false
     },
