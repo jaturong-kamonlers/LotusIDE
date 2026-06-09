@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- waterproof probe shell -->
+  <rect x="14" y="3" width="4" height="20" rx="1.5" fill="#0D1117" stroke="#4FC3F7" stroke-width="1.4"/>
+  <!-- bulb tip (DS chip inside SS housing) -->
+  <ellipse cx="16" cy="24" rx="3" ry="3.5" fill="#0D1117" stroke="#4FC3F7" stroke-width="1.4"/>
+  <circle cx="16" cy="24.5" r="1.5" fill="#FF6E40"/>
+  <!-- ridges on probe -->
+  <line x1="14" y1="9" x2="18" y2="9" stroke="#4FC3F7" stroke-width="0.8"/>
+  <line x1="14" y1="13" x2="18" y2="13" stroke="#4FC3F7" stroke-width="0.8"/>
+  <line x1="14" y1="17" x2="18" y2="17" stroke="#4FC3F7" stroke-width="0.8"/>
+  <!-- 3 wires top (VCC/DATA/GND) -->
+  <line x1="15" y1="3" x2="13" y2="-1" stroke="#EF5350" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="16" y1="3" x2="16" y2="-1" stroke="#FFEB3B" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="17" y1="3" x2="19" y2="-1" stroke="#222" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- temperature waves -->
+  <path d="M 24 15 Q 26 13 24 11" fill="none" stroke="#FF6E40" stroke-width="1" stroke-linecap="round"/>
+  <path d="M 26 17 Q 28 14 26 11" fill="none" stroke="#FF6E40" stroke-width="1" stroke-linecap="round" opacity="0.7"/>
+</svg>

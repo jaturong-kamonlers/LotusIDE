@@ -1,0 +1,13 @@
+{
+  "id": "com.lotus.actuator.pca9685",
+  "name": "PCA9685 16ch PWM Driver",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "16-channel I2C PWM/servo driver — angle, microseconds, raw PWM, calibrate per channel",
+  "author": "Lotus IDE",
+  "license": "MIT",
+  "category": "Actuators",
+  "platforms": ["arduino-esp32", "arduino-avr"],
+  "icon": "icon.svg",
+  "keywords": ["PCA9685", "PWM", "servo", "driver", "i2c", "16ch"]
+}

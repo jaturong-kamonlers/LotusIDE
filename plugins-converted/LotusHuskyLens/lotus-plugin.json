@@ -1,0 +1,13 @@
+{
+  "id": "com.lotus.vision.huskylens",
+  "name": "HuskyLens AI Camera",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "HuskyLens vision module — face/object/line/color/tag recognition over I2C or UART",
+  "author": "Lotus IDE",
+  "license": "MIT",
+  "category": "Vision",
+  "platforms": ["arduino-esp32", "arduino-avr"],
+  "icon": "icon.svg",
+  "keywords": ["HuskyLens", "AI", "camera", "vision", "face", "object", "i2c", "uart"]
+}

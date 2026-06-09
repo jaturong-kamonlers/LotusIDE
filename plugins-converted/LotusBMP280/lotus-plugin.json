@@ -1,0 +1,13 @@
+{
+  "id": "com.lotus.sensor.bmp280",
+  "name": "BMP280 Pressure & Temperature",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "Barometric pressure + temperature + altitude via BMP280 over I2C",
+  "author": "Lotus IDE",
+  "license": "MIT",
+  "category": "Sensors",
+  "platforms": ["arduino-esp32", "arduino-avr"],
+  "icon": "icon.svg",
+  "keywords": ["BMP280", "pressure", "temperature", "altitude", "i2c"]
+}

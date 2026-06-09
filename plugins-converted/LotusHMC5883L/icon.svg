@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- compass outer ring -->
+  <circle cx="16" cy="16" r="11" fill="#0D1117" stroke="#4FC3F7" stroke-width="1.5"/>
+  <!-- N/E/S/W labels -->
+  <text x="16" y="8.2" text-anchor="middle" font-family="monospace" font-size="3.5" fill="#4FC3F7" font-weight="bold">N</text>
+  <text x="25" y="17.2" text-anchor="middle" font-family="monospace" font-size="3.5" fill="#4FC3F7">E</text>
+  <text x="16" y="26.5" text-anchor="middle" font-family="monospace" font-size="3.5" fill="#4FC3F7">S</text>
+  <text x="7" y="17.2" text-anchor="middle" font-family="monospace" font-size="3.5" fill="#4FC3F7">W</text>
+  <!-- compass needle (north = red, south = white) -->
+  <polygon points="16,9 18,16 16,16" fill="#FF6E40"/>
+  <polygon points="16,23 18,16 16,16" fill="#E8F1F2"/>
+  <polygon points="16,9 14,16 16,16" fill="#FF6E40" opacity="0.6"/>
+  <polygon points="16,23 14,16 16,16" fill="#E8F1F2" opacity="0.6"/>
+  <!-- center pivot -->
+  <circle cx="16" cy="16" r="1.3" fill="#4FC3F7"/>
+</svg>

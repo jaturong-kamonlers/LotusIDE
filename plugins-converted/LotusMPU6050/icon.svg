@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- 3D cube wireframe (isometric) -->
+  <polygon points="16,5 26,10 26,21 16,26 6,21 6,10" fill="#0D1117" stroke="#4FC3F7" stroke-width="1.4"/>
+  <!-- top face highlight -->
+  <polyline points="6,10 16,15 26,10" fill="none" stroke="#4FC3F7" stroke-width="1.2"/>
+  <line x1="16" y1="15" x2="16" y2="26" stroke="#4FC3F7" stroke-width="1.2"/>
+  <!-- 3-axis arrows -->
+  <line x1="16" y1="15" x2="22" y2="12" stroke="#FF6E40" stroke-width="1.6" stroke-linecap="round"/>
+  <polygon points="22,12 20,11 21.5,13.5" fill="#FF6E40"/>
+  <text x="23" y="11" font-family="monospace" font-size="3.2" fill="#FF6E40">X</text>
+  <line x1="16" y1="15" x2="10" y2="12" stroke="#69F0AE" stroke-width="1.6" stroke-linecap="round"/>
+  <polygon points="10,12 12,11 10.5,13.5" fill="#69F0AE"/>
+  <text x="6" y="11" font-family="monospace" font-size="3.2" fill="#69F0AE">Y</text>
+  <line x1="16" y1="15" x2="16" y2="7" stroke="#FFD740" stroke-width="1.6" stroke-linecap="round"/>
+  <polygon points="16,7 14.5,9 17.5,9" fill="#FFD740"/>
+  <text x="17" y="6.5" font-family="monospace" font-size="3.2" fill="#FFD740">Z</text>
+</svg>

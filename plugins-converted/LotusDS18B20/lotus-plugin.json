@@ -1,0 +1,13 @@
+{
+  "id": "com.lotus.sensor.ds18b20",
+  "name": "DS18B20 Temperature (1-Wire)",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "DS18B20 digital thermometer over the 1-Wire bus (AVR boards)",
+  "author": "Lotus IDE",
+  "license": "MIT",
+  "category": "Sensors",
+  "platforms": ["arduino-avr"],
+  "icon": "icon.svg",
+  "keywords": ["DS18B20", "thermometer", "1-wire", "Dallas"]
+}
