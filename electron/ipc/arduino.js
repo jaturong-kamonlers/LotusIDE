@@ -30,7 +30,14 @@ const RESOURCES_BASE = isPackaged
 // Executable suffix — Windows binaries end in .exe; Linux/macOS don't.
 const EXE = process.platform === 'win32' ? '.exe' : ''
 
-const BOARDS_DIR   = path.join(LOTUS_ROOT, 'public/boards')
+// public/boards/ is listed in asarUnpack so native compilers (avr-g++ et al.)
+// can read the .cpp/.h files from a real on-disk path rather than the asar
+// archive that they can't open. In dev nothing is asar-packed; just point at
+// the project tree. In production redirect any `app.asar` segment to
+// `app.asar.unpacked` so handlers below feed gcc a path it can actually open.
+const BOARDS_DIR   = isPackaged
+  ? path.join(LOTUS_ROOT, 'public/boards').replace(`${path.sep}app.asar${path.sep}`, `${path.sep}app.asar.unpacked${path.sep}`)
+  : path.join(LOTUS_ROOT, 'public/boards')
 const AVR_DIR      = path.join(RESOURCES_BASE, 'avr-toolchain')
 const AVR_TOOLS    = path.join(AVR_DIR, 'tools', 'bin')
 const AVR_CORES    = path.join(AVR_DIR, 'sdk', 'cores', 'arduino')

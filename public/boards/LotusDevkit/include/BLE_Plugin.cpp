@@ -181,7 +181,12 @@ void BLE_Plugin::send(const String& msg) {
 }
 void BLE_Plugin::sendLine(const String& msg)       { send(msg+"\n"); }
 void BLE_Plugin::sendInt(int val)                  { send(String(val)); }
-void BLE_Plugin::sendFloat(float val, uint8_t dec) { send(String(val, (unsigned int)dec)); }
+void BLE_Plugin::sendFloat(float val, uint8_t dec) {
+    // arduino-esp32 3.x removed String(float, ...); format via dtostrf instead.
+    char buf[20];
+    dtostrf(val, 0, dec, buf);
+    send(String(buf));
+}
 bool   BLE_Plugin::available() { return _rxBuffer.length()>0; }
 char   BLE_Plugin::readChar()  {
     if(!_rxBuffer.length()) return '\0';

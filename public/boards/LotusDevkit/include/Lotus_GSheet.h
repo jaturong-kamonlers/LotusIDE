@@ -48,7 +48,10 @@ public:
 
     // เพิ่มแถวแบบระบุชื่อ label และค่า
     bool appendLabeled(const String& label, float value, int decimals=2) {
-        String v = label + "," + String(value, decimals);
+        // arduino-esp32 3.x removed String(float, int); format via dtostrf.
+        char buf[20];
+        dtostrf(value, 0, decimals, buf);
+        String v = label + "," + String(buf);
         return appendRow(v);
     }
 
