@@ -7,7 +7,7 @@ import { useAppStore } from './app'
 // Lotus IDE GitHub. Users can override this if they want to point at a
 // different vendor catalog. The URL is intentionally a plain raw.githubusercontent
 // URL so anyone can host their own.
-const DEFAULT_CATALOG = 'https://raw.githubusercontent.com/lotus-arduibot/lotus-boards/main/catalog.json'
+const DEFAULT_CATALOG = 'https://raw.githubusercontent.com/jaturong-kamonlers/lotus-boards/main/catalog.json'
 
 export const useBoardManagerStore = defineStore('boardManager', () => {
   const installed = ref([])    // user-installed boards (from userList)

@@ -4,7 +4,7 @@ import JSZip from 'jszip'
 import { useAppStore } from './app'
 import { usePluginStore } from './plugins'
 
-const DEFAULT_CATALOG = 'https://raw.githubusercontent.com/lotus-arduibot/lotus-plugins/main/catalog.json'
+const DEFAULT_CATALOG = 'https://raw.githubusercontent.com/jaturong-kamonlers/lotus-plugins/main/catalog.json'
 
 export const usePluginMarketplaceStore = defineStore('pluginMarketplace', () => {
   const catalog = ref([])

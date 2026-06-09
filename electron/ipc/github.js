@@ -22,8 +22,12 @@ const path = require('path')
 
 const TOKEN_PATH = () => path.join(app.getPath('userData'), 'github-token.bin')
 
-// The user supplies their own OAuth App client_id. We ship none by default —
-// store it under a settings file the user can edit, or via the renderer UI.
+// Default OAuth App client_id — Lotus IDE on GitHub. Public by design
+// (client_id is not a secret; only client_secret would be), so shipping it
+// here just lets new installs hit the GitHub Device Flow without anyone
+// having to register their own OAuth app first. The settings file overrides
+// this if a user wants to point Lotus IDE at their own app.
+const DEFAULT_CLIENT_ID = 'Ov23li2ysRktcFOtXIO1'
 const SETTINGS_PATH = () => path.join(app.getPath('userData'), 'github-settings.json')
 
 function readSettings() {
@@ -108,7 +112,7 @@ ipcMain.handle('github:status', async () => {
     hasToken,
     login,
     scopes,
-    clientId: settings.clientId || null,
+    clientId: settings.clientId || DEFAULT_CLIENT_ID,
     encryptionAvailable: safeStorage.isEncryptionAvailable(),
   }
 })
@@ -125,12 +129,12 @@ ipcMain.handle('github:setClientId', (_e, clientId) => {
 
 ipcMain.handle('github:startDeviceFlow', async () => {
   const settings = readSettings()
-  if (!settings.clientId) return { error: 'GitHub OAuth client_id not configured. Set it in GitHub settings first.' }
+  const clientId = settings.clientId || DEFAULT_CLIENT_ID
 
   const res = await ghRequest({
     method: 'POST',
     url: 'https://github.com/login/device/code',
-    body: { client_id: settings.clientId, scope: 'repo gist' },
+    body: { client_id: clientId, scope: 'repo gist' },
   })
   if (res.status !== 200 || !res.body?.device_code) {
     return { error: `GitHub returned ${res.status}: ${JSON.stringify(res.body)}` }
@@ -139,7 +143,7 @@ ipcMain.handle('github:startDeviceFlow', async () => {
     deviceCode: res.body.device_code,
     interval:   (res.body.interval || 5) * 1000,
     expiresAt:  Date.now() + (res.body.expires_in || 900) * 1000,
-    clientId:   settings.clientId,
+    clientId,
   }
   return {
     userCode:        res.body.user_code,
