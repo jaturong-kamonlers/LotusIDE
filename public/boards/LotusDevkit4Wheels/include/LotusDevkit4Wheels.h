@@ -80,12 +80,17 @@ void KB_music::begin(void) {
 
 void KB_music::tone(unsigned int frequency, unsigned long duration)
 {
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+    ledcAttach(KB_BUZZER, frequency, 13);
+    ledcWriteTone(KB_BUZZER, frequency);
+#else
     if (ledcRead(TONE_CHANNEL)) {
         log_e("Tone channel %d is already in use", ledcRead(TONE_CHANNEL));
         return;
     }
     ledcAttachPin(KB_BUZZER, TONE_CHANNEL);
     ledcWriteTone(TONE_CHANNEL, frequency);
+#endif
     if (duration) {
         delay(duration);
         noTone();
@@ -94,8 +99,13 @@ void KB_music::tone(unsigned int frequency, unsigned long duration)
 
 void KB_music::noTone()
 {
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+    ledcWrite(KB_BUZZER, 0);
+    ledcDetach(KB_BUZZER);
+#else
     ledcDetachPin(KB_BUZZER);
     ledcWrite(TONE_CHANNEL, 0);
+#endif
 }
 
 void KB_music::song(std::vector<int>notes,int duration)
@@ -113,12 +123,20 @@ void KB_music::song(std::vector<int>notes,int duration)
 KB_music music = KB_music();
 
 void tone(int pin, int frequency, int duration) {
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+  ledcAttach(pin, frequency, 8);
+  ledcWrite(pin, SOUND_ON);
+  delay(duration);
+  ledcWrite(pin, SOUND_OFF);
+  ledcDetach(pin);
+#else
   ledcSetup(SOUND_PWM_CHANNEL, frequency, 8);
   ledcAttachPin(pin, SOUND_PWM_CHANNEL);
   ledcWrite(SOUND_PWM_CHANNEL, SOUND_ON);
   delay(duration);
   ledcWrite(SOUND_PWM_CHANNEL, SOUND_OFF);
   ledcDetachPin(pin);
+#endif
 }
 
 // ===== I2C Scanner Function =====
@@ -177,19 +195,35 @@ void LotusDevkit4Wheels() {
   // ===== Motor pins (4 channels) =====
   // M1: AIN1=D2, AIN2=D15, PWM=D13 (LEDC ch2) — Left Front
   pinMode(2,  OUTPUT); pinMode(15, OUTPUT);
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+  ledcAttach(13, 5000, 8);
+#else
   ledcSetup(2, 5000, 8); ledcAttachPin(13, 2);
+#endif
 
   // M2: BIN1=D16, BIN2=D17, PWM=D4 (LEDC ch3) — Right Front
   pinMode(16, OUTPUT); pinMode(17, OUTPUT);
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+  ledcAttach(4, 5000, 8);
+#else
   ledcSetup(3, 5000, 8); ledcAttachPin(4, 3);
+#endif
 
   // M3: AIN1=D5, AIN2=D19, PWM=D23 (LEDC ch4) — Left Rear
   pinMode(5,  OUTPUT); pinMode(19, OUTPUT);
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+  ledcAttach(23, 5000, 8);
+#else
   ledcSetup(4, 5000, 8); ledcAttachPin(23, 4);
+#endif
 
   // M4: BIN1=D25, BIN2=D26, PWM=D14 (LEDC ch5) — Right Rear
   pinMode(25, OUTPUT); pinMode(26, OUTPUT);
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+  ledcAttach(14, 5000, 8);
+#else
   ledcSetup(5, 5000, 8); ledcAttachPin(14, 5);
+#endif
 
   // Probe optional sensors silently (no Serial, no display side-effects)
   tcs.begin();

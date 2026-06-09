@@ -61,8 +61,12 @@ bool Servo::_attachImpl(int pin, int channel,
     _maxAngle     = maxAngle;
     _minPulseWidth = minPulseWidth;
     _maxPulseWidth = maxPulseWidth;
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+    ledcAttach(_pin, 50, 16);
+#else
     ledcSetup(_channel, 50, 16);
     ledcAttachPin(_pin, _channel);
+#endif
     return true;
 }
 
@@ -96,7 +100,11 @@ bool Servo::detach() {
     if(_channel == (channel_next_free - 1))
         channel_next_free--;
 
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+    ledcDetach(_pin);
+#else
     ledcDetachPin(_pin);
+#endif
     return true;
 }
 
@@ -111,7 +119,11 @@ void Servo::writeMicroseconds(int pulseUs) {
     }
     pulseUs = constrain(pulseUs, _minPulseWidth, _maxPulseWidth);
     _pulseWidthDuty = _usToDuty(pulseUs);
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+    ledcWrite(_pin, _pulseWidthDuty);
+#else
     ledcWrite(_channel, _pulseWidthDuty);
+#endif
 }
 
 int Servo::read() {
@@ -122,7 +134,11 @@ int Servo::readMicroseconds() {
     if (!this->attached()) {
         return 0;
     }
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+    int duty = ledcRead(_pin);
+#else
     int duty = ledcRead(_channel);
+#endif
     return _dutyToUs(duty);
 }
 
