@@ -40,6 +40,7 @@ onMounted(() => {
 
   if (appStore.soundEnabled) {
     audio = new Audio('sounds/open.mp3')
+    audio.volume = 0.7
     audio.play().catch(() => {})
   }
 

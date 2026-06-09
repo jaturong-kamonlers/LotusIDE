@@ -116,9 +116,10 @@ onMounted(refreshPorts)
 <style scoped>
 .serial-overlay {
   position: fixed; inset: 0; z-index: 100;
-  background: rgba(0,0,0,0.5); display: flex; align-items: flex-end;
+  background: rgba(0,0,0,0.2); display: flex; align-items: flex-end;
+  pointer-events: none;
 }
-.serial-card { width: 100%; height: 50vh; border-radius: 16px 16px 0 0 !important; display: flex; flex-direction: column; }
+.serial-card { width: 100%; height: 280px; border-radius: 12px 12px 0 0 !important; display: flex; flex-direction: column; pointer-events: auto; }
 .serial-header { display: flex; align-items: center; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
 .serial-body { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
 .conn-bar { display: flex; gap: 8px; align-items: center; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; }

@@ -1,6 +1,6 @@
 {
   "name": "lotus-ide",
-  "version": "1.3.8",
+  "version": "1.3.9",
   "description": "Lotus ArduiBot IDE - Learning by Doing",
   "author": "Jaturong Kamonlers <jaturong9999@gmail.com>",
   "homepage": "https://github.com/jaturong-kamonlers/LotusIDE-Releases",
@@ -87,8 +87,9 @@
         "zip"
       ],
       "icon": "public/logo/lotus.ico",
-      "signAndEditExecutable": false
+      "signAndEditExecutable": true
     },
+    "afterPack": "build/afterPack.js",
     "linux": {
       "target": [
         "AppImage",
