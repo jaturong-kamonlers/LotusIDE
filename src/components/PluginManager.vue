@@ -68,6 +68,13 @@
                 {{ p.status }}
               </v-chip>
               <v-btn
+                icon="mdi-github" size="small" variant="text"
+                color="primary"
+                :title="p.status === 'loaded' ? 'Publish to GitHub' : 'Plugin must load before publishing'"
+                :disabled="p.status !== 'loaded'"
+                @click="openPublishDialog(p)"
+              />
+              <v-btn
                 icon="mdi-delete-outline" size="small" variant="text"
                 color="error"
                 @click="confirmUninstall(p)"
@@ -75,6 +82,57 @@
             </div>
           </div>
         </div>
+
+        <!-- PUBLISH DIALOG -->
+        <v-dialog v-model="publishDialog" max-width="540" persistent>
+          <v-card v-if="publishTarget">
+            <v-card-title class="d-flex align-center">
+              <v-icon class="mr-2">mdi-github</v-icon>
+              Publish {{ publishTarget.manifest.name }}
+              <v-spacer />
+              <v-btn icon="mdi-close" variant="text" size="small" :disabled="publishing" @click="publishDialog = false" />
+            </v-card-title>
+            <v-card-text>
+              <div class="text-body-2 mb-3">
+                Bundle this plugin and push it to your GitHub as a versioned release.
+                Anyone can then install it via <b>Lotus → Plugins → From GitHub</b> using the
+                <code>owner/repo</code> spec.
+              </div>
+              <v-text-field
+                v-model="publishRepoName"
+                label="Repository name"
+                density="compact"
+                variant="outlined"
+                hide-details
+                class="mb-3"
+                :disabled="publishing"
+              />
+              <v-radio-group v-model="publishPrivate" hide-details density="compact" :disabled="publishing">
+                <v-radio :value="false" label="Public — anyone can install" color="primary" />
+                <v-radio :value="true"  label="Private — only you can install" color="primary" />
+              </v-radio-group>
+              <v-alert v-if="publishError" type="error" density="compact" variant="tonal" class="mt-3">
+                {{ publishError }}
+              </v-alert>
+              <v-alert v-if="publishResult" type="success" density="compact" variant="tonal" class="mt-3">
+                <div class="mb-1">Published to <a :href="publishResult.repoUrl" target="_blank">{{ publishResult.installSpec }}</a> as tag {{ publishResult.tag }}.</div>
+                <div>Share spec to install: <code>{{ publishResult.installSpec }}</code></div>
+              </v-alert>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn variant="text" :disabled="publishing" @click="publishDialog = false">{{ publishResult ? 'Close' : 'Cancel' }}</v-btn>
+              <v-btn
+                v-if="!publishResult"
+                color="primary"
+                variant="flat"
+                :loading="publishing"
+                :disabled="!publishRepoName.trim()"
+                @click="publishPlugin"
+              >Publish</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
         <!-- CATALOG -->
         <div v-else-if="tab === 'catalog'">
@@ -199,6 +257,96 @@ const installingId = ref(null)
 const pluginsRoot = ref('')
 const repoSpec = ref('')
 const catalogUrlInput = ref(market.catalogUrl)
+
+// ── Publish-to-GitHub state ────────────────────────────────────────────────
+const publishDialog = ref(false)
+const publishTarget = ref(null)        // { manifest, ... } of the plugin row clicked
+const publishRepoName = ref('')        // editable, prefilled with the plugin id
+const publishPrivate = ref(false)
+const publishing = ref(false)
+const publishError = ref(null)
+const publishResult = ref(null)        // { owner, repoName, tag, releaseUrl, downloadUrl, repoUrl, installSpec }
+
+function openPublishDialog(p) {
+  publishTarget.value = p
+  publishRepoName.value = `lotus-plugin-${p.manifest.id.replace(/^com\.lotus\./, '').replace(/[^a-z0-9_-]/gi, '-')}`
+  publishPrivate.value = false
+  publishing.value = false
+  publishError.value = null
+  publishResult.value = null
+  publishDialog.value = true
+}
+
+async function publishPlugin() {
+  if (!publishTarget.value) return
+  if (!window.lotusAPI?.plugins || !window.lotusAPI?.github) {
+    publishError.value = 'Plugin or GitHub API not available'
+    return
+  }
+
+  publishing.value = true
+  publishError.value = null
+  publishResult.value = null
+
+  try {
+    // Pull the live files for this plugin from disk so the zip we upload
+    // matches exactly what the IDE has installed. plugins.get returns the
+    // manifest, the entrySource (index.js) and the icon data URI — we then
+    // walk the plugin directory by re-listing for any extra files (src/*).
+    // The Web Plugin Loader's install path uses the same files map, so the
+    // round-trip is install → publish → re-install with identical content.
+    const pluginId = publishTarget.value.manifest.id
+    const get = await window.lotusAPI.plugins.get(pluginId)
+    if (!get?.ok) throw new Error(get?.error || 'Could not read plugin from disk')
+
+    // Build the zip. JSZip mirrors plugins:installFromFiles' files map
+    // convention — keys ending with `?base64` are binary.
+    const zip = new JSZip()
+    zip.file('lotus-plugin.json', JSON.stringify(get.manifest, null, 2))
+    // entrySource is the plain-text JS we feed to the worker — write back as
+    // the main file declared in the manifest (defaults to index.js).
+    zip.file(get.manifest.main || 'index.js', get.entrySource)
+    if (get.manifest.icon && get.iconDataUri) {
+      // iconDataUri is `data:image/<type>;base64,<payload>` — extract payload.
+      const m = /^data:[^;]+;base64,(.*)$/.exec(get.iconDataUri)
+      if (m) zip.file(get.manifest.icon, m[1], { base64: true })
+    }
+
+    // The IDE's plugin folder may also contain src/ C++ headers and other
+    // files (library.properties, README, etc). plugins.get only surfaces the
+    // bits the loader needs, so for everything else we'd have to walk the
+    // filesystem. For v1 of this feature we ship what plugins.get returns;
+    // that covers the manifest + JS + icon, which is the minimum a plugin
+    // needs to install. Users with C++ src/ should publish from the source
+    // repo manually for now — a TODO marker for the next iteration.
+
+    const zipBlob = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' })
+    let zipBase64 = ''
+    const chunk = 0x8000
+    for (let i = 0; i < zipBlob.length; i += chunk) {
+      zipBase64 += String.fromCharCode.apply(null, zipBlob.subarray(i, i + chunk))
+    }
+    zipBase64 = btoa(zipBase64)
+
+    const res = await window.lotusAPI.github.publishPackage({
+      repoName: publishRepoName.value.trim(),
+      isPrivate: publishPrivate.value,
+      description: get.manifest.description || '',
+      packageVersion: get.manifest.version || '1.0.0',
+      packageName: get.manifest.name || pluginId,
+      zipBase64,
+    })
+
+    if (!res?.ok) throw new Error(res?.error || 'Publish failed')
+    publishResult.value = res
+    appStore.log(`Published ${pluginId} to ${res.installSpec} (${res.tag})`, 'success')
+  } catch (e) {
+    publishError.value = e.message
+    appStore.log(`Publish failed: ${e.message}`, 'error')
+  } finally {
+    publishing.value = false
+  }
+}
 
 // A catalog entry is compatible when its declared `platforms` array (if any)
 // includes the active board's platform. Entries with no platforms field are

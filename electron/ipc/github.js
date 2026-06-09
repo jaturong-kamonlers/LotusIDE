@@ -340,3 +340,134 @@ ipcMain.handle('github:createRepo', async (_e, { name, description, private: isP
     } }
   } catch (e) { return { ok: false, error: e.message } }
 })
+
+// Raw binary upload — used for release assets. GitHub's asset endpoint sits
+// on a different host (uploads.github.com) and expects the binary body with
+// the appropriate Content-Type, so we can't reuse ghRequest's JSON path.
+function uploadBinary({ url, headers, contentType, buffer }) {
+  return new Promise((resolve, reject) => {
+    const req = net.request({ method: 'POST', url, redirect: 'follow' })
+    req.setHeader('User-Agent', 'LotusIDE/1.0')
+    req.setHeader('Accept', 'application/vnd.github+json')
+    req.setHeader('Content-Type', contentType)
+    req.setHeader('Content-Length', String(buffer.length))
+    for (const [k, v] of Object.entries(headers || {})) req.setHeader(k, v)
+    const chunks = []
+    req.on('response', (res) => {
+      res.on('data', (c) => chunks.push(c))
+      res.on('end', () => {
+        const text = Buffer.concat(chunks).toString('utf8')
+        const out = { status: res.statusCode }
+        try { out.body = JSON.parse(text) } catch { out.body = text }
+        resolve(out)
+      })
+      res.on('error', reject)
+    })
+    req.on('error', reject)
+    req.write(buffer)
+    req.end()
+  })
+}
+
+// Publish a plugin or board package as a versioned GitHub release. The
+// renderer pre-builds the .zip (via JSZip on the contents of `plugins:get`
+// or the board files map) so this handler only deals with the GitHub side:
+//   1. Look up the signed-in user (we need their login for the repo URL).
+//   2. Check whether `owner/<repoName>` already exists — if not, create it.
+//   3. Create a release tagged `v<version>` on the default branch.
+//   4. Upload the zip as a release asset named `<repoName>-<version>.zip`.
+// Returns the public asset download URL so the renderer can stamp it into a
+// shareable copy-paste string for the user.
+ipcMain.handle('github:publishPackage', async (_e, {
+  repoName, isPrivate = false, description = '',
+  packageVersion = '1.0.0', packageName = '',
+  zipBase64,
+}) => {
+  try {
+    if (typeof repoName !== 'string' || !/^[A-Za-z0-9._-]{1,100}$/.test(repoName)) {
+      return { ok: false, error: 'Invalid repository name' }
+    }
+    if (typeof zipBase64 !== 'string' || zipBase64.length < 100) {
+      return { ok: false, error: 'Missing or empty zip payload' }
+    }
+
+    // 1. Whose account is this?
+    const user = await api('GET', '/user')
+    const owner = user?.login
+    if (!owner) return { ok: false, error: 'Could not resolve GitHub username' }
+
+    // 2. Does the repo exist already?
+    let repoExists = false
+    try {
+      await api('GET', `/repos/${owner}/${repoName}`)
+      repoExists = true
+    } catch (e) {
+      // 404 → fine, we'll create it. Anything else is fatal.
+      if (!/GitHub 404/.test(e.message)) throw e
+    }
+
+    // 3. Create the repo if needed.
+    if (!repoExists) {
+      await api('POST', '/user/repos', {
+        name: repoName,
+        description: description || `Lotus IDE package: ${packageName || repoName}`,
+        private: !!isPrivate,
+        auto_init: true,
+      })
+    }
+
+    // 4. Create the release. Tag name `v<version>` matches the convention
+    //    used by Install-from-GitHub, which looks at the latest release.
+    const tag = `v${String(packageVersion).replace(/^v/, '')}`
+    let release
+    try {
+      release = await api('POST', `/repos/${owner}/${repoName}/releases`, {
+        tag_name: tag,
+        name: `${packageName || repoName} ${tag}`,
+        body: `Published from Lotus IDE`,
+        draft: false,
+        prerelease: false,
+      })
+    } catch (e) {
+      // If a release with that tag already exists, surface a useful error
+      // rather than letting the user wonder why upload failed.
+      if (/already_exists/i.test(e.message)) {
+        return { ok: false, error: `Release ${tag} already exists in ${owner}/${repoName}. Bump the version in the manifest and try again.` }
+      }
+      throw e
+    }
+
+    // 5. Upload the zip as an asset.
+    const buffer = Buffer.from(zipBase64, 'base64')
+    const assetName = `${repoName}-${tag}.zip`
+    const uploadUrl = `https://uploads.github.com/repos/${owner}/${repoName}/releases/${release.id}/assets?name=${encodeURIComponent(assetName)}`
+    const token = loadToken()
+    if (!token) return { ok: false, error: 'Not signed in to GitHub' }
+
+    const up = await uploadBinary({
+      url: uploadUrl,
+      headers: { Authorization: `token ${token}`, 'X-GitHub-Api-Version': '2022-11-28' },
+      contentType: 'application/zip',
+      buffer,
+    })
+    if (up.status >= 400) {
+      return { ok: false, error: `Asset upload failed (${up.status}): ${typeof up.body === 'string' ? up.body : JSON.stringify(up.body).slice(0, 200)}` }
+    }
+
+    return {
+      ok: true,
+      owner,
+      repoName,
+      tag,
+      created: !repoExists,
+      releaseUrl: release.html_url,
+      // The browser_download_url is the *public* asset URL that the catalog
+      // entry and Install-from-GitHub flow both consume.
+      downloadUrl: up.body?.browser_download_url || `https://github.com/${owner}/${repoName}/releases/download/${tag}/${assetName}`,
+      repoUrl: `https://github.com/${owner}/${repoName}`,
+      installSpec: `${owner}/${repoName}`,
+    }
+  } catch (e) {
+    return { ok: false, error: e.message }
+  }
+})

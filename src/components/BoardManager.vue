@@ -50,10 +50,54 @@
                   {{ b.error }}
                 </div>
               </div>
+              <v-btn
+                icon="mdi-github" size="small" variant="text" color="primary"
+                title="Publish this board to GitHub"
+                @click="openPublishDialog(b)"
+              />
               <v-btn icon="mdi-delete-outline" size="small" variant="text" color="error" @click="confirmUninstall(b)" />
             </div>
           </div>
         </div>
+
+        <!-- PUBLISH DIALOG -->
+        <v-dialog v-model="publishDialog" max-width="540" persistent>
+          <v-card v-if="publishTarget">
+            <v-card-title class="d-flex align-center">
+              <v-icon class="mr-2">mdi-github</v-icon>
+              Publish {{ publishTarget.manifest?.title || publishTarget.manifest?.name || publishTarget.id }}
+              <v-spacer />
+              <v-btn icon="mdi-close" variant="text" size="small" :disabled="publishing" @click="publishDialog = false" />
+            </v-card-title>
+            <v-card-text>
+              <div class="text-body-2 mb-3">
+                Bundle this board and push it to your GitHub as a versioned release.
+                Anyone can then install it via <b>Manage Boards → From GitHub</b> using the
+                <code>owner/repo</code> spec.
+              </div>
+              <v-text-field
+                v-model="publishRepoName"
+                label="Repository name"
+                density="compact" variant="outlined" hide-details
+                class="mb-3" :disabled="publishing"
+              />
+              <v-radio-group v-model="publishPrivate" hide-details density="compact" :disabled="publishing">
+                <v-radio :value="false" label="Public — anyone can install" color="primary" />
+                <v-radio :value="true"  label="Private — only you can install" color="primary" />
+              </v-radio-group>
+              <v-alert v-if="publishError" type="error" density="compact" variant="tonal" class="mt-3">{{ publishError }}</v-alert>
+              <v-alert v-if="publishResult" type="success" density="compact" variant="tonal" class="mt-3">
+                <div class="mb-1">Published to <a :href="publishResult.repoUrl" target="_blank">{{ publishResult.installSpec }}</a> as tag {{ publishResult.tag }}.</div>
+                <div>Share spec to install: <code>{{ publishResult.installSpec }}</code></div>
+              </v-alert>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn variant="text" :disabled="publishing" @click="publishDialog = false">{{ publishResult ? 'Close' : 'Cancel' }}</v-btn>
+              <v-btn v-if="!publishResult" color="primary" variant="flat" :loading="publishing" :disabled="!publishRepoName.trim()" @click="publishBoard">Publish</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
         <!-- CATALOG -->
         <div v-else-if="tab === 'catalog'">
@@ -194,6 +238,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import JSZip from 'jszip'
 import { useAppStore } from '../stores/app'
 import { useBoardManagerStore } from '../stores/boardManager'
 
@@ -205,6 +250,80 @@ const catalogUrlInput = ref(store.catalogUrl)
 const repoSpec = ref('')
 const cores = ref([])
 const installingCore = ref(null)
+
+// ── Publish-to-GitHub state ────────────────────────────────────────────────
+const publishDialog = ref(false)
+const publishTarget = ref(null)        // board row from store.installed
+const publishRepoName = ref('')
+const publishPrivate = ref(false)
+const publishing = ref(false)
+const publishError = ref(null)
+const publishResult = ref(null)
+
+function openPublishDialog(b) {
+  publishTarget.value = b
+  publishRepoName.value = `lotus-board-${(b.id || 'board').replace(/[^a-z0-9_-]/gi, '-')}`
+  publishPrivate.value = false
+  publishing.value = false
+  publishError.value = null
+  publishResult.value = null
+  publishDialog.value = true
+}
+
+async function publishBoard() {
+  if (!publishTarget.value) return
+  if (!window.lotusAPI?.boards || !window.lotusAPI?.github) {
+    publishError.value = 'Board or GitHub API not available'
+    return
+  }
+
+  publishing.value = true
+  publishError.value = null
+  publishResult.value = null
+
+  try {
+    const boardId = publishTarget.value.id
+    // exportFiles walks the user board folder and returns a files map shaped
+    // the same way installFromFiles consumes — so a publish→install round-trip
+    // recreates the original folder byte-for-byte.
+    const exp = await window.lotusAPI.boards.exportFiles(boardId)
+    if (!exp?.ok) throw new Error(exp?.error || 'Could not read board files')
+
+    const zip = new JSZip()
+    for (const [name, content] of Object.entries(exp.files)) {
+      if (name.endsWith('?base64')) {
+        zip.file(name.slice(0, -'?base64'.length), content, { base64: true })
+      } else {
+        zip.file(name, content)
+      }
+    }
+    const zipBlob = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' })
+    let zipBase64 = ''
+    const chunk = 0x8000
+    for (let i = 0; i < zipBlob.length; i += chunk) {
+      zipBase64 += String.fromCharCode.apply(null, zipBlob.subarray(i, i + chunk))
+    }
+    zipBase64 = btoa(zipBase64)
+
+    const manifest = publishTarget.value.manifest || {}
+    const res = await window.lotusAPI.github.publishPackage({
+      repoName: publishRepoName.value.trim(),
+      isPrivate: publishPrivate.value,
+      description: manifest.description || '',
+      packageVersion: manifest.version || '1.0.0',
+      packageName: manifest.title || manifest.name || boardId,
+      zipBase64,
+    })
+    if (!res?.ok) throw new Error(res?.error || 'Publish failed')
+    publishResult.value = res
+    appStore.log(`Published ${boardId} to ${res.installSpec} (${res.tag})`, 'success')
+  } catch (e) {
+    publishError.value = e.message
+    appStore.log(`Publish failed: ${e.message}`, 'error')
+  } finally {
+    publishing.value = false
+  }
+}
 
 async function refreshCores() {
   if (!window.lotusAPI?.arduino?.coreList) return

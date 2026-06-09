@@ -51,6 +51,7 @@ contextBridge.exposeInMainWorld('lotusAPI', {
     userList:            ()             => ipcRenderer.invoke('boards:userList'),
     pickPackage:         ()             => ipcRenderer.invoke('boards:pickPackage'),
     installFromFiles:    (payload)      => ipcRenderer.invoke('boards:installFromFiles', payload),
+    exportFiles:         (id)            => ipcRenderer.invoke('boards:exportFiles', id),
     uninstall:           (id)           => ipcRenderer.invoke('boards:uninstall', id),
     fetchCatalog:        (url)          => ipcRenderer.invoke('boards:fetchCatalog', url),
     downloadAndInstall:  (payload)      => ipcRenderer.invoke('boards:downloadAndInstall', payload),
@@ -112,6 +113,7 @@ contextBridge.exposeInMainWorld('lotusAPI', {
     saveSketchAsRepoFile:  (opts)     => ipcRenderer.invoke('github:saveSketchAsRepoFile', opts),
     listFileCommits:       (opts)     => ipcRenderer.invoke('github:listFileCommits', opts),
     createRepo:            (opts)     => ipcRenderer.invoke('github:createRepo', opts),
+    publishPackage:        (opts)     => ipcRenderer.invoke('github:publishPackage', opts),
   },
 
   // Arduino libraries (managed via arduino-cli)

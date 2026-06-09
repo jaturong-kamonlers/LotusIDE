@@ -97,6 +97,36 @@ ipcMain.handle('boards:installFromFiles', async (_e, { id, files }) => {
   }
 })
 
+// Walk a user board folder and return a flat files map suitable for the
+// installFromFiles flow on the receiving side — text files as utf-8 strings
+// and binary files (images, fonts, .a archives, etc.) as base64 with a
+// "?base64" suffix on the key. This is the input the publish-to-GitHub flow
+// hands to JSZip to rebuild a redistributable package.
+ipcMain.handle('boards:exportFiles', async (_e, id) => {
+  try {
+    const dir = safeBoardDir(id)
+    if (!fs.existsSync(dir)) return { ok: false, error: 'Board not installed under user dir' }
+
+    const TEXT_EXT = new Set(['.js','.json','.h','.hpp','.c','.cpp','.ino','.txt','.md','.css','.html','.svg','.csv','.properties'])
+    const files = {}
+    async function walk(rel) {
+      const abs = path.join(dir, rel)
+      const ents = await fsp.readdir(abs, { withFileTypes: true })
+      for (const ent of ents) {
+        const childRel = rel ? rel + '/' + ent.name : ent.name
+        if (ent.isDirectory()) { await walk(childRel); continue }
+        if (!ent.isFile()) continue
+        const buf = await fsp.readFile(path.join(dir, childRel))
+        const ext = path.extname(ent.name).toLowerCase()
+        if (TEXT_EXT.has(ext)) files[childRel] = buf.toString('utf8')
+        else files[childRel + '?base64'] = buf.toString('base64')
+      }
+    }
+    await walk('')
+    return { ok: true, files }
+  } catch (e) { return { ok: false, error: e.message } }
+})
+
 ipcMain.handle('boards:uninstall', async (_e, id) => {
   try {
     const dir = safeBoardDir(id)
