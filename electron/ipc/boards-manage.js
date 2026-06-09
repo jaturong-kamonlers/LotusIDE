@@ -155,7 +155,9 @@ ipcMain.handle('boards:fetchCatalog', async (_e, catalogUrl) => {
     if (typeof catalogUrl !== 'string' || !/^https?:\/\//i.test(catalogUrl)) {
       throw new Error('catalogUrl must be an http(s) URL')
     }
-    const body = await fetchText(catalogUrl)
+    // Strip a UTF-8 BOM — same defensive parsing as marketplace.js (community
+    // catalogs published from PowerShell may carry a BOM that JSON.parse rejects).
+    const body = (await fetchText(catalogUrl)).replace(/^﻿/, '')
     const json = JSON.parse(body)
     if (!Array.isArray(json)) throw new Error('Catalog must be a JSON array')
     return { ok: true, entries: json }
@@ -183,8 +185,12 @@ function fetchText(url) {
 }
 function fetchBuffer(url) {
   return new Promise((resolve, reject) => {
-    const req = net.request({ url, redirect: 'follow' })
+    // Cache-Control: no-cache bypasses Chromium's HTTP cache so an updated
+    // catalog or asset is fetched fresh — mirrors marketplace.js's fix.
+    const req = net.request({ url, redirect: 'follow', useSessionCookies: false })
     req.setHeader('User-Agent', 'LotusIDE/1.0')
+    req.setHeader('Cache-Control', 'no-cache')
+    req.setHeader('Pragma', 'no-cache')
     const chunks = []
     req.on('response', (res) => {
       if (res.statusCode >= 400) {

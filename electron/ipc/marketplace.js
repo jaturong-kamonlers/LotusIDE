@@ -27,9 +27,15 @@ const { ipcMain, net } = require('electron')
 
 function fetchBuffer(url, headers = {}) {
   return new Promise((resolve, reject) => {
-    const req = net.request({ url, redirect: 'follow' })
+    // useSessionCookies: false + Cache-Control: no-cache forces a fresh fetch.
+    // Without these, Chromium's HTTP cache may serve a stale response even
+    // when the upstream file has changed — this bit us when a catalog was
+    // re-uploaded to fix a BOM issue and the IDE kept returning the old bytes.
+    const req = net.request({ url, redirect: 'follow', useSessionCookies: false })
     req.setHeader('User-Agent', 'LotusIDE/1.0')
     req.setHeader('Accept', 'application/vnd.github+json')
+    req.setHeader('Cache-Control', 'no-cache')
+    req.setHeader('Pragma', 'no-cache')
     for (const [k, v] of Object.entries(headers)) req.setHeader(k, v)
     const chunks = []
     req.on('response', (res) => {
@@ -49,7 +55,11 @@ ipcMain.handle('marketplace:fetchCatalog', async (_e, catalogUrl) => {
     if (typeof catalogUrl !== 'string' || !/^https?:\/\//i.test(catalogUrl)) {
       throw new Error('catalogUrl must be an http(s) URL')
     }
-    const body = await fetchText(catalogUrl)
+    // Defensively strip a UTF-8 BOM — PowerShell's default `Out-File -Encoding
+    // utf8` writes one, and JSON.parse rejects it ("Unexpected token '﻿'").
+    // Authors of community catalogs may unknowingly publish a BOM'd file, so
+    // we'd rather tolerate it than push the responsibility back to them.
+    const body = (await fetchText(catalogUrl)).replace(/^﻿/, '')
     const json = JSON.parse(body)
     if (!Array.isArray(json)) throw new Error('Catalog must be a JSON array')
     return { ok: true, entries: json }
