@@ -61,14 +61,14 @@ void espShow(
 #ifdef ESP8266
     GPIO_REG_WRITE(GPIO_OUT_W1TS_ADDRESS, pinMask);       // Set high
 #else
-    gpio_set_level(pin, HIGH);
+    gpio_set_level((gpio_num_t)pin, HIGH);
 #endif
     startTime = c;                                        // Save start time
     while(((c = _getCycleCount()) - startTime) < t);      // Wait high duration
 #ifdef ESP8266
     GPIO_REG_WRITE(GPIO_OUT_W1TC_ADDRESS, pinMask);       // Set low
 #else
-    gpio_set_level(pin, LOW);
+    gpio_set_level((gpio_num_t)pin, LOW);
 #endif
     if(!(mask >>= 1)) {                                   // Next bit/byte
       if(p >= end) break;
