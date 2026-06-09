@@ -1,0 +1,13 @@
+{
+  "id": "com.lotus.actuator.servo",
+  "name": "Servo Motor",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "Drive standard hobby servo motors (uses Servo.h on AVR, ESP32Servo.h on ESP32)",
+  "author": "Lotus IDE",
+  "license": "MIT",
+  "category": "Actuators",
+  "platforms": ["arduino-esp32", "arduino-avr"],
+  "icon": "icon.jpg",
+  "keywords": ["servo", "motor", "PWM"]
+}

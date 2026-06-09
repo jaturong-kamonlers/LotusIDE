@@ -755,6 +755,41 @@ async function buildWithArduinoCli({ code, boardId, buildDir, port, upload }) {
   }
   phase(`Board library prep (cache ${libCacheHit ? 'hit' : 'rebuilt'})`, tLib)
 
+  // Installed plugins can ship their own C++ sources under
+  //   <userData>/plugins/<id>/src/*.{h,cpp,c}
+  // Expose each as a separate Arduino library under the same libsRoot so a
+  // sketch that does `#include <BH1750.h>` resolves cleanly. Each plugin gets
+  // its own subdir under libsRoot so they don't collide with the board lib or
+  // with each other. We re-copy on every compile because plugins are usually
+  // small (a few KB) — premature mtime tracking here is not worth the bug
+  // surface vs. just trusting fs.cpSync.
+  try {
+    const pluginsRoot = path.join(app.getPath('userData'), 'plugins')
+    if (fs.existsSync(pluginsRoot)) {
+      for (const pid of fs.readdirSync(pluginsRoot)) {
+        const pluginSrc = path.join(pluginsRoot, pid, 'src')
+        if (!fs.existsSync(pluginSrc) || !fs.statSync(pluginSrc).isDirectory()) continue
+        // Keep the prefix to avoid collisions with the BoardIdFull library
+        // arduino-cli already discovered under the same libsRoot.
+        const libName = `plugin_${pid.replace(/[^a-zA-Z0-9_]/g, '_')}`
+        const libDir  = path.join(libsRoot, libName)
+        const libSrc  = path.join(libDir, 'src')
+        fs.rmSync(libDir, { recursive: true, force: true })
+        fs.mkdirSync(libSrc, { recursive: true })
+        copyDirContents(pluginSrc, libSrc)
+        fs.writeFileSync(path.join(libDir, 'library.properties'),
+          `name=${libName}\nversion=1.0.0\nauthor=Lotus Plugin\nmaintainer=Lotus\n` +
+          `sentence=Plugin source\nparagraph=Auto-extracted by LotusIDE plugin loader\n` +
+          `category=Other\nurl=\narchitectures=*\n`, 'utf8')
+      }
+      // Make sure libArgs has --libraries libsRoot even if the board itself
+      // doesn't have an include/ (rare, but possible for a code-only board).
+      if (libArgs.length === 0) libArgs.push('--libraries', libsRoot)
+    }
+  } catch (e) {
+    sendProgress(`[plugin libs] skipped: ${e.message}`)
+  }
+
   // Stable build artifact dir → arduino-cli reuses cached .o files for unchanged
   // sources instead of recompiling Wi-Fi / BLE / etc. from scratch every time.
   const artifactDir = path.join(buildDir, '.build')
