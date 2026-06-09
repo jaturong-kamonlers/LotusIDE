@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- sweep arc 0-180 (drawn first so other elements overlay) -->
+  <path d="M 4 16 A 12 12 0 0 1 28 16" fill="none" stroke="#FFB74D" stroke-width="1" stroke-linecap="round" stroke-dasharray="1.5,1.8" opacity="0.55"/>
+  <!-- angle marks (0 and 180) -->
+  <text x="3" y="20" font-family="monospace" font-size="3" fill="#FFB74D" opacity="0.7">0</text>
+  <text x="26" y="20" font-family="monospace" font-size="3" fill="#FFB74D" opacity="0.7">180</text>
+  <!-- servo body -->
+  <rect x="9" y="16" width="14" height="11" rx="1" fill="#0D1117" stroke="#FFB74D" stroke-width="1.5"/>
+  <!-- mounting hole top-left + top-right corners -->
+  <circle cx="11" cy="18" r="0.8" fill="#FFB74D" opacity="0.5"/>
+  <circle cx="21" cy="18" r="0.8" fill="#FFB74D" opacity="0.5"/>
+  <!-- servo horn pivot -->
+  <circle cx="16" cy="16" r="3" fill="#0D1117" stroke="#FFB74D" stroke-width="1.4"/>
+  <circle cx="16" cy="16" r="1" fill="#FFB74D"/>
+  <!-- servo arm pointing up-right (~45 deg) -->
+  <line x1="16" y1="16" x2="23" y2="9" stroke="#FFB74D" stroke-width="2.3" stroke-linecap="round"/>
+  <circle cx="23" cy="9" r="1.5" fill="#FFB74D"/>
+  <!-- 3 wires bottom -->
+  <line x1="13" y1="27" x2="13" y2="30" stroke="#EF5350" stroke-width="1.2"/>
+  <line x1="16" y1="27" x2="16" y2="30" stroke="#FFEB3B" stroke-width="1.2"/>
+  <line x1="19" y1="27" x2="19" y2="30" stroke="#222" stroke-width="1.2"/>
+</svg>

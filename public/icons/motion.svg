@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- robot/car body at start -->
+  <rect x="3" y="22" width="7" height="5" rx="1" fill="#0D1117" stroke="#81C784" stroke-width="1.4"/>
+  <!-- two wheels -->
+  <circle cx="4.5" cy="28" r="1.3" fill="#0D1117" stroke="#81C784" stroke-width="1"/>
+  <circle cx="8.5" cy="28" r="1.3" fill="#0D1117" stroke="#81C784" stroke-width="1"/>
+  <!-- antenna -->
+  <line x1="6.5" y1="22" x2="6.5" y2="19" stroke="#81C784" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="6.5" cy="18.5" r="0.8" fill="#81C784"/>
+  <!-- trajectory path -->
+  <path d="M 10 22 Q 14 13 22 8" fill="none" stroke="#81C784" stroke-width="1.5" stroke-dasharray="2,1.8" stroke-linecap="round"/>
+  <!-- arrow tip at destination -->
+  <polygon points="20,11 26,5 25,13" fill="#81C784"/>
+  <!-- waypoint dot -->
+  <circle cx="17" cy="14" r="1.2" fill="#81C784" opacity="0.7"/>
+</svg>

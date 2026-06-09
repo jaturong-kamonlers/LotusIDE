@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- outer eye almond shape -->
+  <path d="M 3 16 Q 16 5 29 16 Q 16 27 3 16 Z" fill="#0D1117" stroke="#BA68C8" stroke-width="1.6"/>
+  <!-- iris circle -->
+  <circle cx="16" cy="16" r="6" fill="none" stroke="#BA68C8" stroke-width="1.5"/>
+  <!-- iris pattern strokes -->
+  <line x1="16" y1="10.5" x2="16" y2="12.5" stroke="#BA68C8" stroke-width="0.8" stroke-linecap="round"/>
+  <line x1="16" y1="19.5" x2="16" y2="21.5" stroke="#BA68C8" stroke-width="0.8" stroke-linecap="round"/>
+  <line x1="10.5" y1="16" x2="12.5" y2="16" stroke="#BA68C8" stroke-width="0.8" stroke-linecap="round"/>
+  <line x1="19.5" y1="16" x2="21.5" y2="16" stroke="#BA68C8" stroke-width="0.8" stroke-linecap="round"/>
+  <!-- pupil -->
+  <circle cx="16" cy="16" r="2.8" fill="#BA68C8"/>
+  <!-- glint highlight -->
+  <circle cx="14.3" cy="14.3" r="0.95" fill="#FFFFFF" opacity="0.9"/>
+</svg>

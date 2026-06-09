@@ -8,6 +8,6 @@
   "license": "MIT",
   "category": "Sensors",
   "platforms": ["arduino-esp32", "arduino-avr"],
-  "icon": "icon.jpg",
+  "icon": "icon.svg",
   "keywords": ["light", "lux", "BH1750", "i2c", "sensor"]
 }

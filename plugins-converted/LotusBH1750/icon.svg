@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- sun -->
+  <circle cx="8" cy="8" r="3" fill="#0D1117" stroke="#FFC107" stroke-width="1.4"/>
+  <line x1="8" y1="2.5" x2="8" y2="4" stroke="#FFC107" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="2.5" y1="8" x2="4" y2="8" stroke="#FFC107" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="4" y1="4" x2="5" y2="5" stroke="#FFC107" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="4" y1="12" x2="5" y2="11" stroke="#FFC107" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="12" y1="4" x2="11" y2="5" stroke="#FFC107" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- light rays falling to chip -->
+  <line x1="11" y1="11" x2="18" y2="18" stroke="#FFC107" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="1.5,1.5"/>
+  <line x1="14" y1="9" x2="21" y2="16" stroke="#FFC107" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="1.5,1.5"/>
+  <!-- sensor chip (BH1750) -->
+  <rect x="17" y="18" width="11" height="8" rx="1" fill="#0D1117" stroke="#4FC3F7" stroke-width="1.4"/>
+  <!-- chip label -->
+  <text x="22.5" y="23.5" text-anchor="middle" font-family="monospace" font-size="3.2" fill="#4FC3F7" font-weight="bold">BH</text>
+  <!-- bottom pins -->
+  <line x1="19" y1="26" x2="19" y2="28.5" stroke="#4FC3F7" stroke-width="1"/>
+  <line x1="22" y1="26" x2="22" y2="28.5" stroke="#4FC3F7" stroke-width="1"/>
+  <line x1="25" y1="26" x2="25" y2="28.5" stroke="#4FC3F7" stroke-width="1"/>
+  <line x1="27" y1="26" x2="27" y2="28.5" stroke="#4FC3F7" stroke-width="1"/>
+</svg>

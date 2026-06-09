@@ -50,7 +50,10 @@ async function readPluginPayload(id) {
     if (iconAbs.startsWith(dir + path.sep) && fs.existsSync(iconAbs)) {
       const buf = await fsp.readFile(iconAbs)
       const ext = path.extname(iconAbs).toLowerCase()
-      const mime = ext === '.png' ? 'image/png' : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : 'application/octet-stream'
+      const mime = ext === '.png' ? 'image/png'
+        : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg'
+        : ext === '.svg' ? 'image/svg+xml'
+        : 'application/octet-stream'
       iconDataUri = `data:${mime};base64,${buf.toString('base64')}`
     }
   }

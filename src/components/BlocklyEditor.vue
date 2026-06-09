@@ -92,6 +92,13 @@ import loopsRaw     from '../../public/icons/loops.svg?raw'
 import textRaw      from '../../public/icons/text.svg?raw'
 import functionsRaw from '../../public/icons/functions.svg?raw'
 import taskRaw      from '../../public/icons/task.svg?raw'
+// Plugin category icons — drawn in the same schematic line-art style as the
+// built-in categories so the toolbox stays visually consistent when plugins
+// contribute groups (Sensors / Actuators / Vision / Motion).
+import sensorsRaw   from '../../public/icons/sensors.svg?raw'
+import actuatorsRaw from '../../public/icons/actuators.svg?raw'
+import visionRaw    from '../../public/icons/vision.svg?raw'
+import motionRaw    from '../../public/icons/motion.svg?raw'
 
 function toDataUri(svgRaw) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgRaw)}`
@@ -420,6 +427,13 @@ const CATEGORY_ICONS = {
   'cat-text':      { icon: toDataUri(textRaw),      color: '#FFD740' },
   'cat-functions': { icon: toDataUri(functionsRaw), color: '#B388FF' },
   'cat-task':      { icon: toDataUri(taskRaw),      color: '#7E57C2' },
+  // Grouped plugin categories use the same toolboxitemid format the loader
+  // emits (`plugin-cat-<category-name>`), so injectCategoryIcons() picks them
+  // up without any extra hook.
+  'plugin-cat-Sensors':   { icon: toDataUri(sensorsRaw),   color: '#4FC3F7' },
+  'plugin-cat-Actuators': { icon: toDataUri(actuatorsRaw), color: '#FFB74D' },
+  'plugin-cat-Vision':    { icon: toDataUri(visionRaw),    color: '#BA68C8' },
+  'plugin-cat-Motion':    { icon: toDataUri(motionRaw),    color: '#81C784' },
 }
 
 function injectCategoryIcons() {

@@ -8,6 +8,6 @@
   "license": "MIT",
   "category": "Actuators",
   "platforms": ["arduino-esp32", "arduino-avr"],
-  "icon": "icon.jpg",
+  "icon": "icon.svg",
   "keywords": ["servo", "motor", "PWM"]
 }
