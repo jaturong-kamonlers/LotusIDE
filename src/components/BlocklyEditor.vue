@@ -65,7 +65,20 @@ import * as Blockly from 'blockly'
 import { javascriptGenerator } from 'blockly/javascript'
 import 'blockly/blocks'
 import { toolbox as baseToolbox } from '../blockly/index'
-import { getPluginToolboxCategories, getPluginIncludes } from '../plugins/pluginLoader'
+import { getPluginToolboxCategories, getPluginIncludes, setBoardProvider } from '../plugins/pluginLoader'
+
+// Resolve the board context that plugin generators receive as their 3rd arg.
+// Pin numbers are the conservative defaults — sketches can still override by
+// reading board.platform and emitting their own values. AVR's Wire.begin()
+// ignores its arguments, so the i2c pins there are documentation only.
+function makeBoardCtx(board) {
+  const platform = board?.platform || null
+  const ctx = { name: board?.name || null, platform, i2cSda: null, i2cScl: null }
+  if (platform === 'arduino-esp32') { ctx.i2cSda = 21; ctx.i2cScl = 22 }
+  else if (platform === 'arduino-avr') { ctx.i2cSda = 'A4'; ctx.i2cScl = 'A5' }
+  else if (platform === 'arduino-sam') { ctx.i2cSda = 20; ctx.i2cScl = 21 }
+  return ctx
+}
 
 const toolbox = baseToolbox
 
@@ -307,7 +320,7 @@ async function loadBoardBlocks(boardId) {
   const baseContents = baseToolbox.contents.filter(cat =>
     cat.toolboxitemid !== 'cat-task' || isEsp32)
 
-  const pluginCats = getPluginToolboxCategories()
+  const pluginCats = getPluginToolboxCategories(appStore.selectedBoard?.platform || null)
   workspace.updateToolbox({
     kind: 'categoryToolbox',
     contents: [...toolboxDefs, ...baseContents, ...pluginCats],
@@ -584,10 +597,21 @@ watch(() => pluginStore.loaded.map(p => p.manifest.id).join('|'), () => {
   if (appStore.selectedBoard) {
     boardLoadPromise = loadBoardBlocks(appStore.selectedBoard.id)
   } else {
-    const pluginCats = getPluginToolboxCategories()
+    const pluginCats = getPluginToolboxCategories(appStore.selectedBoard?.platform || null)
     workspace.updateToolbox({ kind: 'categoryToolbox', contents: [...baseToolbox.contents, ...pluginCats] })
     setTimeout(() => { injectCategoryIcons(); injectPluginCategoryIcons(); positionToolboxDivider() }, 400)
   }
+})
+
+// Refresh plugin generator context whenever the selected board changes so
+// `board.platform`/`board.i2cSda` etc. inside generators reflect the new
+// target. The provider is read on every block code-gen call, so a single
+// install at mount time is enough — this watch just keeps the toolbox
+// in sync when the board switch would also change which plugins apply.
+setBoardProvider(() => makeBoardCtx(appStore.selectedBoard))
+watch(() => appStore.selectedBoard?.platform, () => {
+  if (!workspace) return
+  if (appStore.selectedBoard) boardLoadPromise = loadBoardBlocks(appStore.selectedBoard.id)
 })
 
 watch(() => appStore.theme, (newTheme) => {

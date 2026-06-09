@@ -102,6 +102,15 @@
                 <div class="plugin-name">
                   {{ e.name || e.id }}
                   <span v-if="e.version" class="plugin-version">v{{ e.version }}</span>
+                  <v-chip
+                    v-if="e.category" size="x-small" variant="tonal"
+                    color="primary" class="ml-1"
+                  >{{ e.category }}</v-chip>
+                  <v-chip
+                    v-for="p in (e.platforms || [])" :key="p"
+                    size="x-small" variant="outlined" class="ml-1"
+                    :color="appStore.selectedBoard?.platform === p ? 'success' : undefined"
+                  >{{ p.replace('arduino-', '') }}</v-chip>
                 </div>
                 <div class="plugin-desc">{{ e.description || '' }}</div>
                 <div v-if="e.author" class="plugin-blocks">by {{ e.author }}</div>
@@ -109,9 +118,11 @@
               <v-btn
                 size="small" variant="tonal" color="primary"
                 :loading="installingId === e.id"
+                :disabled="!isCompatible(e)"
+                :title="isCompatible(e) ? '' : `Requires: ${(e.platforms || []).join(', ')}`"
                 @click="installFromCatalog(e)"
               >
-                Install
+                {{ isCompatible(e) ? 'Install' : 'Incompatible' }}
               </v-btn>
             </div>
           </div>
@@ -188,6 +199,16 @@ const installingId = ref(null)
 const pluginsRoot = ref('')
 const repoSpec = ref('')
 const catalogUrlInput = ref(market.catalogUrl)
+
+// A catalog entry is compatible when its declared `platforms` array (if any)
+// includes the active board's platform. Entries with no platforms field are
+// treated as universal — the same convention the toolbox filter uses.
+function isCompatible(e) {
+  if (!Array.isArray(e.platforms) || e.platforms.length === 0) return true
+  const p = appStore.selectedBoard?.platform
+  if (!p) return true
+  return e.platforms.includes(p)
+}
 
 onMounted(async () => {
   if (window.lotusAPI?.plugins) pluginsRoot.value = await window.lotusAPI.plugins.root()

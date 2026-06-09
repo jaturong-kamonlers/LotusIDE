@@ -19,6 +19,16 @@ import workerSrc from './pluginWorker.js?raw'
 function isObj(v) { return v && typeof v === 'object' && !Array.isArray(v) }
 function isStr(v) { return typeof v === 'string' && v.length > 0 }
 
+// Allowed values for the optional `category` field. Plugins that share a
+// category collapse into a single Blockly toolbox group at the bottom of
+// the workspace, so the toolbox doesn't grow one row per sensor.
+const ALLOWED_CATEGORIES = ['Sensors', 'Actuators', 'Vision', 'Motion', 'Other']
+
+// Allowed values for the optional `platforms` array. A plugin restricted to
+// a subset of these is hidden in the toolbox / disabled in the catalog
+// install button when the active board's platform isn't in the list.
+const ALLOWED_PLATFORMS = ['arduino-avr', 'arduino-esp32', 'arduino-sam']
+
 function validateManifest(m) {
   if (!isObj(m))          throw new Error('Manifest must be an object')
   if (!isStr(m.id))       throw new Error('Manifest.id required')
@@ -26,6 +36,16 @@ function validateManifest(m) {
   if (!isStr(m.name))     throw new Error('Manifest.name required')
   if (!isStr(m.version))  throw new Error('Manifest.version required')
   if (!isStr(m.main))     throw new Error('Manifest.main required')
+  if (m.category != null) {
+    if (!isStr(m.category) || !ALLOWED_CATEGORIES.includes(m.category)) {
+      throw new Error(`Manifest.category must be one of: ${ALLOWED_CATEGORIES.join(', ')}`)
+    }
+  }
+  if (m.platforms != null) {
+    if (!Array.isArray(m.platforms) || m.platforms.some(p => !ALLOWED_PLATFORMS.includes(p))) {
+      throw new Error(`Manifest.platforms must be an array of: ${ALLOWED_PLATFORMS.join(', ')}`)
+    }
+  }
   return m
 }
 
@@ -111,13 +131,30 @@ function loadInWorker(jsSource, timeoutMs = 5000) {
 // Keeps a record of what each plugin registered so we can cleanly unregister.
 const registry = new Map()   // pluginId → { blockTypes: [...], includes: [...], toolbox, manifest }
 
+// Host supplies a live getter for the active board so generators can do things
+// like dispatch I2C pins per platform without reaching into Vue/Pinia globals.
+// BlocklyEditor sets this once at mount; the closure reads the store live so
+// each generator call sees the current selection without re-registration.
+let currentBoardProvider = () => ({ name: null, platform: null, i2cSda: null, i2cScl: null })
+
+export function setBoardProvider(fn) {
+  if (typeof fn === 'function') currentBoardProvider = fn
+}
+
 function buildGeneratorFn(codeStr, blockType) {
-  // Wrap in IIFE shape so the user's return value flows back to Blockly.
+  // The user's code body is compiled once. At call time we shim in the live
+  // board context as a 3rd argument so plugin code can write
+  //   `if (board.platform === 'arduino-esp32') { ... }`
+  // without any host-global access.
+  let userFn
   try {
     // eslint-disable-next-line no-new-func
-    return new Function('block', 'generator', codeStr)
+    userFn = new Function('block', 'generator', 'board', codeStr)
   } catch (e) {
     throw new Error(`Generator for "${blockType}" failed to compile: ${e.message}`)
+  }
+  return function(block, generator) {
+    return userFn(block, generator, currentBoardProvider())
   }
 }
 
@@ -156,6 +193,10 @@ export async function loadPlugin({ manifest, entrySource, iconUrl }) {
     blockTypes,
     includes: Array.isArray(payload.includes) ? payload.includes.slice() : [],
     toolbox: payload.toolbox || { name: manifest.name, color: '#7E57C2' },
+    // Hoist optional metadata from the manifest so the toolbox + Plugin Manager
+    // UI don't have to re-read it for grouping and platform filtering.
+    category: manifest.category || null,
+    platforms: Array.isArray(manifest.platforms) ? manifest.platforms.slice() : null,
     iconUrl: iconUrl || null,
   }
   registry.set(manifest.id, descriptor)
@@ -183,14 +224,58 @@ export function getPluginIncludes() {
   return [...new Set(all)]
 }
 
+// Default colour per category — picked once here so the toolbox stays
+// visually consistent across plugins that didn't specify their own colour.
+const CATEGORY_COLOURS = {
+  Sensors:   '#4FC3F7',  // light blue
+  Actuators: '#FFB74D',  // orange
+  Vision:    '#BA68C8',  // purple
+  Motion:    '#81C784',  // green
+  Other:     '#7E57C2',  // indigo
+}
+
 // Toolbox categories contributed by plugins — consumed by BlocklyEditor when
 // it rebuilds the toolbox after a board switch.
-export function getPluginToolboxCategories() {
-  return [...registry.values()].map(d => ({
-    kind: 'category',
-    name: d.toolbox.name,
-    colour: String(d.toolbox.color || '#7E57C2'),
-    toolboxitemid: `plugin-cat-${d.manifest.id}`,
-    contents: d.blockTypes.map(t => ({ kind: 'block', type: t })),
-  }))
+//
+// Behaviour:
+//   - Plugins with the same `category` collapse into one Blockly category
+//     so 15 sensor plugins don't make 15 separate toolbox rows.
+//   - Plugins without a category fall back to their own per-plugin row
+//     (legacy behaviour, used by the standalone example plugin).
+//   - If `currentPlatform` is provided, plugins whose `platforms[]`
+//     doesn't include it are skipped — the toolbox refreshes after every
+//     board change so this stays in sync.
+export function getPluginToolboxCategories(currentPlatform = null) {
+  const compatible = [...registry.values()].filter(d => {
+    if (!d.platforms || !currentPlatform) return true
+    return d.platforms.includes(currentPlatform)
+  })
+
+  const grouped = new Map()  // category → { name, colour, contents[] }
+  const ungrouped = []
+
+  for (const d of compatible) {
+    if (!d.category) {
+      ungrouped.push({
+        kind: 'category',
+        name: d.toolbox.name,
+        colour: String(d.toolbox.color || '#7E57C2'),
+        toolboxitemid: `plugin-cat-${d.manifest.id}`,
+        contents: d.blockTypes.map(t => ({ kind: 'block', type: t })),
+      })
+      continue
+    }
+    if (!grouped.has(d.category)) {
+      grouped.set(d.category, {
+        kind: 'category',
+        name: d.category,
+        colour: CATEGORY_COLOURS[d.category] || '#7E57C2',
+        toolboxitemid: `plugin-cat-${d.category}`,
+        contents: [],
+      })
+    }
+    grouped.get(d.category).contents.push(...d.blockTypes.map(t => ({ kind: 'block', type: t })))
+  }
+
+  return [...grouped.values(), ...ungrouped]
 }
