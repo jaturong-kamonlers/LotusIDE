@@ -762,6 +762,21 @@ onUnmounted(() => { workspace?.dispose() })
   border-radius: 8px !important;
 }
 
+/* Plugin name divider in the flyout — when multiple plugins share a single
+   merged category (e.g. 10 sensor plugins under Sensors), each plugin's
+   blocks are preceded by an "── BH1750 ──" label so the user can scan past
+   sensor boundaries quickly. The label is a stock Blockly toolbox 'label'
+   item; the .lotus-plugin-divider class is attached via 'web-class' in the
+   toolbox JSON, see pluginLoader.js. */
+:deep(.blocklyFlyoutLabel.lotus-plugin-divider .blocklyFlyoutLabelText) {
+  font-family: 'Sarabun', 'Segoe UI', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.2px !important;
+  fill: rgba(255, 255, 255, 0.55) !important;
+  text-transform: uppercase !important;
+}
+
 .code-preview {
   position: absolute; right: 8px; top: 8px;
   width: 380px; max-height: 320px;

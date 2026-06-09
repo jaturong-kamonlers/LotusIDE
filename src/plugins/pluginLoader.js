@@ -274,7 +274,18 @@ export function getPluginToolboxCategories(currentPlatform = null) {
         contents: [],
       })
     }
-    grouped.get(d.category).contents.push(...d.blockTypes.map(t => ({ kind: 'block', type: t })))
+    const cat = grouped.get(d.category)
+    // Drop a label divider before each plugin so that, when 10 sensor plugins
+    // share one Sensors category, the blocks of BH1750 / BMP280 / DHT etc.
+    // stay visually separated. The label is a Blockly toolbox primitive — no
+    // generator code, no draggable shape — so it costs zero workspace state
+    // while giving the user an "── BH1750 ──" header to scan past.
+    cat.contents.push({
+      kind: 'label',
+      text: `── ${d.toolbox.name || d.manifest.name || d.manifest.id} ──`,
+      'web-class': 'lotus-plugin-divider',
+    })
+    cat.contents.push(...d.blockTypes.map(t => ({ kind: 'block', type: t })))
   }
 
   return [...grouped.values(), ...ungrouped]
