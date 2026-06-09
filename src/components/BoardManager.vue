@@ -60,45 +60,6 @@
           </div>
         </div>
 
-        <!-- PUBLISH DIALOG -->
-        <v-dialog v-model="publishDialog" max-width="540" persistent>
-          <v-card v-if="publishTarget">
-            <v-card-title class="d-flex align-center">
-              <v-icon class="mr-2">mdi-github</v-icon>
-              Publish {{ publishTarget.manifest?.title || publishTarget.manifest?.name || publishTarget.id }}
-              <v-spacer />
-              <v-btn icon="mdi-close" variant="text" size="small" :disabled="publishing" @click="publishDialog = false" />
-            </v-card-title>
-            <v-card-text>
-              <div class="text-body-2 mb-3">
-                Bundle this board and push it to your GitHub as a versioned release.
-                Anyone can then install it via <b>Manage Boards → From GitHub</b> using the
-                <code>owner/repo</code> spec.
-              </div>
-              <v-text-field
-                v-model="publishRepoName"
-                label="Repository name"
-                density="compact" variant="outlined" hide-details
-                class="mb-3" :disabled="publishing"
-              />
-              <v-radio-group v-model="publishPrivate" hide-details density="compact" :disabled="publishing">
-                <v-radio :value="false" label="Public — anyone can install" color="primary" />
-                <v-radio :value="true"  label="Private — only you can install" color="primary" />
-              </v-radio-group>
-              <v-alert v-if="publishError" type="error" density="compact" variant="tonal" class="mt-3">{{ publishError }}</v-alert>
-              <v-alert v-if="publishResult" type="success" density="compact" variant="tonal" class="mt-3">
-                <div class="mb-1">Published to <a :href="publishResult.repoUrl" target="_blank">{{ publishResult.installSpec }}</a> as tag {{ publishResult.tag }}.</div>
-                <div>Share spec to install: <code>{{ publishResult.installSpec }}</code></div>
-              </v-alert>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer />
-              <v-btn variant="text" :disabled="publishing" @click="publishDialog = false">{{ publishResult ? 'Close' : 'Cancel' }}</v-btn>
-              <v-btn v-if="!publishResult" color="primary" variant="flat" :loading="publishing" :disabled="!publishRepoName.trim()" @click="publishBoard">Publish</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-
         <!-- CATALOG -->
         <div v-else-if="tab === 'catalog'">
           <div class="row-actions">
@@ -233,6 +194,47 @@
         </div>
       </v-card-text>
     </v-card>
+
+    <!-- PUBLISH DIALOG (sibling of the main Manage Boards dialog, not inside
+         the v-if/v-else-if tab chain — Vue requires consecutive v-else-if
+         siblings to share an unbroken v-if root). -->
+    <v-dialog v-model="publishDialog" max-width="540" persistent>
+      <v-card v-if="publishTarget">
+        <v-card-title class="d-flex align-center">
+          <v-icon class="mr-2">mdi-github</v-icon>
+          Publish {{ publishTarget.manifest?.title || publishTarget.manifest?.name || publishTarget.id }}
+          <v-spacer />
+          <v-btn icon="mdi-close" variant="text" size="small" :disabled="publishing" @click="publishDialog = false" />
+        </v-card-title>
+        <v-card-text>
+          <div class="text-body-2 mb-3">
+            Bundle this board and push it to your GitHub as a versioned release.
+            Anyone can then install it via <b>Manage Boards → From GitHub</b> using the
+            <code>owner/repo</code> spec.
+          </div>
+          <v-text-field
+            v-model="publishRepoName"
+            label="Repository name"
+            density="compact" variant="outlined" hide-details
+            class="mb-3" :disabled="publishing"
+          />
+          <v-radio-group v-model="publishPrivate" hide-details density="compact" :disabled="publishing">
+            <v-radio :value="false" label="Public — anyone can install" color="primary" />
+            <v-radio :value="true"  label="Private — only you can install" color="primary" />
+          </v-radio-group>
+          <v-alert v-if="publishError" type="error" density="compact" variant="tonal" class="mt-3">{{ publishError }}</v-alert>
+          <v-alert v-if="publishResult" type="success" density="compact" variant="tonal" class="mt-3">
+            <div class="mb-1">Published to <a :href="publishResult.repoUrl" target="_blank">{{ publishResult.installSpec }}</a> as tag {{ publishResult.tag }}.</div>
+            <div>Share spec to install: <code>{{ publishResult.installSpec }}</code></div>
+          </v-alert>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" :disabled="publishing" @click="publishDialog = false">{{ publishResult ? 'Close' : 'Cancel' }}</v-btn>
+          <v-btn v-if="!publishResult" color="primary" variant="flat" :loading="publishing" :disabled="!publishRepoName.trim()" @click="publishBoard">Publish</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-dialog>
 </template>
 
