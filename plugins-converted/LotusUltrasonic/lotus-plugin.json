@@ -1,13 +1,20 @@
 {
-  "id": "com.lotus.sensor.ultrasonic",
-  "name": "HC-SR04 Ultrasonic",
-  "version": "1.1.0",
-  "main": "index.js",
-  "description": "Distance measurement via HC-SR04 ultrasonic sensor (TRIG/ECHO pins)",
-  "author": "Lotus IDE",
-  "license": "MIT",
-  "category": "Sensors",
-  "platforms": ["arduino-esp32", "arduino-avr"],
-  "icon": "icon.svg",
-  "keywords": ["ultrasonic", "HC-SR04", "distance"]
+    "id":  "com.lotus.sensor.ultrasonic",
+    "name":  "HC-SR04 Ultrasonic",
+    "version":  "1.2.0",
+    "main":  "index.js",
+    "description":  "Distance measurement via HC-SR04 ultrasonic sensor (TRIG/ECHO pins)",
+    "author":  "Lotus IDE",
+    "license":  "MIT",
+    "category":  "Sensors",
+    "platforms":  [
+                      "arduino-esp32",
+                      "arduino-avr"
+                  ],
+    "icon":  "icon.svg",
+    "keywords":  [
+                     "ultrasonic",
+                     "HC-SR04",
+                     "distance"
+                 ]
 }

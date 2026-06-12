@@ -1,7 +1,7 @@
 var JOINT_OPTS = [['Joint 0 (Base/Shoulder)','0'],['Joint 1 (Shoulder/Elbow)','1'],['Joint 2 (Elbow/Wrist)','2'],['Joint 3 (Wrist)','3']];
 
 lotus.register({
-  toolbox: { name: 'Arm IK', color: '#81C784' },
+  toolbox: { name: 'Arm IK', color: '#43A047' },
   blocks: [
     {
       type: 'armik_setup',
@@ -14,7 +14,7 @@ lotus.register({
         { type: 'field_number', name: 'L3', value: 80,  min: 0, max: 2000 },
         { type: 'field_number', name: 'L4', value: 60,  min: 0, max: 2000 },
       ],
-      previousStatement: null, nextStatement: null, colour: '#81C784',
+      previousStatement: null, nextStatement: null, colour: '#43A047',
     },
     {
       type: 'armik_attach_pca',
@@ -30,7 +30,7 @@ lotus.register({
         { type: 'field_number',   name: 'OFFSET', value: 0, min: -90, max: 90 },
         { type: 'field_dropdown', name: 'REV',    options: [['No','0'],['Yes','1']] },
       ],
-      previousStatement: null, nextStatement: null, colour: '#81C784',
+      previousStatement: null, nextStatement: null, colour: '#43A047',
     },
     {
       type: 'armik_attach_servo',
@@ -45,22 +45,22 @@ lotus.register({
         { type: 'field_number',   name: 'OFFSET', value: 0, min: -90, max: 90 },
         { type: 'field_dropdown', name: 'REV',    options: [['No','0'],['Yes','1']] },
       ],
-      previousStatement: null, nextStatement: null, colour: '#81C784',
+      previousStatement: null, nextStatement: null, colour: '#43A047',
     },
     {
       type: 'armik_move_xy',
-      message0: '%1 Move To X %2 Y %3 Wrist φ %4 mm / °',
+      message0: '%1 Move To X %2 Y %3 Wrist Ï† %4 mm / Â°',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'ARM1' },
         { type: 'input_value', name: 'X',   check: 'Number' },
         { type: 'input_value', name: 'Y',   check: 'Number' },
         { type: 'input_value', name: 'PHI', check: 'Number' },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#81C784',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#43A047',
     },
     {
       type: 'armik_move_xyz',
-      message0: '%1 Move To 3D X %2 Y %3 Z %4 Wrist φ %5 mm / °',
+      message0: '%1 Move To 3D X %2 Y %3 Z %4 Wrist Ï† %5 mm / Â°',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'ARM1' },
         { type: 'input_value', name: 'X',   check: 'Number' },
@@ -68,26 +68,26 @@ lotus.register({
         { type: 'input_value', name: 'Z',   check: 'Number' },
         { type: 'input_value', name: 'PHI', check: 'Number' },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#81C784',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#43A047',
     },
     {
       type: 'armik_set_joint',
-      message0: '%1 Set Joint %2 angle %3 °',
+      message0: '%1 Set Joint %2 angle %3 Â°',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'ARM1' },
         { type: 'field_dropdown', name: 'JOINT', options: JOINT_OPTS },
         { type: 'input_value', name: 'ANGLE', check: 'Number' },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#81C784',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#43A047',
     },
     {
       type: 'armik_get_joint',
-      message0: '%1 Get Joint %2 angle °',
+      message0: '%1 Get Joint %2 angle Â°',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'ARM1' },
         { type: 'field_dropdown', name: 'JOINT', options: JOINT_OPTS },
       ],
-      inputsInline: true, output: 'Number', colour: '#81C784',
+      inputsInline: true, output: 'Number', colour: '#43A047',
     },
     {
       type: 'armik_reachable',
@@ -97,9 +97,9 @@ lotus.register({
         { type: 'input_value', name: 'X', check: 'Number' },
         { type: 'input_value', name: 'Y', check: 'Number' },
       ],
-      inputsInline: true, output: 'Boolean', colour: '#81C784',
+      inputsInline: true, output: 'Boolean', colour: '#43A047',
     },
-    { type: 'armik_home', message0: '%1 Move Home', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'ARM1' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#81C784' },
+    { type: 'armik_home', message0: '%1 Move Home', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'ARM1' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#43A047' },
   ],
   generators: {
     armik_setup: `

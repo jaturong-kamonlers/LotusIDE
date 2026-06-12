@@ -1,13 +1,23 @@
 {
-  "id": "com.lotus.motion.armik",
-  "name": "Robot Arm IK (2/3/4-DOF)",
-  "version": "1.0.0",
-  "main": "index.js",
-  "description": "Inverse kinematics for 2/3/4-DOF robot arms using PCA9685 or Arduino Servo backends",
-  "author": "Lotus IDE",
-  "license": "MIT",
-  "category": "Motion",
-  "platforms": ["arduino-esp32", "arduino-avr"],
-  "icon": "icon.svg",
-  "keywords": ["robot arm", "IK", "inverse kinematics", "DOF", "servo", "PCA9685"]
+    "id":  "com.lotus.motion.armik",
+    "name":  "Robot Arm IK (2/3/4-DOF)",
+    "version":  "1.3.0",
+    "main":  "index.js",
+    "description":  "Inverse kinematics for 2/3/4-DOF robot arms using PCA9685 or Arduino Servo backends",
+    "author":  "Lotus IDE",
+    "license":  "MIT",
+    "category":  "Motion",
+    "platforms":  [
+                      "arduino-esp32",
+                      "arduino-avr"
+                  ],
+    "icon":  "icon.svg",
+    "keywords":  [
+                     "robot arm",
+                     "IK",
+                     "inverse kinematics",
+                     "DOF",
+                     "servo",
+                     "PCA9685"
+                 ]
 }

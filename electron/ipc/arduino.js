@@ -1083,11 +1083,11 @@ function readBoardSummary(boardId, boardPath, source) {
       if (ctx.baudrate) baudrate  = ctx.baudrate
     }
 
-    // User-installed boards live outside the bundle. The renderer can't
-    // reach them via the public/ static prefix, so we hand back a
-    // file:// path for the display image.
+    // User-installed boards live outside the bundle. Use the kbide:// custom
+    // protocol so the renderer can fetch them in both prod (file://) and dev
+    // (http://localhost:5173) without cross-origin blocking.
     const image = source === 'user'
-      ? 'file:///' + path.join(boardPath, 'static', `display.${imageExt}`).replace(/\\/g, '/')
+      ? `kbide://user-board/${boardId}/static/display.${imageExt}`
       : `boards/${boardId}/static/display.${imageExt}`
 
     return {

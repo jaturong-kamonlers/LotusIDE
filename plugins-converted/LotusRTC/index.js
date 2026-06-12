@@ -3,10 +3,10 @@
 // printf-free formatted time strings via inline character emission.
 
 lotus.register({
-  toolbox: { name: 'RTC', color: '#4FC3F7' },
+  toolbox: { name: 'RTC', color: '#607D8B' },
   blocks: [
-    { type: 'rtc_begin',  message0: '%1 Initialize RTC',         args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], previousStatement: null, nextStatement: null, colour: '#4FC3F7' },
-    { type: 'rtc_update', message0: '%1 Read RTC (once per loop)', args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], previousStatement: null, nextStatement: null, colour: '#4FC3F7' },
+    { type: 'rtc_begin',  message0: '%1 Initialize RTC',         args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], previousStatement: null, nextStatement: null, colour: '#607D8B' },
+    { type: 'rtc_update', message0: '%1 Read RTC (once per loop)', args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], previousStatement: null, nextStatement: null, colour: '#607D8B' },
     {
       type: 'rtc_format_time',
       message0: '%1 Time format %2',
@@ -14,19 +14,19 @@ lotus.register({
         { type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' },
         { type: 'field_dropdown', name: 'FORMAT', options: [['HH:MM:SS','HH:MM:SS'],['HH:MM','HH:MM'],['MM:SS','MM:SS'],['DD/MM/YYYY','DD/MM/YYYY'],['DD/MM/YY','DD/MM/YY'],['YYYY-MM-DD','YYYY-MM-DD'],['DD/MM/YYYY HH:MM:SS','DD/MM/YYYY HH:MM:SS']] },
       ],
-      inputsInline: true, output: 'String', colour: '#4FC3F7',
+      inputsInline: true, output: 'String', colour: '#607D8B',
     },
-    { type: 'rtc_get_year',   message0: '%1 Get YEAR',   args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], output: 'Number', colour: '#4FC3F7' },
-    { type: 'rtc_get_month',  message0: '%1 Get MONTH',  args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], output: 'Number', colour: '#4FC3F7' },
-    { type: 'rtc_get_day',    message0: '%1 Get DAY',    args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], output: 'Number', colour: '#4FC3F7' },
-    { type: 'rtc_get_hour',   message0: '%1 Get HOUR',   args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], output: 'Number', colour: '#4FC3F7' },
-    { type: 'rtc_get_minute', message0: '%1 Get MINUTE', args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], output: 'Number', colour: '#4FC3F7' },
-    { type: 'rtc_get_second', message0: '%1 Get SECOND', args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], output: 'Number', colour: '#4FC3F7' },
+    { type: 'rtc_get_year',   message0: '%1 Get YEAR',   args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], output: 'Number', colour: '#607D8B' },
+    { type: 'rtc_get_month',  message0: '%1 Get MONTH',  args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], output: 'Number', colour: '#607D8B' },
+    { type: 'rtc_get_day',    message0: '%1 Get DAY',    args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], output: 'Number', colour: '#607D8B' },
+    { type: 'rtc_get_hour',   message0: '%1 Get HOUR',   args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], output: 'Number', colour: '#607D8B' },
+    { type: 'rtc_get_minute', message0: '%1 Get MINUTE', args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], output: 'Number', colour: '#607D8B' },
+    { type: 'rtc_get_second', message0: '%1 Get SECOND', args0: [{ type: 'field_variable', name: 'RTC_INSTANCE', variable: 'RTC1' }], output: 'Number', colour: '#607D8B' },
     {
       type: 'rtc_zero_pad',
       message0: 'zero pad %1',
       args0: [{ type: 'input_value', name: 'VALUE', check: 'Number' }],
-      inputsInline: true, output: 'String', colour: '#4FC3F7',
+      inputsInline: true, output: 'String', colour: '#607D8B',
     },
   ],
   generators: {

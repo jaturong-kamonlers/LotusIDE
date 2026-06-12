@@ -3,21 +3,20 @@
     <v-card class="plugin-dialog">
       <v-card-title class="plugin-dialog-header">
         <v-icon class="mr-2">mdi-puzzle-outline</v-icon>
-        Plugins
+        Plugin Setup
         <v-spacer />
         <v-btn icon="mdi-close" variant="text" size="small" @click="appStore.showPluginManager = false" />
       </v-card-title>
 
       <v-tabs v-model="tab" density="compact" color="primary">
-        <v-tab value="installed">Installed</v-tab>
-        <v-tab value="catalog">Available</v-tab>
+        <v-tab value="setup">Plugins</v-tab>
         <v-tab value="github">From GitHub</v-tab>
         <v-tab value="settings">Settings</v-tab>
       </v-tabs>
 
       <v-card-text class="pa-3">
-        <!-- INSTALLED -->
-        <div v-if="tab === 'installed'">
+        <!-- UNIFIED PLUGIN LIST: installed + available -->
+        <div v-if="tab === 'setup'">
           <div class="row-actions">
             <v-btn
               size="small" variant="tonal" color="primary"
@@ -27,110 +26,90 @@
             >
               Install from .zip
             </v-btn>
-            <v-spacer />
-            <v-btn size="small" variant="text" :loading="pluginStore.busy" prepend-icon="mdi-refresh" @click="pluginStore.refresh">
-              Refresh
-            </v-btn>
-          </div>
-
-          <div v-if="pluginStore.installed.length === 0" class="empty">
-            <v-icon size="48" color="grey-lighten-1">mdi-puzzle-outline</v-icon>
-            <div class="empty-text">No plugins installed yet.</div>
-            <div class="empty-hint">Use <b>Available</b> or <b>From GitHub</b> tab to install one.</div>
-            <code class="plugin-path">{{ pluginsRoot }}</code>
-          </div>
-
-          <div v-else class="plugin-list">
-            <div v-for="p in pluginStore.installed" :key="p.manifest.id" class="plugin-row">
-              <div class="plugin-icon">
-                <img v-if="p.iconUrl" :src="p.iconUrl" alt="" />
-                <v-icon v-else size="28">mdi-puzzle-outline</v-icon>
-              </div>
-              <div class="plugin-meta">
-                <div class="plugin-name">
-                  {{ p.manifest.name }}
-                  <span class="plugin-version">v{{ p.manifest.version }}</span>
-                </div>
-                <div class="plugin-desc">{{ p.manifest.description || p.manifest.id }}</div>
-                <div v-if="p.status === 'error'" class="plugin-error">
-                  <v-icon size="14" color="error">mdi-alert-circle-outline</v-icon>
-                  {{ p.error }}
-                </div>
-                <div v-else class="plugin-blocks">
-                  {{ p.blockTypes?.length || 0 }} block(s) registered
-                </div>
-              </div>
-              <v-chip
-                size="x-small"
-                :color="p.status === 'loaded' ? 'success' : 'error'"
-                variant="tonal" class="status-chip"
-              >
-                {{ p.status }}
-              </v-chip>
-              <v-btn
-                icon="mdi-github" size="small" variant="text"
-                color="primary"
-                :title="p.status === 'loaded' ? 'Publish to GitHub' : 'Plugin must load before publishing'"
-                :disabled="p.status !== 'loaded'"
-                @click="openPublishDialog(p)"
-              />
-              <v-btn
-                icon="mdi-delete-outline" size="small" variant="text"
-                color="error"
-                @click="confirmUninstall(p)"
-              />
-            </div>
-          </div>
-        </div>
-
-        <!-- CATALOG -->
-        <div v-else-if="tab === 'catalog'">
-          <div class="row-actions">
             <v-btn size="small" variant="tonal" :loading="market.busy" prepend-icon="mdi-cloud-download-outline" @click="market.fetchCatalog">
               Fetch catalog
             </v-btn>
             <v-spacer />
-            <code class="plugin-path">{{ market.catalogUrl }}</code>
+            <v-btn size="small" variant="text" :loading="pluginStore.busy" prepend-icon="mdi-refresh" @click="refreshAll">
+              Refresh
+            </v-btn>
           </div>
 
-          <div v-if="market.catalog.length === 0" class="empty">
-            <v-icon size="48" color="grey-lighten-1">mdi-cloud-search-outline</v-icon>
-            <div class="empty-text">No catalog loaded.</div>
-            <div class="empty-hint">Click <b>Fetch catalog</b> above.</div>
+          <div v-if="unifiedPlugins.length === 0" class="empty">
+            <v-icon size="48" color="grey-lighten-1">mdi-puzzle-outline</v-icon>
+            <div class="empty-text">No plugins yet.</div>
+            <div class="empty-hint">Click <b>Fetch catalog</b> to browse, or <b>Install from .zip</b>.</div>
+            <code class="plugin-path">{{ pluginsRoot }}</code>
           </div>
 
           <div v-else class="plugin-list">
-            <div v-for="e in market.catalog" :key="e.id" class="plugin-row">
+            <div v-for="row in unifiedPlugins" :key="row.id" class="plugin-row">
               <div class="plugin-icon">
-                <img v-if="e.icon" :src="e.icon" alt="" />
-                <v-icon v-else size="28">mdi-package-down</v-icon>
+                <img v-if="row.icon" :src="row.icon" alt="" />
+                <v-icon v-else size="28">{{ row.kind === 'available' ? 'mdi-package-down' : 'mdi-puzzle-outline' }}</v-icon>
               </div>
               <div class="plugin-meta">
                 <div class="plugin-name">
-                  {{ e.name || e.id }}
-                  <span v-if="e.version" class="plugin-version">v{{ e.version }}</span>
+                  {{ row.name || row.id }}
+                  <span v-if="row.version" class="plugin-version">v{{ row.version }}</span>
                   <v-chip
-                    v-if="e.category" size="x-small" variant="tonal"
+                    v-if="row.kind === 'update'" size="x-small" variant="tonal" color="warning" class="ml-2"
+                  >Update v{{ row.catalogVersion }}</v-chip>
+                  <v-chip
+                    v-else-if="row.kind === 'installed'" size="x-small" variant="tonal"
+                    :color="row.status === 'loaded' ? 'success' : 'error'" class="ml-2"
+                  >{{ row.status === 'loaded' ? 'Installed' : row.status }}</v-chip>
+                  <v-chip
+                    v-if="row.category" size="x-small" variant="tonal"
                     color="primary" class="ml-1"
-                  >{{ e.category }}</v-chip>
+                  >{{ row.category }}</v-chip>
                   <v-chip
-                    v-for="p in (e.platforms || [])" :key="p"
+                    v-for="p in (row.platforms || [])" :key="p"
                     size="x-small" variant="outlined" class="ml-1"
                     :color="appStore.selectedBoard?.platform === p ? 'success' : undefined"
                   >{{ p.replace('arduino-', '') }}</v-chip>
                 </div>
-                <div class="plugin-desc">{{ e.description || '' }}</div>
-                <div v-if="e.author" class="plugin-blocks">by {{ e.author }}</div>
+                <div class="plugin-desc">{{ row.description || '' }}</div>
+                <div v-if="row.error" class="plugin-error">
+                  <v-icon size="14" color="error">mdi-alert-circle-outline</v-icon>
+                  {{ row.error }}
+                </div>
+                <div v-else-if="row.kind === 'installed' && row.blockTypes !== undefined" class="plugin-blocks">
+                  {{ row.blockTypes?.length || 0 }} block(s) registered
+                </div>
+                <div v-else-if="row.author" class="plugin-blocks">by {{ row.author }}</div>
               </div>
+              <!-- Available → Install -->
               <v-btn
+                v-if="row.kind === 'available'"
                 size="small" variant="tonal" color="primary"
-                :loading="installingId === e.id"
-                :disabled="!isCompatible(e)"
-                :title="isCompatible(e) ? '' : `Requires: ${(e.platforms || []).join(', ')}`"
-                @click="installFromCatalog(e)"
-              >
-                {{ isCompatible(e) ? 'Install' : 'Incompatible' }}
-              </v-btn>
+                :loading="installingId === row.id"
+                :disabled="!isCompatible(row)"
+                :title="isCompatible(row) ? '' : `Requires: ${(row.platforms || []).join(', ')}`"
+                @click="installFromCatalog(row.catalogEntry)"
+              >{{ isCompatible(row) ? 'Install' : 'Incompatible' }}</v-btn>
+              <!-- Update available → Update -->
+              <v-btn
+                v-else-if="row.kind === 'update'"
+                size="small" variant="tonal" color="warning"
+                :loading="installingId === row.id"
+                @click="installFromCatalog(row.catalogEntry)"
+              >Update</v-btn>
+              <!-- Installed → publish + uninstall -->
+              <template v-else-if="row.kind === 'installed'">
+                <v-btn
+                  icon="mdi-github" size="small" variant="text"
+                  color="primary"
+                  :title="row.status === 'loaded' ? 'Publish to GitHub' : 'Plugin must load before publishing'"
+                  :disabled="row.status !== 'loaded'"
+                  @click="openPublishDialog(row.installed)"
+                />
+                <v-btn
+                  icon="mdi-delete-outline" size="small" variant="text"
+                  color="error"
+                  @click="confirmUninstall(row.installed)"
+                />
+              </template>
             </div>
           </div>
         </div>
@@ -239,7 +218,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useAppStore } from '../stores/app'
 import { usePluginStore } from '../stores/plugins'
 import { usePluginMarketplaceStore } from '../stores/pluginMarketplace'
@@ -249,12 +228,77 @@ const appStore = useAppStore()
 const pluginStore = usePluginStore()
 const market = usePluginMarketplaceStore()
 
-const tab = ref('installed')
+const tab = ref('setup')
 const installing = ref(false)
 const installingId = ref(null)
 const pluginsRoot = ref('')
 const repoSpec = ref('')
 const catalogUrlInput = ref(market.catalogUrl)
+
+function compareVersions(a, b) {
+  const ap = String(a || '0').split('.').map(n => parseInt(n, 10) || 0)
+  const bp = String(b || '0').split('.').map(n => parseInt(n, 10) || 0)
+  for (let i = 0; i < Math.max(ap.length, bp.length); i++) {
+    const d = (ap[i] || 0) - (bp[i] || 0)
+    if (d !== 0) return d
+  }
+  return 0
+}
+
+const unifiedPlugins = computed(() => {
+  const rows = new Map()
+  const catalogById = new Map((market.catalog || []).map(e => [e.id, e]))
+
+  for (const p of (pluginStore.installed || [])) {
+    const id = p.manifest?.id
+    if (!id) continue
+    const ce = catalogById.get(id)
+    const upgradable = ce && compareVersions(ce.version, p.manifest.version) > 0
+    rows.set(id, {
+      id,
+      name: p.manifest.name,
+      description: p.manifest.description,
+      version: p.manifest.version,
+      icon: p.iconUrl,
+      category: ce?.category,
+      platforms: ce?.platforms,
+      kind: upgradable ? 'update' : 'installed',
+      status: p.status,
+      error: p.error,
+      blockTypes: p.blockTypes,
+      catalogVersion: ce?.version,
+      catalogEntry: ce,
+      installed: p,
+    })
+  }
+
+  for (const e of (market.catalog || [])) {
+    if (rows.has(e.id)) continue
+    rows.set(e.id, {
+      id: e.id,
+      name: e.name || e.id,
+      description: e.description,
+      version: e.version,
+      icon: e.icon,
+      category: e.category,
+      platforms: e.platforms,
+      author: e.author,
+      kind: 'available',
+      catalogEntry: e,
+    })
+  }
+
+  const ORDER = { update: 0, installed: 1, available: 2 }
+  return [...rows.values()].sort((a, b) => {
+    const od = ORDER[a.kind] - ORDER[b.kind]
+    return od !== 0 ? od : (a.name || a.id).localeCompare(b.name || b.id)
+  })
+})
+
+async function refreshAll() {
+  await pluginStore.refresh()
+  await market.fetchCatalog()
+}
 
 // ── Publish-to-GitHub state ────────────────────────────────────────────────
 const publishDialog = ref(false)
@@ -361,7 +405,11 @@ onMounted(async () => {
 })
 
 watch(() => appStore.showPluginManager, (v) => {
-  if (v) catalogUrlInput.value = market.catalogUrl
+  if (v) {
+    catalogUrlInput.value = market.catalogUrl
+    pluginStore.refresh()
+    if (market.catalog.length === 0) market.fetchCatalog()
+  }
 })
 
 async function installFromFile() {
@@ -424,7 +472,7 @@ function saveCatalogUrl() {
 }
 
 function resetCatalogUrl() {
-  catalogUrlInput.value = 'https://raw.githubusercontent.com/lotus-arduibot/lotus-plugins/main/catalog.json'
+  catalogUrlInput.value = 'https://raw.githubusercontent.com/jaturong-kamonlers/lotus-plugins/main/catalog.json'
   saveCatalogUrl()
 }
 </script>

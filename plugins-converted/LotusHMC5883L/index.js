@@ -1,9 +1,9 @@
 lotus.register({
-  toolbox: { name: 'Compass', color: '#4FC3F7' },
+  toolbox: { name: 'Compass', color: '#7E57C2' },
   blocks: [
-    { type: 'hmc5883_setup',  message0: '%1 Setup HMC5883L', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'HMC1' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#4FC3F7' },
-    { type: 'hmc5883_update', message0: '%1 Read HMC5883L (once per loop)', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'HMC1' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#4FC3F7' },
-    { type: 'hmc5883_read_heading', message0: '%1 Heading °', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'HMC1' }], output: 'Number', colour: '#4FC3F7' },
+    { type: 'hmc5883_setup',  message0: '%1 Setup HMC5883L', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'HMC1' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#7E57C2' },
+    { type: 'hmc5883_update', message0: '%1 Read HMC5883L (once per loop)', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'HMC1' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#7E57C2' },
+    { type: 'hmc5883_read_heading', message0: '%1 Heading Â°', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'HMC1' }], output: 'Number', colour: '#7E57C2' },
     {
       type: 'hmc5883_read_raw',
       message0: '%1 Raw %2',
@@ -11,7 +11,7 @@ lotus.register({
         { type: 'field_variable', name: 'INSTANCE', variable: 'HMC1' },
         { type: 'field_dropdown', name: 'AXIS', options: [['X','X'],['Y','Y'],['Z','Z']] },
       ],
-      inputsInline: true, output: 'Number', colour: '#4FC3F7',
+      inputsInline: true, output: 'Number', colour: '#7E57C2',
     },
     {
       type: 'hmc5883_calibrate',
@@ -20,7 +20,7 @@ lotus.register({
         { type: 'field_variable', name: 'INSTANCE', variable: 'HMC1' },
         { type: 'input_value', name: 'SAMPLES', check: 'Number' },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#4FC3F7',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#7E57C2',
     },
     {
       type: 'hmc5883_set_offset',
@@ -31,18 +31,18 @@ lotus.register({
         { type: 'input_value', name: 'Y_OFFSET', check: 'Number' },
         { type: 'input_value', name: 'Z_OFFSET', check: 'Number' },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#4FC3F7',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#7E57C2',
     },
     {
       type: 'hmc5883_declination',
-      message0: '%1 Declination %2 °',
+      message0: '%1 Declination %2 Â°',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'HMC1' },
         { type: 'field_number', name: 'DECLINATION', value: 0, min: -180, max: 180 },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#4FC3F7',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#7E57C2',
     },
-    { type: 'hmc5883_available', message0: '%1 Connected?', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'HMC1' }], output: 'Boolean', colour: '#4FC3F7' },
+    { type: 'hmc5883_available', message0: '%1 Connected?', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'HMC1' }], output: 'Boolean', colour: '#7E57C2' },
   ],
   generators: {
     hmc5883_setup: `

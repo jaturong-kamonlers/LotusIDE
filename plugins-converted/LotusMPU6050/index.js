@@ -1,5 +1,5 @@
 lotus.register({
-  toolbox: { name: 'MPU6050', color: '#4FC3F7' },
+  toolbox: { name: 'MPU6050', color: '#00897B' },
   blocks: [
     {
       type: 'mpu6050_setup',
@@ -8,9 +8,9 @@ lotus.register({
         { type: 'field_variable', name: 'INSTANCE', variable: 'MPU1' },
         { type: 'field_dropdown', name: 'ADDRESS', options: [['0x68 (default)', '0x68'], ['0x69 (AD0=HIGH)', '0x69']] },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#4FC3F7',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#00897B',
     },
-    { type: 'mpu6050_update', message0: '%1 Read MPU6050 (once per loop)', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MPU1' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#4FC3F7' },
+    { type: 'mpu6050_update', message0: '%1 Read MPU6050 (once per loop)', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MPU1' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#00897B' },
     {
       type: 'mpu6050_read_accel',
       message0: '%1 Accel %2 (g)',
@@ -18,7 +18,7 @@ lotus.register({
         { type: 'field_variable', name: 'INSTANCE', variable: 'MPU1' },
         { type: 'field_dropdown', name: 'AXIS', options: [['X','X'],['Y','Y'],['Z','Z']] },
       ],
-      inputsInline: true, output: 'Number', colour: '#4FC3F7',
+      inputsInline: true, output: 'Number', colour: '#00897B',
     },
     {
       type: 'mpu6050_read_gyro',
@@ -27,37 +27,37 @@ lotus.register({
         { type: 'field_variable', name: 'INSTANCE', variable: 'MPU1' },
         { type: 'field_dropdown', name: 'AXIS', options: [['X','X'],['Y','Y'],['Z','Z']] },
       ],
-      inputsInline: true, output: 'Number', colour: '#4FC3F7',
+      inputsInline: true, output: 'Number', colour: '#00897B',
     },
-    { type: 'mpu6050_read_temp', message0: '%1 Temperature (°C)', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MPU1' }], output: 'Number', colour: '#4FC3F7' },
+    { type: 'mpu6050_read_temp', message0: '%1 Temperature (Â°C)', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MPU1' }], output: 'Number', colour: '#00897B' },
     {
       type: 'mpu6050_read_angle',
-      message0: '%1 %2 °',
+      message0: '%1 %2 Â°',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'MPU1' },
         { type: 'field_dropdown', name: 'ANGLE', options: [['Pitch','PITCH'],['Roll','ROLL']] },
       ],
-      inputsInline: true, output: 'Number', colour: '#4FC3F7',
+      inputsInline: true, output: 'Number', colour: '#00897B',
     },
     {
       type: 'mpu6050_set_accel_range',
       message0: '%1 Set Accel Range %2',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'MPU1' },
-        { type: 'field_dropdown', name: 'RANGE', options: [['±2g','ACCEL_2G'],['±4g','ACCEL_4G'],['±8g','ACCEL_8G'],['±16g','ACCEL_16G']] },
+        { type: 'field_dropdown', name: 'RANGE', options: [['Â±2g','ACCEL_2G'],['Â±4g','ACCEL_4G'],['Â±8g','ACCEL_8G'],['Â±16g','ACCEL_16G']] },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#4FC3F7',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#00897B',
     },
     {
       type: 'mpu6050_set_gyro_range',
       message0: '%1 Set Gyro Range %2',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'MPU1' },
-        { type: 'field_dropdown', name: 'RANGE', options: [['±250 dps','GYRO_250DPS'],['±500 dps','GYRO_500DPS'],['±1000 dps','GYRO_1000DPS'],['±2000 dps','GYRO_2000DPS']] },
+        { type: 'field_dropdown', name: 'RANGE', options: [['Â±250 dps','GYRO_250DPS'],['Â±500 dps','GYRO_500DPS'],['Â±1000 dps','GYRO_1000DPS'],['Â±2000 dps','GYRO_2000DPS']] },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#4FC3F7',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#00897B',
     },
-    { type: 'mpu6050_connected', message0: '%1 Connected?', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MPU1' }], output: 'Boolean', colour: '#4FC3F7' },
+    { type: 'mpu6050_connected', message0: '%1 Connected?', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MPU1' }], output: 'Boolean', colour: '#00897B' },
   ],
   generators: {
     mpu6050_setup: `

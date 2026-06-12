@@ -1,5 +1,5 @@
 lotus.register({
-  toolbox: { name: 'Ultrasonic', color: '#4FC3F7' },
+  toolbox: { name: 'Ultrasonic', color: '#00BCD4' },
   blocks: [
     {
       type: 'ultrasonic_setup',
@@ -11,11 +11,11 @@ lotus.register({
       ],
       inputsInline: true,
       previousStatement: null, nextStatement: null,
-      colour: '#4FC3F7',
+      colour: '#00BCD4',
       tooltip: 'Wire HC-SR04 TRIG and ECHO pins (place in Setup)',
     },
-    { type: 'ultrasonic_read_distance_cm', message0: '%1 Distance (cm)', args0: [{ type: 'field_variable', name: 'instance', variable: 'US1' }], output: 'Number', colour: '#4FC3F7', tooltip: 'Distance in centimeters (~max 400cm)' },
-    { type: 'ultrasonic_read_distance_mm', message0: '%1 Distance (mm)', args0: [{ type: 'field_variable', name: 'instance', variable: 'US1' }], output: 'Number', colour: '#4FC3F7', tooltip: 'Distance in millimeters' },
+    { type: 'ultrasonic_read_distance_cm', message0: '%1 Distance (cm)', args0: [{ type: 'field_variable', name: 'instance', variable: 'US1' }], output: 'Number', colour: '#00BCD4', tooltip: 'Distance in centimeters (~max 400cm)' },
+    { type: 'ultrasonic_read_distance_mm', message0: '%1 Distance (mm)', args0: [{ type: 'field_variable', name: 'instance', variable: 'US1' }], output: 'Number', colour: '#00BCD4', tooltip: 'Distance in millimeters' },
     {
       type: 'ultrasonic_detected',
       message0: '%1 Detected within %2 cm',
@@ -25,7 +25,7 @@ lotus.register({
       ],
       inputsInline: true,
       output: 'Boolean',
-      colour: '#4FC3F7',
+      colour: '#00BCD4',
       tooltip: 'True when an object is within the given range',
     },
   ],

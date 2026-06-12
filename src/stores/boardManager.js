@@ -9,12 +9,19 @@ import { useAppStore } from './app'
 // URL so anyone can host their own.
 const DEFAULT_CATALOG = 'https://raw.githubusercontent.com/jaturong-kamonlers/lotus-boards/main/catalog.json'
 
+function migrateLegacyUrl(url) {
+  if (!url) return DEFAULT_CATALOG
+  if (url.includes('lotus-arduibot/lotus-boards')) return DEFAULT_CATALOG
+  return url
+}
+
 export const useBoardManagerStore = defineStore('boardManager', () => {
   const installed = ref([])    // user-installed boards (from userList)
   const catalog = ref([])      // available remote entries
   const userRoot = ref('')
   const busy = ref(false)
-  const catalogUrl = ref(localStorage.getItem('lotus.boardCatalogUrl') || DEFAULT_CATALOG)
+  const catalogUrl = ref(migrateLegacyUrl(localStorage.getItem('lotus.boardCatalogUrl')))
+  if (typeof localStorage !== 'undefined') localStorage.setItem('lotus.boardCatalogUrl', catalogUrl.value)
 
   const appStore = useAppStore()
 

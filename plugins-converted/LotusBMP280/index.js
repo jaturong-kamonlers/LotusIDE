@@ -3,7 +3,7 @@
 // sensor instance lives at global scope across setup() and loop().
 
 lotus.register({
-  toolbox: { name: 'BMP280', color: '#4FC3F7' },
+  toolbox: { name: 'BMP280', color: '#1565C0' },
   blocks: [
     {
       type: 'bmp280_setup',
@@ -14,7 +14,7 @@ lotus.register({
       ],
       inputsInline: true,
       previousStatement: null, nextStatement: null,
-      colour: '#4FC3F7',
+      colour: '#1565C0',
       tooltip: 'Configure BMP280 sensor (place in Setup)',
     },
     {
@@ -23,13 +23,13 @@ lotus.register({
       args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'BMP1' }],
       inputsInline: true,
       previousStatement: null, nextStatement: null,
-      colour: '#4FC3F7',
-      tooltip: 'Sample sensor once per loop iteration — call at top of loop()',
+      colour: '#1565C0',
+      tooltip: 'Sample sensor once per loop iteration - call at top of loop()',
     },
-    { type: 'bmp280_read_temp',     message0: '%1 Temperature (°C)', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'BMP1' }], output: 'Number', colour: '#4FC3F7', tooltip: 'Read temperature in °C' },
-    { type: 'bmp280_read_pressure', message0: '%1 Pressure (hPa)',   args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'BMP1' }], output: 'Number', colour: '#4FC3F7', tooltip: 'Read barometric pressure in hPa' },
-    { type: 'bmp280_read_altitude', message0: '%1 Altitude (m)',     args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'BMP1' }], output: 'Number', colour: '#4FC3F7', tooltip: 'Calculated altitude in meters' },
-    { type: 'bmp280_connected',     message0: '%1 Connected?',       args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'BMP1' }], output: 'Boolean', colour: '#4FC3F7', tooltip: 'True if BMP280 responded on the bus' },
+    { type: 'bmp280_read_temp',     message0: '%1 Temperature (Â°C)', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'BMP1' }], output: 'Number', colour: '#1565C0', tooltip: 'Read temperature in Â°C' },
+    { type: 'bmp280_read_pressure', message0: '%1 Pressure (hPa)',   args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'BMP1' }], output: 'Number', colour: '#1565C0', tooltip: 'Read barometric pressure in hPa' },
+    { type: 'bmp280_read_altitude', message0: '%1 Altitude (m)',     args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'BMP1' }], output: 'Number', colour: '#1565C0', tooltip: 'Calculated altitude in meters' },
+    { type: 'bmp280_connected',     message0: '%1 Connected?',       args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'BMP1' }], output: 'Boolean', colour: '#1565C0', tooltip: 'True if BMP280 responded on the bus' },
   ],
   generators: {
     bmp280_setup: `

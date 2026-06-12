@@ -1,13 +1,22 @@
 {
-  "id": "com.lotus.sensor.mpu6050",
-  "name": "MPU6050 6-Axis IMU",
-  "version": "1.0.0",
-  "main": "index.js",
-  "description": "Accelerometer + Gyroscope + pitch/roll fusion via MPU6050 over I2C",
-  "author": "Lotus IDE",
-  "license": "MIT",
-  "category": "Sensors",
-  "platforms": ["arduino-esp32", "arduino-avr"],
-  "icon": "icon.svg",
-  "keywords": ["MPU6050", "IMU", "accelerometer", "gyroscope", "i2c"]
+    "id":  "com.lotus.sensor.mpu6050",
+    "name":  "MPU6050 6-Axis IMU",
+    "version":  "1.2.0",
+    "main":  "index.js",
+    "description":  "Accelerometer + Gyroscope + pitch/roll fusion via MPU6050 over I2C",
+    "author":  "Lotus IDE",
+    "license":  "MIT",
+    "category":  "Sensors",
+    "platforms":  [
+                      "arduino-esp32",
+                      "arduino-avr"
+                  ],
+    "icon":  "icon.svg",
+    "keywords":  [
+                     "MPU6050",
+                     "IMU",
+                     "accelerometer",
+                     "gyroscope",
+                     "i2c"
+                 ]
 }

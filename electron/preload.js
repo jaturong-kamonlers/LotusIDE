@@ -71,6 +71,14 @@ contextBridge.exposeInMainWorld('lotusAPI', {
     openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),
   },
 
+  // Diagnostics (ESP32 compile health check + one-click auto-fixes)
+  diagnostics: {
+    runEsp32Check:         () => ipcRenderer.invoke('diagnostics:runEsp32Check'),
+    clearBuildCache:       () => ipcRenderer.invoke('diagnostics:clearBuildCache'),
+    removeEsp32Core:       () => ipcRenderer.invoke('diagnostics:removeEsp32Core'),
+    addDefenderExclusion:  () => ipcRenderer.invoke('diagnostics:addDefenderExclusion'),
+  },
+
   // USB-to-serial driver installation
   drivers: {
     install: (name) => ipcRenderer.invoke('drivers:install', name),

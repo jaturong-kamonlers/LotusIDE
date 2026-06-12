@@ -2,14 +2,14 @@
 //
 // Ports the KBIDE LotusServo blocks to the new manifest+register API. The
 // generator output keeps the original #EXTINC / #VARIABLE / #SETUP markers
-// since LotusIDE's javascriptGenerator.finish() already extracts them — that
+// since LotusIDE's javascriptGenerator.finish() already extracts them - that
 // gives us platform-conditional includes (Servo.h vs ESP32Servo.h) without
 // duplicating the dispatch in JS.
 
 lotus.register({
   toolbox: {
     name: 'Servo',
-    color: '#FFB74D',
+    color: '#FF8A65',
   },
   blocks: [
     {
@@ -19,19 +19,19 @@ lotus.register({
         { type: 'field_variable', name: 'INSTANCE', variable: 'SRV1' },
         { type: 'field_number', name: 'PIN', value: 9, min: 0, max: 39, precision: 1 },
       ],
-      message1: 'min %1 μs  max %2 μs',
+      message1: 'min %1 Î¼s  max %2 Î¼s',
       args1: [
         { type: 'field_number', name: 'MIN_US', value: 544, min: 0, max: 2400, precision: 1 },
         { type: 'field_number', name: 'MAX_US', value: 2400, min: 0, max: 2400, precision: 1 },
       ],
       previousStatement: null,
       nextStatement: null,
-      colour: '#FFB74D',
+      colour: '#FF8A65',
       tooltip: 'Set up Servo on the given PWM pin and pulse width range (place in Setup).',
     },
     {
       type: 'lotus_servo_angle',
-      message0: '%1 Servo angle %2 °',
+      message0: '%1 Servo angle %2 Â°',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'SRV1' },
         { type: 'input_value', name: 'ANGLE', check: 'Number' },
@@ -39,12 +39,12 @@ lotus.register({
       inputsInline: true,
       previousStatement: null,
       nextStatement: null,
-      colour: '#FFB74D',
-      tooltip: 'Rotate Servo to the given angle (0 - 180°)',
+      colour: '#FF8A65',
+      tooltip: 'Rotate Servo to the given angle (0 - 180Â°)',
     },
     {
       type: 'lotus_servo_microseconds',
-      message0: '%1 Servo pulse %2 μs',
+      message0: '%1 Servo pulse %2 Î¼s',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'SRV1' },
         { type: 'input_value', name: 'US', check: 'Number' },
@@ -52,7 +52,7 @@ lotus.register({
       inputsInline: true,
       previousStatement: null,
       nextStatement: null,
-      colour: '#FFB74D',
+      colour: '#FF8A65',
       tooltip: 'Send pulse width directly to Servo (microseconds, typically 1000-2000)',
     },
     {
@@ -64,7 +64,7 @@ lotus.register({
       inputsInline: true,
       previousStatement: null,
       nextStatement: null,
-      colour: '#FFB74D',
+      colour: '#FF8A65',
       tooltip: 'Stop sending PWM signal so the Servo can spin freely',
     },
   ],

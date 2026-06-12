@@ -42,14 +42,24 @@ app.whenReady().then(() => {
   // kbide:// originally pointed at C:\KBIDE_Lotus for ingesting upstream KBIDE
   // assets during development. Production / non-Windows installs don't have
   // that folder — so we fall back to the bundled <app>/public/boards directory.
+  //
+  // Special hostname `user-board/<id>/...` routes to <userData>/boards/<id>/...
+  // so user-installed board images don't have to use file:// URLs (which the
+  // dev renderer at http://localhost:5173 blocks as cross-origin).
   const KBIDE_DEV_ROOT = process.platform === 'win32' ? 'C:\\KBIDE_Lotus' : null
   const KBIDE_FALLBACK = path.join(__dirname, '..', 'public')
   protocol.handle('kbide', (request) => {
     const url = new URL(request.url)
-    const candidates = [
-      KBIDE_DEV_ROOT && path.join(KBIDE_DEV_ROOT, url.hostname, url.pathname),
-      path.join(KBIDE_FALLBACK, url.hostname, url.pathname),
-    ].filter(Boolean)
+    let candidates
+    if (url.hostname === 'user-board') {
+      const userBoardsDir = path.join(app.getPath('userData'), 'boards')
+      candidates = [path.join(userBoardsDir, url.pathname)]
+    } else {
+      candidates = [
+        KBIDE_DEV_ROOT && path.join(KBIDE_DEV_ROOT, url.hostname, url.pathname),
+        path.join(KBIDE_FALLBACK, url.hostname, url.pathname),
+      ].filter(Boolean)
+    }
     for (const absPath of candidates) {
       try {
         const data = fs.readFileSync(absPath)
@@ -70,6 +80,7 @@ app.whenReady().then(() => {
   require('./ipc/updater')
   require('./ipc/marketplace')
   require('./ipc/libraries-manage')
+  require('./ipc/diagnostics')
 
   // Open URL in the user's default browser. Only allow http(s) so a malicious
   // renderer call can't launch arbitrary `file:` / shell handlers.

@@ -1,5 +1,5 @@
 lotus.register({
-  toolbox: { name: 'PCA9685', color: '#FFB74D' },
+  toolbox: { name: 'PCA9685', color: '#FFA726' },
   blocks: [
     {
       type: 'pca9685_setup',
@@ -9,27 +9,27 @@ lotus.register({
         { type: 'field_dropdown', name: 'ADDR', options: [['40','40'],['41','41'],['42','42'],['43','43'],['44','44'],['45','45'],['46','46'],['47','47']] },
         { type: 'field_number',   name: 'FREQ', value: 50, min: 24, max: 1526, precision: 1 },
       ],
-      previousStatement: null, nextStatement: null, colour: '#FFB74D',
+      previousStatement: null, nextStatement: null, colour: '#FFA726',
     },
     {
       type: 'pca9685_set_angle',
-      message0: '%1 Set Angle ch %2 angle %3 °',
+      message0: '%1 Set Angle ch %2 angle %3 Â°',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'PCA1' },
         { type: 'field_number', name: 'CH', value: 0, min: 0, max: 15, precision: 1 },
         { type: 'input_value', name: 'ANGLE', check: 'Number' },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#FFB74D',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#FFA726',
     },
     {
       type: 'pca9685_set_us',
-      message0: '%1 Set Pulse ch %2 pulse %3 μs',
+      message0: '%1 Set Pulse ch %2 pulse %3 Î¼s',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'PCA1' },
         { type: 'field_number', name: 'CH', value: 0, min: 0, max: 15, precision: 1 },
         { type: 'input_value', name: 'US', check: 'Number' },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#FFB74D',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#FFA726',
     },
     {
       type: 'pca9685_set_pwm',
@@ -40,7 +40,7 @@ lotus.register({
         { type: 'input_value', name: 'ON',  check: 'Number' },
         { type: 'input_value', name: 'OFF', check: 'Number' },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#FFB74D',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#FFA726',
     },
     {
       type: 'pca9685_set_off',
@@ -49,19 +49,19 @@ lotus.register({
         { type: 'field_variable', name: 'INSTANCE', variable: 'PCA1' },
         { type: 'field_number', name: 'CH', value: 0, min: 0, max: 15, precision: 1 },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#FFB74D',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#FFA726',
     },
-    { type: 'pca9685_all_off', message0: '%1 All Channels Off', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'PCA1' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#FFB74D' },
+    { type: 'pca9685_all_off', message0: '%1 All Channels Off', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'PCA1' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#FFA726' },
     {
       type: 'pca9685_calibrate',
-      message0: '%1 Calibrate ch %2 min %3 max %4 μs',
+      message0: '%1 Calibrate ch %2 min %3 max %4 Î¼s',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'PCA1' },
         { type: 'field_number', name: 'CH', value: 0, min: 0, max: 15, precision: 1 },
         { type: 'field_number', name: 'MIN_US', value: 544,  min: 100, max: 2500, precision: 1 },
         { type: 'field_number', name: 'MAX_US', value: 2400, min: 100, max: 2500, precision: 1 },
       ],
-      previousStatement: null, nextStatement: null, colour: '#FFB74D',
+      previousStatement: null, nextStatement: null, colour: '#FFA726',
     },
   ],
   generators: {

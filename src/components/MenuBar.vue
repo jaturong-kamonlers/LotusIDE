@@ -171,9 +171,11 @@ const menus = computed(() => [
       { label: 'Verify / Compile', icon: 'mdi-check-circle-outline', shortcut: 'Ctrl+R', action: compile },
       { label: 'Upload', icon: 'mdi-upload', shortcut: 'Ctrl+U', action: upload },
       '---',
-      { label: 'Manage Boards...', icon: 'mdi-developer-board', action: () => appStore.showBoardManager = true },
-      { label: 'Plugins...',       icon: 'mdi-puzzle-outline',  action: () => appStore.showPluginManager = true },
+      { label: 'Boards Setup...', icon: 'mdi-developer-board', action: () => appStore.showBoardManager = true },
+      { label: 'Plugin Setup...', icon: 'mdi-puzzle-outline',  action: () => appStore.showPluginManager = true },
       { label: 'GitHub',           icon: 'mdi-github',          action: () => appStore.showGithubManager = true },
+      '---',
+      { label: 'ตรวจสุขภาพ ESP32...', icon: 'mdi-stethoscope', action: () => appStore.showDiagnoseEsp32 = true },
       '---',
       {
         label: 'Include Library', icon: 'mdi-library-outline',

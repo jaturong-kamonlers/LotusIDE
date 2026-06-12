@@ -1,13 +1,20 @@
 {
-  "id": "com.lotus.sensor.rtc-ds1307",
-  "name": "DS1307 Real-Time Clock",
-  "version": "1.0.3",
-  "main": "index.js",
-  "description": "DS1307 RTC module — auto-sync with compile time, get hour/min/sec, formatted time strings",
-  "author": "Lotus IDE",
-  "license": "MIT",
-  "category": "Sensors",
-  "platforms": ["arduino-avr"],
-  "icon": "icon.svg",
-  "keywords": ["DS1307", "RTC", "real-time-clock", "i2c"]
+    "id":  "com.lotus.sensor.rtc-ds1307",
+    "name":  "DS1307 Real-Time Clock",
+    "version":  "1.2.0",
+    "main":  "index.js",
+    "description":  "DS1307 RTC module - auto-sync with compile time, get hour/min/sec, formatted time strings",
+    "author":  "Lotus IDE",
+    "license":  "MIT",
+    "category":  "Sensors",
+    "platforms":  [
+                      "arduino-avr"
+                  ],
+    "icon":  "icon.svg",
+    "keywords":  [
+                     "DS1307",
+                     "RTC",
+                     "real-time-clock",
+                     "i2c"
+                 ]
 }

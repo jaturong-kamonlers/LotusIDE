@@ -3,7 +3,7 @@
 // values stay valid between reads so user blocks can pull them freely.
 
 lotus.register({
-  toolbox: { name: 'DHT', color: '#4FC3F7' },
+  toolbox: { name: 'DHT', color: '#4DD0E1' },
   blocks: [
     {
       type: 'dhtesp_setup',
@@ -15,7 +15,7 @@ lotus.register({
       ],
       inputsInline: true,
       previousStatement: null, nextStatement: null,
-      colour: '#4FC3F7',
+      colour: '#4DD0E1',
       tooltip: 'Setup DHT sensor (place in Setup)',
     },
     {
@@ -24,11 +24,11 @@ lotus.register({
       args0: [{ type: 'field_variable', name: 'instance', variable: 'DhtSensor1' }],
       inputsInline: true,
       previousStatement: null, nextStatement: null,
-      colour: '#4FC3F7',
-      tooltip: 'Sample sensor — call at the top of loop()',
+      colour: '#4DD0E1',
+      tooltip: 'Sample sensor - call at the top of loop()',
     },
-    { type: 'dhtesp_read_temp',  message0: '%1 Temperature °C', args0: [{ type: 'field_variable', name: 'instance', variable: 'DhtSensor1' }], output: 'Number', colour: '#4FC3F7' },
-    { type: 'dhtesp_read_humid', message0: '%1 Humidity %',     args0: [{ type: 'field_variable', name: 'instance', variable: 'DhtSensor1' }], output: 'Number', colour: '#4FC3F7' },
+    { type: 'dhtesp_read_temp',  message0: '%1 Temperature Â°C', args0: [{ type: 'field_variable', name: 'instance', variable: 'DhtSensor1' }], output: 'Number', colour: '#4DD0E1' },
+    { type: 'dhtesp_read_humid', message0: '%1 Humidity %',     args0: [{ type: 'field_variable', name: 'instance', variable: 'DhtSensor1' }], output: 'Number', colour: '#4DD0E1' },
   ],
   generators: {
     dhtesp_setup: `

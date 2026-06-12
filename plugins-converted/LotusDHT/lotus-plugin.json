@@ -1,13 +1,23 @@
 {
-  "id": "com.lotus.sensor.dht",
-  "name": "DHT Temperature & Humidity",
-  "version": "1.0.0",
-  "main": "index.js",
-  "description": "DHT11/22/AM2302/RHT03 temperature + humidity sensor over single-wire",
-  "author": "Lotus IDE",
-  "license": "MIT",
-  "category": "Sensors",
-  "platforms": ["arduino-esp32", "arduino-avr"],
-  "icon": "icon.svg",
-  "keywords": ["DHT", "DHT11", "DHT22", "AM2302", "temperature", "humidity"]
+    "id":  "com.lotus.sensor.dht",
+    "name":  "DHT Temperature \u0026 Humidity",
+    "version":  "1.2.0",
+    "main":  "index.js",
+    "description":  "DHT11/22/AM2302/RHT03 temperature + humidity sensor over single-wire",
+    "author":  "Lotus IDE",
+    "license":  "MIT",
+    "category":  "Sensors",
+    "platforms":  [
+                      "arduino-esp32",
+                      "arduino-avr"
+                  ],
+    "icon":  "icon.svg",
+    "keywords":  [
+                     "DHT",
+                     "DHT11",
+                     "DHT22",
+                     "AM2302",
+                     "temperature",
+                     "humidity"
+                 ]
 }

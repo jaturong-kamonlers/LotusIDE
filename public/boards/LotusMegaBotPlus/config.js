@@ -8,5 +8,5 @@ module.exports = {
     email : 'lotusarduibot@gmail.com',
     git : 'https://github.com/lotus-arduibot/LotusMegaBotPlus/',
     image : '/static/display.png',
-    version : '1.0.0',
+    version : '1.1.0',
 };

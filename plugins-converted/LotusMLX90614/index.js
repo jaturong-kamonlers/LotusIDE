@@ -1,11 +1,11 @@
 lotus.register({
-  toolbox: { name: 'MLX90614', color: '#4FC3F7' },
+  toolbox: { name: 'MLX90614', color: '#E65100' },
   blocks: [
-    { type: 'mlx90614_setup',       message0: '%1 Setup MLX90614',           args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MLX1' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#4FC3F7', tooltip: 'Setup MLX90614 IR sensor (Setup block)' },
-    { type: 'mlx90614_update',      message0: '%1 Read MLX90614 (once per loop)', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MLX1' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#4FC3F7', tooltip: 'Sample once per loop' },
-    { type: 'mlx90614_read_object', message0: '%1 Object Temp (°C)',         args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MLX1' }], output: 'Number',  colour: '#4FC3F7', tooltip: 'Read object temperature (-70 to 380 °C)' },
-    { type: 'mlx90614_read_ambient',message0: '%1 Ambient Temp (°C)',        args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MLX1' }], output: 'Number',  colour: '#4FC3F7', tooltip: 'Read sensor ambient temperature' },
-    { type: 'mlx90614_connected',   message0: '%1 Connected?',               args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MLX1' }], output: 'Boolean', colour: '#4FC3F7' },
+    { type: 'mlx90614_setup',       message0: '%1 Setup MLX90614',           args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MLX1' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#E65100', tooltip: 'Setup MLX90614 IR sensor (Setup block)' },
+    { type: 'mlx90614_update',      message0: '%1 Read MLX90614 (once per loop)', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MLX1' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#E65100', tooltip: 'Sample once per loop' },
+    { type: 'mlx90614_read_object', message0: '%1 Object Temp (Â°C)',         args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MLX1' }], output: 'Number',  colour: '#E65100', tooltip: 'Read object temperature (-70 to 380 Â°C)' },
+    { type: 'mlx90614_read_ambient',message0: '%1 Ambient Temp (Â°C)',        args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MLX1' }], output: 'Number',  colour: '#E65100', tooltip: 'Read sensor ambient temperature' },
+    { type: 'mlx90614_connected',   message0: '%1 Connected?',               args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'MLX1' }], output: 'Boolean', colour: '#E65100' },
   ],
   generators: {
     mlx90614_setup: `

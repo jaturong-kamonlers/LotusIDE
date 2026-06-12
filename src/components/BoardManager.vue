@@ -3,96 +3,94 @@
     <v-card class="bm-dialog">
       <v-card-title class="bm-header">
         <v-icon class="mr-2">mdi-developer-board</v-icon>
-        Manage Boards
+        Boards Setup
         <v-spacer />
         <v-btn icon="mdi-close" variant="text" size="small" @click="appStore.showBoardManager = false" />
       </v-card-title>
 
       <v-tabs v-model="tab" density="compact" color="primary">
-        <v-tab value="installed">Installed</v-tab>
-        <v-tab value="catalog">Available</v-tab>
+        <v-tab value="setup">Boards</v-tab>
         <v-tab value="github">From GitHub</v-tab>
         <v-tab value="cores">Cores</v-tab>
         <v-tab value="settings">Settings</v-tab>
       </v-tabs>
 
       <v-card-text class="pa-3">
-        <!-- INSTALLED -->
-        <div v-if="tab === 'installed'">
+        <!-- UNIFIED BOARD LIST: built-in + installed + available -->
+        <div v-if="tab === 'setup'">
           <div class="row-actions">
             <v-btn size="small" variant="tonal" color="primary" prepend-icon="mdi-upload" @click="installFromFile">
               Install from .zip
             </v-btn>
-            <v-spacer />
-            <v-btn size="small" variant="text" :loading="store.busy" prepend-icon="mdi-refresh" @click="store.refresh">
-              Refresh
-            </v-btn>
-          </div>
-
-          <div v-if="store.installed.length === 0" class="empty">
-            <v-icon size="48" color="grey-lighten-1">mdi-developer-board</v-icon>
-            <div class="empty-text">No user-installed boards.</div>
-            <div class="empty-hint">Built-in boards remain available regardless.</div>
-            <code class="path">{{ store.userRoot }}</code>
-          </div>
-
-          <div v-else class="row-list">
-            <div v-for="b in store.installed" :key="b.id" class="board-row">
-              <v-icon size="28">mdi-developer-board</v-icon>
-              <div class="row-meta">
-                <div class="row-title">
-                  {{ b.manifest?.title || b.manifest?.name || b.id }}
-                  <span v-if="b.manifest?.version" class="row-ver">v{{ b.manifest.version }}</span>
-                </div>
-                <div class="row-desc">{{ b.manifest?.description || b.id }}</div>
-                <div v-if="!b.ok" class="row-err">
-                  <v-icon size="14" color="error">mdi-alert-circle-outline</v-icon>
-                  {{ b.error }}
-                </div>
-              </div>
-              <v-btn
-                icon="mdi-github" size="small" variant="text" color="primary"
-                title="Publish this board to GitHub"
-                @click="openPublishDialog(b)"
-              />
-              <v-btn icon="mdi-delete-outline" size="small" variant="text" color="error" @click="confirmUninstall(b)" />
-            </div>
-          </div>
-        </div>
-
-        <!-- CATALOG -->
-        <div v-else-if="tab === 'catalog'">
-          <div class="row-actions">
             <v-btn size="small" variant="tonal" :loading="store.busy" prepend-icon="mdi-cloud-download-outline" @click="store.fetchCatalog">
               Fetch catalog
             </v-btn>
             <v-spacer />
-            <code class="path">{{ store.catalogUrl }}</code>
+            <v-btn size="small" variant="text" :loading="store.busy" prepend-icon="mdi-refresh" @click="refreshAll">
+              Refresh
+            </v-btn>
           </div>
 
-          <div v-if="store.catalog.length === 0" class="empty">
-            <v-icon size="48" color="grey-lighten-1">mdi-cloud-search-outline</v-icon>
-            <div class="empty-text">No catalog loaded.</div>
-            <div class="empty-hint">Click <b>Fetch catalog</b> to download the list of available boards.</div>
+          <div v-if="unifiedBoards.length === 0" class="empty">
+            <v-icon size="48" color="grey-lighten-1">mdi-developer-board</v-icon>
+            <div class="empty-text">No boards yet.</div>
+            <div class="empty-hint">Click <b>Fetch catalog</b> to browse, or <b>Install from .zip</b>.</div>
           </div>
 
           <div v-else class="row-list">
-            <div v-for="e in store.catalog" :key="e.id" class="board-row">
-              <v-icon size="28">mdi-package-down</v-icon>
+            <div v-for="row in unifiedBoards" :key="row.id" class="board-row">
+              <img
+                v-if="row.image && !iconFailed[row.id]"
+                :src="row.image"
+                :alt="row.title || row.id"
+                class="board-thumb"
+                loading="lazy"
+                @error="iconFailed[row.id] = true"
+              />
+              <v-icon v-else size="28">{{ row.kind === 'available' ? 'mdi-package-down' : 'mdi-developer-board' }}</v-icon>
               <div class="row-meta">
                 <div class="row-title">
-                  {{ e.name || e.id }}
-                  <span v-if="e.version" class="row-ver">v{{ e.version }}</span>
+                  {{ row.title || row.id }}
+                  <span v-if="row.version" class="row-ver">v{{ row.version }}</span>
+                  <v-chip
+                    v-if="row.kind === 'builtin'" size="x-small" variant="tonal" color="info" class="ml-2"
+                  >Built-in</v-chip>
+                  <v-chip
+                    v-else-if="row.kind === 'update'" size="x-small" variant="tonal" color="warning" class="ml-2"
+                  >Update v{{ row.catalogVersion }}</v-chip>
+                  <v-chip
+                    v-else-if="row.kind === 'installed'" size="x-small" variant="tonal" color="success" class="ml-2"
+                  >Installed</v-chip>
                 </div>
-                <div class="row-desc">{{ e.description || '' }}</div>
+                <div class="row-desc">{{ row.description || row.id }}</div>
+                <div v-if="row.error" class="row-err">
+                  <v-icon size="14" color="error">mdi-alert-circle-outline</v-icon>
+                  {{ row.error }}
+                </div>
               </div>
+              <!-- Available → Install -->
               <v-btn
+                v-if="row.kind === 'available'"
                 size="small" variant="tonal" color="primary"
-                :loading="downloading === e.id"
-                @click="install(e)"
-              >
-                Install
-              </v-btn>
+                :loading="downloading === row.id"
+                @click="install(row.catalogEntry)"
+              >Install</v-btn>
+              <!-- Update available → Update -->
+              <v-btn
+                v-else-if="row.kind === 'update'"
+                size="small" variant="tonal" color="warning"
+                :loading="downloading === row.id"
+                @click="install(row.catalogEntry)"
+              >Update</v-btn>
+              <!-- Installed (user) → publish + uninstall -->
+              <template v-else-if="row.kind === 'installed'">
+                <v-btn
+                  icon="mdi-github" size="small" variant="text" color="primary"
+                  title="Publish this board to GitHub"
+                  @click="openPublishDialog(row.installed)"
+                />
+                <v-btn icon="mdi-delete-outline" size="small" variant="text" color="error" @click="confirmUninstall(row.installed)" />
+              </template>
             </div>
           </div>
         </div>
@@ -239,19 +237,85 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import JSZip from 'jszip'
 import { useAppStore } from '../stores/app'
 import { useBoardManagerStore } from '../stores/boardManager'
 
 const appStore = useAppStore()
 const store = useBoardManagerStore()
-const tab = ref('installed')
+const tab = ref('setup')
 const downloading = ref(null)
 const catalogUrlInput = ref(store.catalogUrl)
 const repoSpec = ref('')
 const cores = ref([])
 const installingCore = ref(null)
+const iconFailed = reactive({})
+
+// Naive semver compare — returns >0 if a is newer, <0 if older, 0 if equal.
+// Unknown / non-numeric segments compare as 0 so an entry without a version
+// never claims to be an update.
+function compareVersions(a, b) {
+  const ap = String(a || '0').split('.').map(n => parseInt(n, 10) || 0)
+  const bp = String(b || '0').split('.').map(n => parseInt(n, 10) || 0)
+  for (let i = 0; i < Math.max(ap.length, bp.length); i++) {
+    const d = (ap[i] || 0) - (bp[i] || 0)
+    if (d !== 0) return d
+  }
+  return 0
+}
+
+// Merge appStore.boards (the full universe of usable boards — built-in + user
+// installed, returned by boards:list) with store.catalog (remote available
+// list) into a single rendered list. Sort: installed first, then updates,
+// then built-in, then available — each group alphabetical.
+const unifiedBoards = computed(() => {
+  const rows = new Map()
+  const catalogById = new Map((store.catalog || []).map(e => [e.id, e]))
+  const installedRecord = new Map((store.installed || []).map(b => [b.id, b]))
+
+  for (const b of (appStore.boards || [])) {
+    const ce = catalogById.get(b.id)
+    const isUser = b.source === 'user'
+    const upgradable = isUser && ce && compareVersions(ce.version, b.version) > 0
+    rows.set(b.id, {
+      id: b.id,
+      title: b.title || b.name || b.id,
+      description: b.description || '',
+      version: b.version,
+      image: b.image,
+      kind: upgradable ? 'update' : (isUser ? 'installed' : 'builtin'),
+      catalogVersion: ce?.version,
+      catalogEntry: ce,
+      installed: installedRecord.get(b.id),
+    })
+  }
+
+  // Catalog entries without a matching board → still available to install.
+  for (const e of (store.catalog || [])) {
+    if (rows.has(e.id)) continue
+    rows.set(e.id, {
+      id: e.id,
+      title: e.name || e.id,
+      description: e.description || '',
+      version: e.version,
+      image: e.icon,
+      kind: 'available',
+      catalogEntry: e,
+    })
+  }
+
+  const ORDER = { update: 0, installed: 1, builtin: 2, available: 3 }
+  return [...rows.values()].sort((a, b) => {
+    const od = ORDER[a.kind] - ORDER[b.kind]
+    return od !== 0 ? od : a.title.localeCompare(b.title)
+  })
+})
+
+async function refreshAll() {
+  await store.refresh()
+  await store.fetchCatalog()
+}
 
 // ── Publish-to-GitHub state ────────────────────────────────────────────────
 const publishDialog = ref(false)
@@ -357,6 +421,9 @@ watch(() => appStore.showBoardManager, (v) => {
     store.refresh()
     refreshCores()
     catalogUrlInput.value = store.catalogUrl
+    // Auto-fetch catalog the first time the dialog opens so the unified list
+    // already shows the "Available" rows without an extra click.
+    if (store.catalog.length === 0) store.fetchCatalog()
   }
 })
 
@@ -405,7 +472,7 @@ function saveCatalogUrl() {
 }
 
 function resetCatalogUrl() {
-  catalogUrlInput.value = 'https://raw.githubusercontent.com/lotus-arduibot/lotus-boards/main/catalog.json'
+  catalogUrlInput.value = 'https://raw.githubusercontent.com/jaturong-kamonlers/lotus-boards/main/catalog.json'
   saveCatalogUrl()
 }
 </script>
@@ -423,6 +490,14 @@ function resetCatalogUrl() {
 
 .row-list { display: flex; flex-direction: column; gap: 6px; }
 .board-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; }
+.board-thumb {
+  width: 48px; height: 36px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 4px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.1);
+}
 .row-meta { flex: 1; min-width: 0; }
 .row-title { font-size: 14px; font-weight: 600; }
 .row-ver { font-size: 11px; opacity: 0.5; font-weight: 400; margin-left: 6px; }

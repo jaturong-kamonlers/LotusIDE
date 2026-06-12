@@ -1,5 +1,5 @@
 lotus.register({
-  toolbox: { name: 'DS18B20', color: '#4FC3F7' },
+  toolbox: { name: 'DS18B20', color: '#FF6F00' },
   blocks: [
     {
       type: 'ds18b20_setup',
@@ -8,12 +8,12 @@ lotus.register({
         { type: 'field_variable', name: 'instance', variable: 'DS18B201' },
         { type: 'field_number', name: 'pin', value: 2, min: 0, max: 50, precision: 1 },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#4FC3F7',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#FF6F00',
     },
-    { type: 'ds18b20_update', message0: '%1 Read DS18B20 (once per loop)', args0: [{ type: 'field_variable', name: 'instance', variable: 'DS18B201' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#4FC3F7' },
-    { type: 'ds18b20_read_temp',   message0: '%1 Temperature °C', args0: [{ type: 'field_variable', name: 'instance', variable: 'DS18B201' }], output: 'Number', colour: '#4FC3F7' },
-    { type: 'ds18b20_read_temp_f', message0: '%1 Temperature °F', args0: [{ type: 'field_variable', name: 'instance', variable: 'DS18B201' }], output: 'Number', colour: '#4FC3F7' },
-    { type: 'ds18b20_get_device_count', message0: '%1 number of devices', args0: [{ type: 'field_variable', name: 'instance', variable: 'DS18B201' }], output: 'Number', colour: '#4FC3F7' },
+    { type: 'ds18b20_update', message0: '%1 Read DS18B20 (once per loop)', args0: [{ type: 'field_variable', name: 'instance', variable: 'DS18B201' }], inputsInline: true, previousStatement: null, nextStatement: null, colour: '#FF6F00' },
+    { type: 'ds18b20_read_temp',   message0: '%1 Temperature Â°C', args0: [{ type: 'field_variable', name: 'instance', variable: 'DS18B201' }], output: 'Number', colour: '#FF6F00' },
+    { type: 'ds18b20_read_temp_f', message0: '%1 Temperature Â°F', args0: [{ type: 'field_variable', name: 'instance', variable: 'DS18B201' }], output: 'Number', colour: '#FF6F00' },
+    { type: 'ds18b20_get_device_count', message0: '%1 number of devices', args0: [{ type: 'field_variable', name: 'instance', variable: 'DS18B201' }], output: 'Number', colour: '#FF6F00' },
   ],
   generators: {
     ds18b20_setup: `

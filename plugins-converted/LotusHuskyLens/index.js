@@ -8,7 +8,7 @@ var ALGO_OPTS = [
 ];
 
 lotus.register({
-  toolbox: { name: 'HuskyLens', color: '#BA68C8' },
+  toolbox: { name: 'HuskyLens', color: '#AB47BC' },
   blocks: [
     {
       type: 'huskylens_setup_i2c',
@@ -17,7 +17,7 @@ lotus.register({
         { type: 'field_variable', name: 'INSTANCE', variable: 'CAM1' },
         { type: 'field_dropdown', name: 'ALGO', options: ALGO_OPTS },
       ],
-      previousStatement: null, nextStatement: null, colour: '#BA68C8',
+      previousStatement: null, nextStatement: null, colour: '#AB47BC',
     },
     {
       type: 'huskylens_setup_uart',
@@ -27,7 +27,7 @@ lotus.register({
         { type: 'field_dropdown', name: 'BAUD', options: [['9600','9600'],['19200','19200'],['38400','38400'],['57600','57600'],['115200','115200']] },
         { type: 'field_dropdown', name: 'ALGO', options: ALGO_OPTS },
       ],
-      previousStatement: null, nextStatement: null, colour: '#BA68C8',
+      previousStatement: null, nextStatement: null, colour: '#AB47BC',
     },
     {
       type: 'huskylens_switch_algo',
@@ -36,7 +36,7 @@ lotus.register({
         { type: 'field_variable', name: 'INSTANCE', variable: 'CAM1' },
         { type: 'field_dropdown', name: 'ALGO', options: ALGO_OPTS },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#BA68C8',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#AB47BC',
     },
     {
       type: 'huskylens_request',
@@ -45,7 +45,7 @@ lotus.register({
         { type: 'field_variable', name: 'INSTANCE', variable: 'CAM1' },
         { type: 'field_dropdown', name: 'REQTYPE', options: [['All','ALL'],['Blocks','BLOCKS'],['Arrows','ARROWS'],['Learned','LEARNED']] },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#BA68C8',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#AB47BC',
     },
     {
       type: 'huskylens_request_id',
@@ -54,10 +54,10 @@ lotus.register({
         { type: 'field_variable', name: 'INSTANCE', variable: 'CAM1' },
         { type: 'input_value', name: 'ID', check: 'Number' },
       ],
-      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#BA68C8',
+      inputsInline: true, previousStatement: null, nextStatement: null, colour: '#AB47BC',
     },
-    { type: 'huskylens_block_count', message0: '%1 Block count', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'CAM1' }], output: 'Number', colour: '#BA68C8' },
-    { type: 'huskylens_arrow_count', message0: '%1 Arrow count', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'CAM1' }], output: 'Number', colour: '#BA68C8' },
+    { type: 'huskylens_block_count', message0: '%1 Block count', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'CAM1' }], output: 'Number', colour: '#AB47BC' },
+    { type: 'huskylens_arrow_count', message0: '%1 Arrow count', args0: [{ type: 'field_variable', name: 'INSTANCE', variable: 'CAM1' }], output: 'Number', colour: '#AB47BC' },
     {
       type: 'huskylens_get_block',
       message0: '%1 Block # %2 %3',
@@ -66,7 +66,7 @@ lotus.register({
         { type: 'input_value', name: 'IDX', check: 'Number' },
         { type: 'field_dropdown', name: 'PROP', options: [['X','x'],['Y','y'],['W','w'],['H','h'],['ID','id']] },
       ],
-      inputsInline: true, output: 'Number', colour: '#BA68C8',
+      inputsInline: true, output: 'Number', colour: '#AB47BC',
     },
     {
       type: 'huskylens_get_arrow',
@@ -76,7 +76,7 @@ lotus.register({
         { type: 'input_value', name: 'IDX', check: 'Number' },
         { type: 'field_dropdown', name: 'PROP', options: [['X Tail','xTail'],['Y Tail','yTail'],['X Head','xHead'],['Y Head','yHead'],['ID','id']] },
       ],
-      inputsInline: true, output: 'Number', colour: '#BA68C8',
+      inputsInline: true, output: 'Number', colour: '#AB47BC',
     },
     {
       type: 'huskylens_is_learned',
@@ -85,7 +85,7 @@ lotus.register({
         { type: 'field_variable', name: 'INSTANCE', variable: 'CAM1' },
         { type: 'input_value', name: 'ID', check: 'Number' },
       ],
-      inputsInline: true, output: 'Boolean', colour: '#BA68C8',
+      inputsInline: true, output: 'Boolean', colour: '#AB47BC',
     },
   ],
   generators: {

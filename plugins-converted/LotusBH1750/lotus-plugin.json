@@ -1,13 +1,22 @@
 {
-  "id": "com.lotus.sensor.bh1750",
-  "name": "BH1750 Light Sensor",
-  "version": "1.0.0",
-  "main": "index.js",
-  "description": "Read ambient light level (lx) from BH1750 over I2C",
-  "author": "Lotus IDE",
-  "license": "MIT",
-  "category": "Sensors",
-  "platforms": ["arduino-esp32", "arduino-avr"],
-  "icon": "icon.svg",
-  "keywords": ["light", "lux", "BH1750", "i2c", "sensor"]
+    "id":  "com.lotus.sensor.bh1750",
+    "name":  "BH1750 Light Sensor",
+    "version":  "1.2.0",
+    "main":  "index.js",
+    "description":  "Read ambient light level (lx) from BH1750 over I2C",
+    "author":  "Lotus IDE",
+    "license":  "MIT",
+    "category":  "Sensors",
+    "platforms":  [
+                      "arduino-esp32",
+                      "arduino-avr"
+                  ],
+    "icon":  "icon.svg",
+    "keywords":  [
+                     "light",
+                     "lux",
+                     "BH1750",
+                     "i2c",
+                     "sensor"
+                 ]
 }

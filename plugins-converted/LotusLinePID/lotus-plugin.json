@@ -1,13 +1,22 @@
 {
-  "id": "com.lotus.motion.linepid",
-  "name": "Line Follower PID",
-  "version": "2.0.0",
-  "main": "index.js",
-  "description": "PID line tracking — Digital, Analog, QTR-8A/RC, CD74HC4067 sensor arrays",
-  "author": "Lotus IDE",
-  "license": "MIT",
-  "category": "Motion",
-  "platforms": ["arduino-esp32", "arduino-avr"],
-  "icon": "icon.svg",
-  "keywords": ["PID", "line", "follower", "QTR", "CD74HC4067"]
+    "id":  "com.lotus.motion.linepid",
+    "name":  "Line Follower PID",
+    "version":  "1.2.0",
+    "main":  "index.js",
+    "description":  "PID line tracking - Digital, Analog, QTR-8A/RC, CD74HC4067 sensor arrays",
+    "author":  "Lotus IDE",
+    "license":  "MIT",
+    "category":  "Motion",
+    "platforms":  [
+                      "arduino-esp32",
+                      "arduino-avr"
+                  ],
+    "icon":  "icon.svg",
+    "keywords":  [
+                     "PID",
+                     "line",
+                     "follower",
+                     "QTR",
+                     "CD74HC4067"
+                 ]
 }

@@ -24,6 +24,7 @@
       <UpdaterPanel v-if="appStore.showUpdater" />
       <ImportUrlDialog v-if="appStore.showImportUrl" />
       <CoreDownloadDialog />
+      <DiagnoseEsp32Dialog v-if="appStore.showDiagnoseEsp32" />
     </template>
   </v-app>
 </template>
@@ -50,6 +51,7 @@ import GitHubManager from './components/GitHubManager.vue'
 import UpdaterPanel from './components/UpdaterPanel.vue'
 import ImportUrlDialog from './components/ImportUrlDialog.vue'
 import CoreDownloadDialog from './components/CoreDownloadDialog.vue'
+import DiagnoseEsp32Dialog from './components/DiagnoseEsp32Dialog.vue'
 
 const appStore = useAppStore()
 const serialStore = useSerialStore()

@@ -1,11 +1,24 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 export const useSerialStore = defineStore('serial', () => {
   const ports = ref([])
   const connected = ref(false)
-  const selectedPort = ref('')
+  const selectedPort = ref(
+    typeof localStorage !== 'undefined'
+      ? (localStorage.getItem('lotus.selectedPort') || '')
+      : '',
+  )
   const baudrate = ref(115200)
+
+  // Persist the user's port choice. We keep the value as-is even when the
+  // device is unplugged so the row re-selects automatically on re-plug; the
+  // SerialPanel guards uploads on the port still existing in `ports`.
+  watch(selectedPort, (v) => {
+    if (typeof localStorage === 'undefined') return
+    if (v) localStorage.setItem('lotus.selectedPort', v)
+    else localStorage.removeItem('lotus.selectedPort')
+  })
   const receivedLines = ref([])
   const plotData = ref([])
   const showPlotter = ref(false)

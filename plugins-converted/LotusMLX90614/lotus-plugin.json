@@ -1,13 +1,22 @@
 {
-  "id": "com.lotus.sensor.mlx90614",
-  "name": "MLX90614 IR Thermometer",
-  "version": "1.0.0",
-  "main": "index.js",
-  "description": "Non-contact infrared object + ambient temperature via MLX90614 over I2C",
-  "author": "Lotus IDE",
-  "license": "MIT",
-  "category": "Sensors",
-  "platforms": ["arduino-esp32", "arduino-avr"],
-  "icon": "icon.svg",
-  "keywords": ["MLX90614", "infrared", "temperature", "IR", "i2c"]
+    "id":  "com.lotus.sensor.mlx90614",
+    "name":  "MLX90614 IR Thermometer",
+    "version":  "1.2.0",
+    "main":  "index.js",
+    "description":  "Non-contact infrared object + ambient temperature via MLX90614 over I2C",
+    "author":  "Lotus IDE",
+    "license":  "MIT",
+    "category":  "Sensors",
+    "platforms":  [
+                      "arduino-esp32",
+                      "arduino-avr"
+                  ],
+    "icon":  "icon.svg",
+    "keywords":  [
+                     "MLX90614",
+                     "infrared",
+                     "temperature",
+                     "IR",
+                     "i2c"
+                 ]
 }

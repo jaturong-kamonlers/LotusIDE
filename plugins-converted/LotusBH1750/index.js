@@ -14,7 +14,7 @@
 lotus.register({
   toolbox: {
     name: 'BH1750',
-    color: '#4FC3F7',
+    color: '#FFD54F',
   },
   includes: ['BH1750.h', 'Wire.h'],
   blocks: [
@@ -30,7 +30,7 @@ lotus.register({
       ],
       previousStatement: null,
       nextStatement: null,
-      colour: '#4FC3F7',
+      colour: '#FFD54F',
       tooltip: 'Config BH1750 to Continuously H-Resolution Mode and setup I2C',
       helpUrl: 'https://github.com/maxpromer/BH1750_Arduino',
     },
@@ -38,7 +38,7 @@ lotus.register({
       type: 'bh1750_read',
       message0: 'BH1750 read light level (lx)',
       output: 'Number',
-      colour: '#4FC3F7',
+      colour: '#FFD54F',
       tooltip: 'Read and measure data from BH1750',
       helpUrl: 'https://github.com/maxpromer/BH1750_Arduino',
     },

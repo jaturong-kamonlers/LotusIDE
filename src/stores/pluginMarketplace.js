@@ -6,10 +6,20 @@ import { usePluginStore } from './plugins'
 
 const DEFAULT_CATALOG = 'https://raw.githubusercontent.com/jaturong-kamonlers/lotus-plugins/main/catalog.json'
 
+// Migrate sticky URLs from the pre-v1.4.0 default (lotus-arduibot org) so users
+// who set the default before the move don't keep hitting 404.
+function migrateLegacyUrl(url) {
+  if (!url) return DEFAULT_CATALOG
+  if (url.includes('lotus-arduibot/lotus-plugins')) return DEFAULT_CATALOG
+  return url
+}
+
 export const usePluginMarketplaceStore = defineStore('pluginMarketplace', () => {
   const catalog = ref([])
   const busy = ref(false)
-  const catalogUrl = ref(localStorage.getItem('lotus.pluginCatalogUrl') || DEFAULT_CATALOG)
+  const catalogUrl = ref(migrateLegacyUrl(localStorage.getItem('lotus.pluginCatalogUrl')))
+  // Write the migrated value back so the migration only happens once.
+  if (typeof localStorage !== 'undefined') localStorage.setItem('lotus.pluginCatalogUrl', catalogUrl.value)
 
   const appStore = useAppStore()
   const pluginStore = usePluginStore()

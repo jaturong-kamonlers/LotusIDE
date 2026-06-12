@@ -1,13 +1,25 @@
 {
-  "id": "com.lotus.sensor.gy87",
-  "name": "GY-87 10DOF IMU",
-  "version": "1.0.0",
-  "main": "index.js",
-  "description": "MPU6050 + HMC5883L + BMP180 combo with Madgwick AHRS pitch/roll/yaw fusion",
-  "author": "Lotus IDE",
-  "license": "MIT",
-  "category": "Sensors",
-  "platforms": ["arduino-esp32", "arduino-avr"],
-  "icon": "icon.svg",
-  "keywords": ["GY87", "IMU", "10DOF", "MPU6050", "HMC5883L", "BMP180", "Madgwick", "AHRS"]
+    "id":  "com.lotus.sensor.gy87",
+    "name":  "GY-87 10DOF IMU",
+    "version":  "1.2.0",
+    "main":  "index.js",
+    "description":  "MPU6050 + HMC5883L + BMP180 combo with Madgwick AHRS pitch/roll/yaw fusion",
+    "author":  "Lotus IDE",
+    "license":  "MIT",
+    "category":  "Sensors",
+    "platforms":  [
+                      "arduino-esp32",
+                      "arduino-avr"
+                  ],
+    "icon":  "icon.svg",
+    "keywords":  [
+                     "GY87",
+                     "IMU",
+                     "10DOF",
+                     "MPU6050",
+                     "HMC5883L",
+                     "BMP180",
+                     "Madgwick",
+                     "AHRS"
+                 ]
 }

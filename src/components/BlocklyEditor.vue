@@ -590,11 +590,63 @@ onMounted(() => {
   Blockly.dialog.setPrompt((msg, def, cb) => showPrompt(msg, def, cb))
 
   workspace.addChangeListener(generateCode)
+  workspace.addChangeListener(schedulePersistWorkspace)
   setTimeout(() => { injectCategoryIcons(); positionToolboxDivider() }, 400)
 
-  // Load blocks for board that was already selected when editor mounted
-  if (appStore.selectedBoard) boardLoadPromise = loadBoardBlocks(appStore.selectedBoard.id)
+  // Load blocks for board that was already selected when editor mounted, then
+  // restore the workspace JSON the user had open last session. We wait for the
+  // board's block files so deserialization sees every block type — otherwise
+  // Blockly silently drops unknown blocks.
+  if (appStore.selectedBoard) {
+    boardLoadPromise = loadBoardBlocks(appStore.selectedBoard.id)
+    boardLoadPromise.then(restoreSavedWorkspace)
+  } else {
+    restoreSavedWorkspace()
+  }
 })
+
+const WORKSPACE_KEY = 'lotus.workspaceJson'
+let persistTimer = null
+let restoringWorkspace = false
+
+function schedulePersistWorkspace() {
+  if (restoringWorkspace) return
+  if (typeof localStorage === 'undefined') return
+  clearTimeout(persistTimer)
+  persistTimer = setTimeout(() => {
+    try {
+      const json = JSON.stringify(Blockly.serialization.workspaces.save(workspace))
+      localStorage.setItem(WORKSPACE_KEY, json)
+    } catch (e) {
+      console.warn('[BlocklyEditor] persist workspace failed:', e.message)
+    }
+  }, 500)
+}
+
+function restoreSavedWorkspace() {
+  if (typeof localStorage === 'undefined') return
+  const raw = localStorage.getItem(WORKSPACE_KEY)
+  if (!raw) return
+  let req
+  try { req = JSON.parse(raw) } catch { localStorage.removeItem(WORKSPACE_KEY); return }
+  // Skip restore if the saved workspace is just the default setup/loop pair —
+  // no point flashing it over the one we just placed.
+  const blocks = req?.blocks?.blocks
+  if (Array.isArray(blocks) && blocks.length === 2 &&
+      blocks.every(b => b.type === 'lotus_setup' || b.type === 'lotus_loop') &&
+      !blocks.some(b => b.inputs || b.next)) {
+    return
+  }
+  restoringWorkspace = true
+  try {
+    workspace.clear()
+    Blockly.serialization.workspaces.load(req, workspace)
+  } catch (e) {
+    appStore.log('Failed to restore previous workspace: ' + e.message, 'error')
+  } finally {
+    restoringWorkspace = false
+  }
+}
 
 // Reload board blocks whenever the selected board changes
 watch(() => appStore.selectedBoard, (board) => {
