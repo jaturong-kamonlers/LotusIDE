@@ -61,10 +61,18 @@ jobs:
             # Inside single-quoted PS literals, neither happens — the
             # template tokens pass through unchanged to electron-builder
             # which substitutes them via its own ${...} engine.
+            # Override win.target to drop "zip" for Full only. With
+            # compression: "store" the Full zip is ~2.1 GB which trips
+            # GitHub's 2 GiB asset cap and 422s the entire publish step
+            # (root-caused after every tag from v1.3.7..v1.7.2 left CI
+            # red + drafts unpublished). The NSIS installer is already
+            # extractable and carries the blockmap, so dropping the zip
+            # costs us nothing.
             extra_build_args: >-
               '--config.productName=Lotus IDE Full'
               --config.appId=com.lotus-arduibot.ide.full
               '--config.win.artifactName=Lotus-IDE-Full-Setup-${version}.${ext}'
+              --config.win.target=nsis
               --config.publish.channel=latest-full
 
     env:
