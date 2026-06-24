@@ -147,3 +147,92 @@ jobs:
           Write-Host "✓ Built + published (${{ matrix.sku.label }})"
           Write-Host "  Draft release: https://github.com/${{ github.repository }}/releases"
           Write-Host "  After both SKUs finish, edit the draft and Publish."
+
+  # Linux installers — AppImage + deb, both x64 (most desktops) and arm64
+  # (Jetson Nano). Same slim/full SKU split as Windows. Runs AFTER
+  # build-windows so we never get two electron-builder processes racing to
+  # create/update the same draft release.
+  #
+  # Avr-toolchain comes from arduino-cli's `arduino:avr` install (see the
+  # Linux path in scripts/setup-resources.sh) — no separate custom build is
+  # needed off-Windows, and no LOTUS_AVR_TOOLCHAIN_URL secret is consumed.
+  #
+  # ARM64 runner cost (private repo): ~$0.005/min × ~40 min × 2 SKUs = ~$0.40
+  # per release. Free runners are public-repo only as of early 2025.
+  build-linux:
+    name: Linux installer (${{ matrix.arch }} ${{ matrix.sku.name }})
+    needs: build-windows
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-22.04-arm' || 'ubuntu-latest' }}
+    timeout-minutes: 90
+
+    strategy:
+      fail-fast: false
+      # Serialize x64 + arm64 + slim + full to avoid electron-builder racing
+      # for the same `latest-linux.yml` channel file on the draft release.
+      max-parallel: 1
+      matrix:
+        arch: [x64, arm64]
+        sku:
+          - name: slim
+            label: Slim (lazy ESP32)
+            setup_flag: '--no-esp32'
+            extra_build_args: ''
+          - name: full
+            label: Full (bundled ESP32)
+            setup_flag: '--with-esp32'
+            # Distinct productName + appId + channel keep Full + Slim from
+            # overwriting each other's auto-update channel YAML. Matches the
+            # Windows job's Full SKU overrides.
+            extra_build_args: >-
+              --config.productName="Lotus IDE Full"
+              --config.appId=com.lotus-arduibot.ide.full
+              --config.linux.artifactName='Lotus-IDE-Full-${version}-${arch}.${ext}'
+              --config.publish.channel=latest-full
+
+    env:
+      GH_TOKEN: ${{ secrets.RELEASES_TOKEN }}
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # electron-builder's deb postinst (build/linux/after-install.sh) needs
+      # libarchive-tools at build time for the deb packaging step to find
+      # `bsdtar`; rpm tooling is optional but cheap to include.
+      - name: Install build dependencies (deb + AppImage tooling)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libarchive-tools fakeroot dpkg rpm \
+            libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      # setup-resources.sh on Linux auto-bootstraps resources/avr-toolchain/
+      # from the arduino-cli `arduino:avr` install — no external token, no
+      # custom-build zip. ~150 MB on disk to mirror the Windows layout.
+      - name: Populate resources/ (arduino-cli + cores + avr-toolchain)
+        run: |
+          chmod +x scripts/setup-resources.sh build/linux/after-install.sh build/linux/after-remove.sh
+          ./scripts/setup-resources.sh ${{ matrix.sku.setup_flag }}
+          if [ ! -x resources/avr-toolchain/tools/bin/avr-gcc ]; then
+            echo "::error::avr-gcc missing after setup — install failed"
+            exit 1
+          fi
+
+      - name: Build + publish to GitHub Releases (${{ matrix.arch }} ${{ matrix.sku.name }})
+        run: |
+          npm run build -- --linux --${{ matrix.arch }} --publish always ${{ matrix.sku.extra_build_args }}
+
+      - name: Summary
+        if: success()
+        run: |
+          echo "✓ Built + published Linux ${{ matrix.arch }} (${{ matrix.sku.label }})"
+          echo "  Draft release: https://github.com/${{ github.repository }}/releases"

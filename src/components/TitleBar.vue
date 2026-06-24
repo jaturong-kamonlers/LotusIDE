@@ -23,7 +23,7 @@ const appStore = useAppStore()
 const theme = computed(() => appStore.theme)
 const fileName = computed(() => {
   if (!appStore.currentFile) return `${appStore.selectedBoard?.id || 'sketch'}.json`
-  return appStore.currentFile.split('\\').pop()
+  return appStore.currentFile.split(/[\\/]/).pop()
 })
 
 function minimize() { window.lotusAPI?.window.minimize() }

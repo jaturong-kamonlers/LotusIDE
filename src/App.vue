@@ -70,6 +70,21 @@ onMounted(() => {
       serialStore.connected = status === 'connected'
     })
     window.lotusAPI.arduino.onProgress((msg) => appStore.log(msg, 'build'))
+
+    // Linux-only: surface dialout/brltty problems in the console panel
+    // on launch. These two are responsible for ~95% of "ESP32 upload
+    // fails on Ubuntu" reports; spotting them on startup beats waiting
+    // for the user to hit a permission_denied error during upload.
+    if (window.lotusAPI.platform === 'linux' && window.lotusAPI.diagnostics?.linuxStartupCheck) {
+      window.lotusAPI.diagnostics.linuxStartupCheck().then((r) => {
+        if (!r || r.skipped || r.ok) return
+        appStore.log('Linux setup ตรวจพบปัญหา — เปิด Lotus → ตรวจสุขภาพ ESP32 เพื่อดูรายละเอียด', 'error')
+        for (const issue of r.issues || []) {
+          appStore.log(`[${issue.kind}] ${issue.message}`, 'error')
+          appStore.log(`  วิธีแก้: ${issue.fix}`, 'info')
+        }
+      }).catch(() => { /* startup check is best-effort */ })
+    }
   }
 })
 </script>

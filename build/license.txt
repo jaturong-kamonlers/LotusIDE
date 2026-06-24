@@ -1,0 +1,215 @@
+Lotus IDE — End-User License Agreement (EULA)
+สัญญาอนุญาตให้ใช้สิทธิ์ในซอฟต์แวร์ Lotus IDE
+
+Copyright (c) 2026 Jaturong Kamonlers <jaturong9999@gmail.com>
+All rights reserved.
+
+This software is licensed, not sold. By installing, copying, or otherwise
+using Lotus IDE (the "Software"), you agree to the terms below. If you do
+not agree, do not install or use the Software.
+
+ซอฟต์แวร์นี้ให้สิทธิ์การใช้งาน ไม่ได้ขายกรรมสิทธิ์ การติดตั้ง คัดลอก หรือใช้งาน
+Lotus IDE ("ซอฟต์แวร์") ถือว่าท่านยอมรับเงื่อนไขด้านล่าง หากไม่ยอมรับ
+กรุณาอย่าติดตั้งหรือใช้งานซอฟต์แวร์
+
+
+================================================================================
+ENGLISH
+================================================================================
+
+1. GRANT OF LICENSE
+   The Licensor grants you a worldwide, royalty-free, non-exclusive,
+   non-transferable license to:
+   (a) install and use the Software on any number of devices, free of charge,
+       for any lawful purpose including personal, educational, hobbyist, and
+       commercial use;
+   (b) redistribute the unmodified official installer (including via schools,
+       teachers, training centers, USB drives, mirrors, or any other channel)
+       free of charge, provided no fee is charged for the Software itself
+       (reasonable media/distribution costs are acceptable);
+   (c) develop, distribute, and sell your own third-party Plugins and Boards
+       (collectively, "Extensions") that interface with the Software through
+       its public Plugin/Board API. Extensions are not derivative works of
+       the Software and remain the sole property of their authors under any
+       license the author chooses.
+
+2. RESTRICTIONS
+   You may NOT:
+   (a) modify, adapt, translate, port, or create derivative works of the
+       Software itself (the Extension carve-out in §1(c) excepted);
+   (b) reverse engineer, decompile, disassemble, or attempt to extract or
+       reconstruct the source code of the Software, except to the extent
+       expressly permitted by applicable law that cannot be waived;
+   (c) repackage, rebrand, fork, or redistribute the Software as a different
+       product, or under a different name, logo, or branding;
+   (d) remove, alter, or obscure any copyright, trademark, license, or
+       attribution notices contained in the Software;
+   (e) use the Software to develop a competing product that substantially
+       reproduces the user-facing functionality of the Software;
+   (f) charge any fee, subscription, license, or royalty for the Software
+       itself (selling Extensions, training, or services around the Software
+       is permitted).
+
+3. EXTENSIONS (PLUGINS & BOARDS)
+   The Plugin and Board APIs are intentionally open. You may freely:
+   - Develop Extensions in any language permitted by the API;
+   - Distribute Extensions through the official catalogs
+     (github.com/jaturong-kamonlers/lotus-plugins,
+      github.com/jaturong-kamonlers/lotus-boards),
+     your own channels, or any third-party marketplace;
+   - License your Extensions under any terms you choose (open-source,
+     proprietary, paid, free, etc.);
+   - Use the names "Lotus IDE", "Lotus", and "Lotus ArduiBot" descriptively
+     to indicate compatibility (e.g., "MyPlugin — a sensor block for Lotus
+     IDE"), but not as the primary brand of your Extension.
+
+   Extensions MUST NOT:
+   - Attempt to disable, bypass, or circumvent the Software's update,
+     telemetry, branding, or license mechanisms;
+   - Impersonate, replace, or shadow the Software's identity;
+   - Distribute malware, miners, or other harmful payloads.
+
+4. TRADEMARKS
+   "Lotus IDE", "Lotus ArduiBot", the Lotus logo, and related marks are
+   trademarks of the Licensor. Beyond descriptive use as permitted in §3,
+   you may not use these marks in product names, domain names, logos, or
+   branding without prior written permission.
+
+5. THIRD-PARTY COMPONENTS
+   The Software incorporates third-party open-source components, each
+   governed by its own license. A full list of notices and licenses is
+   provided in the file THIRD-PARTY-NOTICES.md included with the Software.
+   In case of conflict between this EULA and a third-party license as
+   applied to that component, the third-party license controls for that
+   component only.
+
+6. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTY
+   OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+   WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+   ACCURACY, OR NON-INFRINGEMENT. THE LICENSOR DOES NOT WARRANT THAT THE
+   SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE.
+
+7. LIMITATION OF LIABILITY
+   TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL THE LICENSOR
+   BE LIABLE FOR ANY DAMAGES (INCLUDING, WITHOUT LIMITATION, LOST PROFITS,
+   LOST DATA, BUSINESS INTERRUPTION, OR DAMAGE TO HARDWARE) ARISING OUT OF
+   THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF THE LICENSOR HAS BEEN
+   ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+8. TERMINATION
+   This license terminates automatically if you breach any of its terms.
+   Upon termination, you must cease all use of the Software and destroy
+   all copies. Sections 4, 6, 7, 9, and 10 survive termination.
+
+9. GOVERNING LAW
+   This Agreement is governed by the laws of the Kingdom of Thailand,
+   without regard to its conflict-of-law principles. The exclusive venue
+   for disputes is the competent courts of Thailand.
+
+10. ENTIRE AGREEMENT
+    This Agreement constitutes the entire agreement between you and the
+    Licensor regarding the Software and supersedes any prior agreement
+    relating to its subject matter.
+
+
+================================================================================
+ภาษาไทย
+================================================================================
+
+1. การอนุญาตให้ใช้สิทธิ์
+   ผู้ให้สิทธิ์อนุญาตให้ท่านมีสิทธิ์ใช้งานทั่วโลก ไม่เสียค่าตอบแทน ไม่ผูกขาด
+   ไม่สามารถโอนต่อได้ ดังนี้
+   (ก) ติดตั้งและใช้งานซอฟต์แวร์ได้ไม่จำกัดเครื่อง ฟรี
+       ไม่ว่าจะเพื่อใช้งานส่วนตัว การศึกษา งานอดิเรก หรือเชิงพาณิชย์
+   (ข) แจกจ่ายตัวติดตั้งทางการที่ "ไม่ได้ดัดแปลง" ได้ฟรี ทุกช่องทาง
+       (เช่น โรงเรียน ครู ศูนย์ฝึกอบรม USB กระจายตัว mirror ฯลฯ)
+       โดยห้ามเรียกเก็บค่าตัวซอฟต์แวร์เอง (ค่าสื่อ/ค่าจัดส่งตามจริงทำได้)
+   (ค) พัฒนา แจกจ่าย และจำหน่าย Plugin / Board ของตนเอง (รวมเรียกว่า "ส่วนขยาย")
+       ที่เชื่อมต่อกับซอฟต์แวร์ผ่าน Plugin/Board API สาธารณะ
+       ส่วนขยายไม่ถือเป็นงานดัดแปลงของซอฟต์แวร์ และยังคงเป็นกรรมสิทธิ์
+       ของผู้พัฒนาภายใต้ license ใดก็ได้ที่ผู้พัฒนาเลือก
+
+2. ข้อจำกัด
+   ห้ามมิให้ท่านดำเนินการดังนี้
+   (ก) ดัดแปลง ปรับปรุง แปล port หรือสร้างงานดัดแปลงจากตัวซอฟต์แวร์
+       (ยกเว้นการพัฒนาส่วนขยายตามข้อ ๑(ค))
+   (ข) วิศวกรรมย้อนกลับ (reverse engineer) decompile disassemble
+       หรือพยายามสกัด/สร้าง source code ของซอฟต์แวร์ใหม่
+       เว้นแต่กฎหมายบังคับให้ทำได้และไม่อาจสละสิทธิ์ดังกล่าวได้
+   (ค) จัดแพ็คเกจใหม่ rebrand fork หรือแจกจ่ายซอฟต์แวร์
+       ในชื่อ โลโก้ หรือ branding อื่น
+   (ง) ลบ แก้ไข หรือบดบังประกาศลิขสิทธิ์ เครื่องหมายการค้า
+       license หรือ attribution ใดๆ ในซอฟต์แวร์
+   (จ) ใช้ซอฟต์แวร์เพื่อพัฒนาผลิตภัณฑ์คู่แข่งที่ลอกเลียนหน้าตา/ฟังก์ชัน
+       ของซอฟต์แวร์อย่างมีนัยสำคัญ
+   (ฉ) เรียกเก็บค่าธรรมเนียม ค่าสมาชิก ค่า license หรือค่าตอบแทนใดๆ
+       สำหรับตัวซอฟต์แวร์เอง (การจำหน่ายส่วนขยาย การฝึกอบรม
+       หรือบริการเสริมรอบซอฟต์แวร์สามารถทำได้)
+
+3. ส่วนขยาย (Plugin & Board)
+   API ของ Plugin/Board เปิดให้ใช้งานเสรี ท่านสามารถ
+   - พัฒนาส่วนขยายในภาษาใดก็ได้ที่ API รองรับ
+   - แจกจ่ายส่วนขยายผ่าน catalog ทางการ
+     (github.com/jaturong-kamonlers/lotus-plugins,
+      github.com/jaturong-kamonlers/lotus-boards)
+     ช่องทางของตนเอง หรือ marketplace ของบุคคลที่สาม
+   - กำหนด license ส่วนขยายเองได้ทุกแบบ (โอเพนซอร์ส กรรมสิทธิ์
+     แบบจ่ายเงิน แบบฟรี ฯลฯ)
+   - ใช้ชื่อ "Lotus IDE", "Lotus", "Lotus ArduiBot" เพื่อระบุ
+     ความเข้ากันได้ (เช่น "MyPlugin — sensor block สำหรับ Lotus IDE")
+     แต่ห้ามใช้เป็นแบรนด์หลักของส่วนขยายของท่าน
+
+   ส่วนขยาย "ห้าม"
+   - พยายามปิดการอัปเดต telemetry แบรนด์ดิ้ง หรือกลไก license
+     ของซอฟต์แวร์
+   - แอบอ้าง ทดแทน หรือบดบังตัวตนของซอฟต์แวร์
+   - แจกจ่าย malware miner หรือ payload ที่เป็นอันตราย
+
+4. เครื่องหมายการค้า
+   "Lotus IDE", "Lotus ArduiBot", โลโก้ Lotus และเครื่องหมายที่เกี่ยวข้อง
+   เป็นเครื่องหมายการค้าของผู้ให้สิทธิ์ นอกเหนือจากการใช้เชิงพรรณนา
+   ตามข้อ ๓ ห้ามใช้เครื่องหมายเหล่านี้ในชื่อสินค้า ชื่อโดเมน โลโก้
+   หรือ branding โดยไม่ได้รับอนุญาตเป็นลายลักษณ์อักษร
+
+5. องค์ประกอบของบุคคลที่สาม
+   ซอฟต์แวร์ใช้ส่วนประกอบโอเพนซอร์สของบุคคลที่สาม โดยแต่ละตัว
+   อยู่ภายใต้ license ของตนเอง รายชื่อทั้งหมดอยู่ในไฟล์
+   THIRD-PARTY-NOTICES.md ที่มาพร้อมซอฟต์แวร์ หากเงื่อนไขใน EULA
+   นี้ขัดกับ license ของบุคคลที่สามในส่วนของส่วนประกอบนั้น
+   ให้ license ของบุคคลที่สามมีผลเหนือเฉพาะส่วนประกอบนั้น
+
+6. ปฏิเสธการรับประกัน
+   ซอฟต์แวร์ให้บริการ "ตามสภาพ" และ "ตามที่มี" โดยไม่มีการรับประกันใดๆ
+   ทั้งโดยชัดแจ้งหรือโดยปริยาย รวมถึงแต่ไม่จำกัดเฉพาะการรับประกัน
+   ด้านความสามารถในการขาย ความเหมาะสมกับวัตถุประสงค์ใดวัตถุประสงค์หนึ่ง
+   ความถูกต้อง หรือการไม่ละเมิดสิทธิ์ ผู้ให้สิทธิ์ไม่รับประกันว่า
+   ซอฟต์แวร์จะทำงานต่อเนื่องหรือปราศจากข้อผิดพลาด
+
+7. การจำกัดความรับผิด
+   ภายในขอบเขตสูงสุดที่กฎหมายอนุญาต ผู้ให้สิทธิ์ไม่รับผิดต่อความเสียหายใดๆ
+   (รวมถึงแต่ไม่จำกัดเฉพาะการสูญเสียกำไร ข้อมูล การหยุดชะงักของธุรกิจ
+   หรือความเสียหายต่อฮาร์ดแวร์) ที่เกิดจากการใช้หรือไม่สามารถใช้ซอฟต์แวร์
+   ได้ แม้ผู้ให้สิทธิ์จะได้รับแจ้งถึงความเป็นไปได้ของความเสียหายนั้นแล้ว
+
+8. การสิ้นสุดสัญญา
+   สัญญาฉบับนี้สิ้นสุดโดยอัตโนมัติหากท่านฝ่าฝืนเงื่อนไขใดเงื่อนไขหนึ่ง
+   เมื่อสิ้นสุด ท่านต้องหยุดใช้ซอฟต์แวร์และทำลายสำเนาทั้งหมด
+   ข้อ ๔, ๖, ๗, ๙, และ ๑๐ ยังคงมีผลแม้สัญญาสิ้นสุด
+
+9. กฎหมายที่ใช้บังคับ
+   สัญญานี้อยู่ภายใต้กฎหมายแห่งราชอาณาจักรไทย โดยไม่คำนึงถึงหลักการ
+   ขัดกันของกฎหมาย ศาลที่มีเขตอำนาจในประเทศไทยเป็นเขตอำนาจในการพิจารณา
+   ข้อพิพาท
+
+10. ความครบถ้วนของสัญญา
+    สัญญาฉบับนี้ถือเป็นข้อตกลงทั้งหมดระหว่างท่านกับผู้ให้สิทธิ์เกี่ยวกับ
+    ซอฟต์แวร์ และมีผลแทนข้อตกลงก่อนหน้าใดๆ ในเรื่องเดียวกัน
+
+
+================================================================================
+
+Contact / ติดต่อ:
+  Jaturong Kamonlers
+  jaturong9999@gmail.com
+  https://github.com/jaturong-kamonlers/LotusIDE-Releases

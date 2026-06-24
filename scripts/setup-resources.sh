@@ -25,6 +25,7 @@ set -euo pipefail
 
 SKIP_ARDUINO_CLI=0
 SKIP_CORES=0
+WITH_ESP32=1   # 1=install esp32 core (Full SKU / dev default); 0=skip (Slim SKU CI)
 AVR_TOOLCHAIN_URL="${LOTUS_AVR_TOOLCHAIN_URL:-}"
 AVR_TOOLCHAIN_ZIP=""
 
@@ -32,6 +33,8 @@ for arg in "$@"; do
   case "$arg" in
     --skip-arduino-cli)     SKIP_ARDUINO_CLI=1 ;;
     --skip-cores)           SKIP_CORES=1 ;;
+    --no-esp32)             WITH_ESP32=0 ;;
+    --with-esp32)           WITH_ESP32=1 ;;
     --avr-toolchain-zip=*)  AVR_TOOLCHAIN_ZIP="${arg#*=}" ;;
     --avr-toolchain-url=*)  AVR_TOOLCHAIN_URL="${arg#*=}" ;;
     *) echo "Unknown flag: $arg" >&2; exit 2 ;;
@@ -104,7 +107,13 @@ else
   yellow "core update-index"
   "$ARDUINO_CLI_BIN" core update-index
 
-  for core in arduino:avr arduino:sam esp32:esp32; do
+  if [[ $WITH_ESP32 -eq 1 ]]; then
+    cores=(arduino:avr arduino:sam esp32:esp32)
+  else
+    cores=(arduino:avr arduino:sam)
+    gray "skipping esp32:esp32 (--no-esp32 / Slim SKU)"
+  fi
+  for core in "${cores[@]}"; do
     yellow "installing $core"
     "$ARDUINO_CLI_BIN" core install "$core"
   done
@@ -141,6 +150,52 @@ elif [[ -n "$AVR_TOOLCHAIN_URL" ]]; then
   rm -f "$tmp"
   [[ -x "$AVR_GCC_BIN" ]] || { echo "Zip didn't contain expected layout" >&2; exit 1; }
   green "avr-toolchain installed from URL"
+elif [[ "$(uname -s)" != "MINGW"* && "$(uname -s)" != "CYGWIN"* ]]; then
+  # Linux / macOS auto-bootstrap: synthesise resources/avr-toolchain/ from
+  # the arduino:avr package that step 2 already installed. The Windows
+  # build ships a custom avr-gcc (~10% faster, ~188 MB); on Linux/macOS we
+  # accept the stock Arduino-distributed avr-gcc rather than maintaining a
+  # second cross-compiled custom build. arduino.js doesn't care which one
+  # is at $AVR_TOOLCHAIN_ROOT/tools/bin/ as long as the layout matches.
+  yellow "synthesising avr-toolchain from arduino-cli avr package (Linux/macOS path)"
+  pkg_root="$ARDUINO_CLI_ROOT/data/packages/arduino"
+  if [[ ! -d "$pkg_root" ]]; then
+    echo "  ! arduino:avr core not installed at $pkg_root" >&2
+    echo "    (re-run without --skip-cores so step 2 installs it)" >&2
+    exit 1
+  fi
+  # Pick the newest installed versions if multiple are present.
+  avr_gcc_bin_dir="$(ls -d "$pkg_root"/tools/avr-gcc/*/bin 2>/dev/null | sort -V | tail -1)"
+  avrdude_bin_dir="$(ls -d "$pkg_root"/tools/avrdude/*/bin 2>/dev/null | sort -V | tail -1)"
+  avrdude_conf="$(ls "$pkg_root"/tools/avrdude/*/etc/avrdude.conf 2>/dev/null | sort -V | tail -1)"
+  avr_hw_dir="$(ls -d "$pkg_root"/hardware/avr/* 2>/dev/null | sort -V | tail -1)"
+  for need in "$avr_gcc_bin_dir/avr-gcc" "$avrdude_bin_dir/avrdude" "$avrdude_conf" "$avr_hw_dir/cores"; do
+    if [[ ! -e "$need" ]]; then
+      echo "  ! expected component missing: $need" >&2
+      echo "    (arduino:avr install incomplete — try: arduino-cli core uninstall arduino:avr && re-run)" >&2
+      exit 1
+    fi
+  done
+  mkdir -p "$AVR_TOOLCHAIN_ROOT/tools/bin" "$AVR_TOOLCHAIN_ROOT/tools/etc" "$AVR_TOOLCHAIN_ROOT/sdk"
+  # cp -r so electron-builder ships real files, not dangling symlinks. Disk
+  # cost is ~150 MB which matches the Windows shipped toolchain.
+  for tool in avr-gcc avr-g++ avr-objcopy avr-ar avr-ld avr-size; do
+    [[ -f "$avr_gcc_bin_dir/$tool" ]] && cp -f "$avr_gcc_bin_dir/$tool" "$AVR_TOOLCHAIN_ROOT/tools/bin/$tool"
+  done
+  cp -f "$avrdude_bin_dir/avrdude" "$AVR_TOOLCHAIN_ROOT/tools/bin/avrdude"
+  cp -f "$avrdude_conf" "$AVR_TOOLCHAIN_ROOT/tools/etc/avrdude.conf"
+  # Also copy the libexec gcc support files (cc1, cc1plus, real-ld, etc.)
+  # that avr-gcc spawns. Without these the bundled avr-gcc fails on the
+  # first compile with "cc1: not found".
+  for sup in "$avr_gcc_bin_dir/../libexec" "$avr_gcc_bin_dir/../avr"; do
+    [[ -d "$sup" ]] && cp -rf "$sup" "$AVR_TOOLCHAIN_ROOT/tools/"
+  done
+  # SDK: cores, libraries, variants — arduino.js walks these directly.
+  cp -rf "$avr_hw_dir/cores"     "$AVR_TOOLCHAIN_ROOT/sdk/cores"
+  cp -rf "$avr_hw_dir/libraries" "$AVR_TOOLCHAIN_ROOT/sdk/libraries"
+  cp -rf "$avr_hw_dir/variants"  "$AVR_TOOLCHAIN_ROOT/sdk/variants"
+  chmod +x "$AVR_TOOLCHAIN_ROOT/tools/bin/"*
+  green "avr-toolchain synthesised from arduino:avr ($(du -sh "$AVR_TOOLCHAIN_ROOT" | cut -f1))"
 else
   cat <<'EOF'
 

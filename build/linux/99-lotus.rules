@@ -1,0 +1,43 @@
+# LotusIDE — udev rules for USB-serial devices used by Arduino + ESP32 boards.
+#
+# Installed by the LotusIDE .deb to /etc/udev/rules.d/99-lotus.rules.
+#
+# Purpose:
+#   1. Drop the /dev/ttyUSB* / /dev/ttyACM* devices into the `dialout` group
+#      (already the kernel default on Debian/Ubuntu, but Jetson L4T images
+#      sometimes ship with weaker defaults — make it explicit).
+#   2. Mark the common Espressif-board USB-serial chips with TAG+="uaccess" so
+#      a logged-in desktop user can open the port without group membership at
+#      all — useful on single-user classroom machines where teachers don't
+#      want to walk students through `usermod -a -G dialout`.
+#   3. Disable ModemManager probing on these VID/PID pairs. ModemManager
+#      otherwise yanks the port for ~5s on plug-in trying AT commands,
+#      which is enough to break esptool's reset sequence.
+#
+# After installing the file:   sudo udevadm control --reload && sudo udevadm trigger
+
+# ── CH340 / CH341 (1a86:7523, 1a86:5523, 1a86:55d4 etc.) ──
+# Used by virtually every cheap ESP32 / Arduino-clone board.
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", MODE="0666", GROUP="dialout", TAG+="uaccess", ENV{ID_MM_DEVICE_IGNORE}="1"
+
+# ── Silicon Labs CP210x (10c4:ea60, 10c4:ea70, 10c4:ea71) ──
+# Used by ESP32-DevKitC and most official Espressif eval boards.
+SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", MODE="0666", GROUP="dialout", TAG+="uaccess", ENV{ID_MM_DEVICE_IGNORE}="1"
+
+# ── FTDI FT232 family (0403:6001, 0403:6010, 0403:6014, 0403:6015) ──
+# Used by some Arduino Mega clones, Sparkfun boards, and ESP-Prog.
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", MODE="0666", GROUP="dialout", TAG+="uaccess", ENV{ID_MM_DEVICE_IGNORE}="1"
+
+# ── Arduino native USB-CDC (2341:* — Uno R3/R4, Leonardo, Micro, Nano Every) ──
+SUBSYSTEM=="tty", ATTRS{idVendor}=="2341", MODE="0666", GROUP="dialout", TAG+="uaccess", ENV{ID_MM_DEVICE_IGNORE}="1"
+
+# ── Arduino LLC / SparkFun (1b4f:*) and Adafruit (239a:*) — many ItsyBitsy / QT Py boards ──
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1b4f", MODE="0666", GROUP="dialout", TAG+="uaccess", ENV{ID_MM_DEVICE_IGNORE}="1"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="239a", MODE="0666", GROUP="dialout", TAG+="uaccess", ENV{ID_MM_DEVICE_IGNORE}="1"
+
+# ── Espressif native USB JTAG / USB-Serial (303a:1001, 303a:1002) — ESP32-S3/C3 USB direct ──
+SUBSYSTEM=="tty", ATTRS{idVendor}=="303a", MODE="0666", GROUP="dialout", TAG+="uaccess", ENV{ID_MM_DEVICE_IGNORE}="1"
+
+# ── WCH CH9102 (1a86:55d4) — newer CH9102 USB-serial, shipped on some ESP32-S3 dev boards ──
+# (Same vendor 1a86 as CH340 but added explicitly for documentation. The CH340
+# line above already covers all 1a86:* devices.)

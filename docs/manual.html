@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lotus IDE — User Manual / คู่มือผู้ใช้</title>
+<style>
+:root{
+  --bg:#1a1410;
+  --panel:#241b15;
+  --panel-2:#2e231b;
+  --border:#3a2c22;
+  --text:#f3e7d3;
+  --muted:#b9a890;
+  --accent:#e89a3c;
+  --accent-2:#d9533b;
+  --link:#ffb866;
+  --code-bg:#15100c;
+  --good:#8fd17a;
+  --warn:#f0c053;
+  --bad:#ec6b5a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:"Segoe UI","Sarabun","Noto Sans Thai",system-ui,sans-serif;line-height:1.65}
+a{color:var(--link);text-decoration:none}
+a:hover{text-decoration:underline}
+code,kbd{font-family:"JetBrains Mono","Consolas",monospace;font-size:.92em}
+kbd{background:var(--panel-2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;box-shadow:inset 0 -1px 0 var(--border)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;line-height:1.5}
+pre code{background:none;padding:0}
+:not(pre)>code{background:var(--code-bg);padding:1px 6px;border-radius:4px;border:1px solid var(--border)}
+
+/* layout */
+.wrap{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;background:var(--panel);border-right:1px solid var(--border);padding:18px 16px}
+nav.toc h2{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 6px}
+nav.toc h2:first-child{margin-top:0}
+nav.toc a{display:block;color:var(--text);padding:4px 8px;border-radius:6px;font-size:14px}
+nav.toc a:hover{background:var(--panel-2);text-decoration:none}
+nav.toc a.active{background:var(--accent);color:#1a1410;font-weight:600}
+main{padding:36px 48px 80px;max-width:980px}
+header.hero{display:flex;align-items:center;gap:18px;padding:24px 28px;background:linear-gradient(135deg,#2a1f17,#3a2418);border:1px solid var(--border);border-radius:14px;margin-bottom:32px}
+header.hero .logo{font-size:54px;line-height:1}
+header.hero h1{margin:0 0 4px;font-size:28px}
+header.hero .sub{color:var(--muted);font-size:14px}
+
+h2{border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:48px}
+h3{color:var(--accent);margin-top:32px}
+h4{color:var(--link);margin-top:24px;margin-bottom:8px}
+
+.callout{padding:14px 16px;border-radius:8px;border-left:4px solid;margin:16px 0;background:var(--panel)}
+.callout.tip{border-color:var(--good)}
+.callout.warn{border-color:var(--warn)}
+.callout.danger{border-color:var(--bad)}
+.callout .lbl{font-weight:700;display:block;margin-bottom:4px}
+.callout.tip .lbl{color:var(--good)}
+.callout.warn .lbl{color:var(--warn)}
+.callout.danger .lbl{color:var(--bad)}
+
+table{border-collapse:collapse;width:100%;margin:14px 0;background:var(--panel);border-radius:8px;overflow:hidden}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--panel-2);font-weight:600;color:var(--accent)}
+tr:last-child td{border-bottom:none}
+
+.lang-switch{position:fixed;top:14px;right:18px;z-index:10;background:var(--panel);border:1px solid var(--border);border-radius:999px;padding:4px;display:flex;gap:2px;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.lang-switch button{background:none;border:none;color:var(--muted);padding:6px 14px;border-radius:999px;cursor:pointer;font-weight:600;font-size:13px;font-family:inherit}
+.lang-switch button.on{background:var(--accent);color:#1a1410}
+
+/* language toggle */
+body[data-lang="th"] .en{display:none}
+body[data-lang="en"] .th{display:none}
+
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.menu-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.menu-card h4{margin:0 0 6px;color:var(--accent)}
+.menu-card ul{margin:4px 0 0;padding-left:18px}
+.menu-card li{margin:2px 0;font-size:14px}
+
+.shortcut-tbl td:first-child{white-space:nowrap;font-weight:600}
+
+footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:13px;text-align:center}
+
+@media (max-width:860px){
+  .wrap{grid-template-columns:1fr}
+  nav.toc{position:relative;height:auto;border-right:none;border-bottom:1px solid var(--border)}
+  main{padding:24px 18px 60px}
+  .menu-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body data-lang="th">
+
+<div class="lang-switch" role="tablist">
+  <button id="btnTh" class="on" onclick="setLang('th')">ไทย</button>
+  <button id="btnEn" onclick="setLang('en')">English</button>
+</div>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h2 class="th">สารบัญ</h2><h2 class="en">Contents</h2>
+
+  <a href="#intro"><span class="th">1. แนะนำ Lotus IDE</span><span class="en">1. Introduction</span></a>
+  <a href="#install"><span class="th">2. การติดตั้ง</span><span class="en">2. Installation</span></a>
+  <a href="#first-run"><span class="th">3. เริ่มต้นใช้งาน</span><span class="en">3. First Run</span></a>
+  <a href="#ui"><span class="th">4. ส่วนต่างๆ ของหน้าจอ</span><span class="en">4. UI Overview</span></a>
+  <a href="#menus"><span class="th">5. เมนูทั้งหมด</span><span class="en">5. Menus</span></a>
+  <a href="#blockly"><span class="th">6. การเขียนด้วย Blockly</span><span class="en">6. Blockly Editor</span></a>
+  <a href="#code"><span class="th">7. โหมด Code</span><span class="en">7. Code Mode</span></a>
+  <a href="#compile"><span class="th">8. คอมไพล์ &amp; อัปโหลด</span><span class="en">8. Compile &amp; Upload</span></a>
+  <a href="#serial"><span class="th">9. Serial Monitor / Plotter</span><span class="en">9. Serial Monitor / Plotter</span></a>
+  <a href="#boards"><span class="th">10. Boards Setup</span><span class="en">10. Boards Setup</span></a>
+  <a href="#plugins"><span class="th">11. Plugin Setup</span><span class="en">11. Plugin Setup</span></a>
+  <a href="#github"><span class="th">12. GitHub Integration</span><span class="en">12. GitHub Integration</span></a>
+  <a href="#esp32"><span class="th">13. ตรวจสุขภาพ ESP32</span><span class="en">13. ESP32 Health Check</span></a>
+  <a href="#drivers"><span class="th">14. ติดตั้งไดรเวอร์ USB</span><span class="en">14. USB Drivers</span></a>
+  <a href="#shortcuts"><span class="th">15. ปุ่มลัด</span><span class="en">15. Keyboard Shortcuts</span></a>
+  <a href="#troubleshoot"><span class="th">16. การแก้ปัญหา</span><span class="en">16. Troubleshooting</span></a>
+  <a href="#license"><span class="th">17. ลิขสิทธิ์ &amp; เครดิต</span><span class="en">17. License &amp; Credits</span></a>
+</nav>
+
+<main>
+
+<header class="hero">
+  <div class="logo">🌸</div>
+  <div>
+    <h1>Lotus IDE</h1>
+    <div class="sub">
+      <span class="th">คู่มือผู้ใช้ฉบับเต็ม · เวอร์ชัน 1.7.2</span>
+      <span class="en">Full User Manual · Version 1.7.2</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ 1. INTRO ============ -->
+<section id="intro">
+  <h2><span class="th">1. แนะนำ Lotus IDE</span><span class="en">1. Introduction</span></h2>
+
+  <div class="th">
+    <p><strong>Lotus IDE</strong> คือสภาพแวดล้อมพัฒนาโปรแกรม (IDE) สำหรับบอร์ดหุ่นยนต์ตระกูล Lotus และบอร์ด Arduino ทั่วไป รองรับการเขียนโปรแกรมแบบบล็อก (Blockly) และแบบโค้ด C/C++ พร้อมระบบติดตั้งบอร์ดและปลั๊กอินผ่านอินเทอร์เน็ตในตัว</p>
+    <p><strong>คุณสมบัติเด่น:</strong></p>
+    <ul>
+      <li>เขียนโปรแกรมแบบบล็อก (Blockly) ที่แปลงเป็นโค้ด Arduino C++ อัตโนมัติ</li>
+      <li>มี toolchain ของ Arduino-CLI ติดมาในตัว — ใช้งานออฟไลน์ได้ทันที</li>
+      <li>รองรับ AVR (Nano/Uno), SAM (Due), ESP32, ESP8266 และบอร์ดอื่น ๆ ผ่านระบบ Board Package</li>
+      <li>ระบบ <strong>Fast Compile</strong> สำหรับ ESP32 ทำให้คอมไพล์รอบที่ 2 เร็วขึ้น ~11 เท่า</li>
+      <li>จัดการ Plugin/Board ผ่าน catalog บน GitHub — เพิ่มบอร์ดใหม่ได้โดยไม่ต้องอัปเดต IDE</li>
+      <li>เผยแพร่ Plugin/Board ของคุณเองขึ้น GitHub ได้ภายใน IDE</li>
+      <li>เครื่องมือ <strong>ตรวจสุขภาพ ESP32</strong> ช่วยวินิจฉัยและแก้ปัญหา toolchain อัตโนมัติ</li>
+    </ul>
+  </div>
+
+  <div class="en">
+    <p><strong>Lotus IDE</strong> is a development environment for the Lotus robotics board family and general Arduino boards. It supports both Blockly (block-based) and C/C++ code programming, with built-in package and plugin management.</p>
+    <p><strong>Key features:</strong></p>
+    <ul>
+      <li>Block-based programming (Blockly) that auto-generates Arduino C++ code</li>
+      <li>Bundled Arduino-CLI toolchain — works offline out of the box</li>
+      <li>Supports AVR (Nano/Uno), SAM (Due), ESP32, ESP8266, and more via the Board Package system</li>
+      <li><strong>Fast Compile</strong> path for ESP32 — second build ~11× faster</li>
+      <li>Plugin / Board management via GitHub catalogs — add new boards without updating the IDE</li>
+      <li>Publish your own plugin or board to GitHub directly from the IDE</li>
+      <li><strong>ESP32 Health Check</strong> tool — diagnoses and auto-fixes toolchain issues</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 2. INSTALL ============ -->
+<section id="install">
+  <h2><span class="th">2. การติดตั้ง</span><span class="en">2. Installation</span></h2>
+
+  <h3>Windows</h3>
+  <div class="th">
+    <ol>
+      <li>ดาวน์โหลดไฟล์ <code>Lotus-IDE-Setup-x.y.z.exe</code> จาก
+        <a href="https://github.com/jaturong-kamonlers/LotusIDE-Releases/releases">หน้า Releases</a></li>
+      <li>ดับเบิลคลิกไฟล์ติดตั้ง — หาก Windows SmartScreen เตือน ให้กด <em>More info → Run anyway</em></li>
+      <li>อ่านและยอมรับ EULA (สัญญาอนุญาตการใช้งาน)</li>
+      <li>เลือกตำแหน่งติดตั้ง (แนะนำ <code>C:\Program Files\Lotus IDE</code>)</li>
+      <li>กด Install แล้วรอจนเสร็จ (ขนาดติดตั้ง ~1.5 GB เพราะมี toolchain ติดมาด้วย)</li>
+    </ol>
+  </div>
+  <div class="en">
+    <ol>
+      <li>Download <code>Lotus-IDE-Setup-x.y.z.exe</code> from the
+        <a href="https://github.com/jaturong-kamonlers/LotusIDE-Releases/releases">Releases page</a>.</li>
+      <li>Double-click the installer. If Windows SmartScreen warns, click <em>More info → Run anyway</em>.</li>
+      <li>Read and accept the EULA.</li>
+      <li>Choose an install location (default <code>C:\Program Files\Lotus IDE</code>).</li>
+      <li>Click Install and wait (~1.5 GB — bundled toolchain).</li>
+    </ol>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">⚠ Windows Defender</span>
+    <div class="th">Windows Defender อาจสแกนไฟล์คอมไพล์ทำให้ช้ามาก แนะนำให้ใช้เมนู <strong>Lotus → ตรวจสุขภาพ ESP32 → Fix</strong> เพื่อเพิ่มโฟลเดอร์ Lotus IDE เข้า exclusion list (ต้องอนุมัติ UAC)</div>
+    <div class="en">Defender may scan compiler artifacts and slow builds dramatically. Use <strong>Lotus → ตรวจสุขภาพ ESP32 → Fix</strong> to auto-add the Lotus IDE folder to Defender exclusions (requires UAC approval).</div>
+  </div>
+
+  <h3>Linux (Ubuntu 20.04+)</h3>
+  <div class="th">
+    <p>มีให้เลือก 2 แบบ:</p>
+    <ul>
+      <li><strong>AppImage</strong> — ดาวน์โหลด <code>Lotus-IDE-x.y.z.AppImage</code> แล้วทำให้รันได้:
+        <pre><code>chmod +x Lotus-IDE-*.AppImage
+./Lotus-IDE-*.AppImage</code></pre></li>
+      <li><strong>.deb</strong> — ติดตั้งด้วย:
+        <pre><code>sudo apt install ./lotus-ide_x.y.z_amd64.deb</code></pre>
+        เวอร์ชัน .deb จะติดตั้ง udev rules ให้บอร์ดอัตโนมัติ (ไม่ต้อง sudo เวลาอัปโหลด)</li>
+    </ul>
+  </div>
+  <div class="en">
+    <p>Two formats:</p>
+    <ul>
+      <li><strong>AppImage</strong> — download <code>Lotus-IDE-x.y.z.AppImage</code> and make it executable:
+        <pre><code>chmod +x Lotus-IDE-*.AppImage
+./Lotus-IDE-*.AppImage</code></pre></li>
+      <li><strong>.deb</strong> — install via:
+        <pre><code>sudo apt install ./lotus-ide_x.y.z_amd64.deb</code></pre>
+        The .deb package installs udev rules automatically — no sudo needed for uploading.</li>
+    </ul>
+  </div>
+
+  <div class="callout tip">
+    <span class="lbl">macOS</span>
+    <div class="th">ยังไม่รองรับอย่างเป็นทางการในเวอร์ชันนี้ (เลื่อนไปแผนงานถัดไป)</div>
+    <div class="en">Not officially supported in this release — deferred to a future version.</div>
+  </div>
+</section>
+
+<!-- ============ 3. FIRST RUN ============ -->
+<section id="first-run">
+  <h2><span class="th">3. เริ่มต้นใช้งาน</span><span class="en">3. First Run</span></h2>
+
+  <div class="th">
+    <ol>
+      <li>เปิดโปรแกรม — จะเห็นพื้นที่ Blockly ทางซ้าย และ pane โค้ดทางขวา</li>
+      <li>เลือกบอร์ดจาก <strong>Tools → Select Board...</strong> (เช่น Arduino Nano, ESP32, Lotus DueBot)</li>
+      <li>เลือกพอร์ตจาก dropdown ใน Toolbar (บอร์ดต้องเสียบ USB อยู่)</li>
+      <li>ลากบล็อกจาก Toolbox มาประกอบใน workspace</li>
+      <li>กด <strong>Verify</strong> (<kbd>Ctrl</kbd>+<kbd>R</kbd>) เพื่อคอมไพล์</li>
+      <li>กด <strong>Upload</strong> (<kbd>Ctrl</kbd>+<kbd>U</kbd>) เพื่ออัปโหลดไปยังบอร์ด</li>
+    </ol>
+  </div>
+  <div class="en">
+    <ol>
+      <li>Launch the app — Blockly workspace on the left, code preview on the right.</li>
+      <li>Pick a board from <strong>Tools → Select Board...</strong> (Arduino Nano, ESP32, Lotus DueBot, etc.).</li>
+      <li>Pick a port from the dropdown in the toolbar (board must be plugged in via USB).</li>
+      <li>Drag blocks from the Toolbox into the workspace.</li>
+      <li>Hit <strong>Verify</strong> (<kbd>Ctrl</kbd>+<kbd>R</kbd>) to compile.</li>
+      <li>Hit <strong>Upload</strong> (<kbd>Ctrl</kbd>+<kbd>U</kbd>) to flash the board.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 4. UI ============ -->
+<section id="ui">
+  <h2><span class="th">4. ส่วนต่างๆ ของหน้าจอ</span><span class="en">4. UI Overview</span></h2>
+
+  <table>
+    <thead><tr>
+      <th><span class="th">ส่วน</span><span class="en">Area</span></th>
+      <th><span class="th">รายละเอียด</span><span class="en">Description</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>TitleBar</strong></td>
+        <td>
+          <span class="th">แถบบนสุด — โลโก้ Lotus, ชื่อไฟล์ปัจจุบัน, ปุ่ม minimize/maximize/close</span>
+          <span class="en">Top bar — Lotus logo, current filename, window controls.</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>MenuBar</strong></td>
+        <td>
+          <span class="th">เมนูหลัก: File · Edit · Lotus · View · Tools · Window · Help</span>
+          <span class="en">Main menus: File · Edit · Lotus · View · Tools · Window · Help.</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Toolbar</strong></td>
+        <td>
+          <span class="th">ปุ่ม Verify, Upload, เลือกพอร์ต และเลือกบอร์ดด่วน</span>
+          <span class="en">Quick buttons: Verify, Upload, port picker, board picker.</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Editor Pane</strong></td>
+        <td>
+          <span class="th">สลับระหว่าง Blockly Mode (ลากบล็อก) กับ Code Mode (เขียน C++) ได้ที่เมนู View</span>
+          <span class="en">Switch between Blockly Mode and Code Mode via the View menu.</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Output Console</strong></td>
+        <td>
+          <span class="th">แสดง log การคอมไพล์/อัปโหลด — error และ warning จะมีสี</span>
+          <span class="en">Shows compile / upload logs with color-coded errors and warnings.</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Serial Panel</strong></td>
+        <td>
+          <span class="th">เปิดจากเมนู Tools → Serial Monitor หรือ Serial Plotter</span>
+          <span class="en">Opened from Tools → Serial Monitor or Serial Plotter.</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ 5. MENUS ============ -->
+<section id="menus">
+  <h2><span class="th">5. เมนูทั้งหมด</span><span class="en">5. Menus</span></h2>
+
+  <div class="menu-grid">
+
+    <div class="menu-card">
+      <h4>📄 File</h4>
+      <ul>
+        <li><strong>New</strong> (<kbd>Ctrl</kbd>+<kbd>N</kbd>) — <span class="th">เริ่ม workspace ใหม่</span><span class="en">New workspace</span></li>
+        <li><strong>Open...</strong> (<kbd>Ctrl</kbd>+<kbd>O</kbd>) — <span class="th">เปิดไฟล์ .json</span><span class="en">Open .json file</span></li>
+        <li><strong>Import from URL...</strong> — <span class="th">นำเข้า workspace จากลิงก์</span><span class="en">Import workspace from URL</span></li>
+        <li><strong>Save</strong> (<kbd>Ctrl</kbd>+<kbd>S</kbd>) / <strong>Save As...</strong></li>
+        <li><strong>Examples</strong> — <span class="th">ตัวอย่าง Blink, Serial, PWM Fade</span><span class="en">Blink, Serial, PWM Fade samples</span></li>
+        <li><strong>Quit</strong> (<kbd>Alt</kbd>+<kbd>F4</kbd>)</li>
+      </ul>
+    </div>
+
+    <div class="menu-card">
+      <h4>✏️ Edit</h4>
+      <ul>
+        <li><strong>Undo / Redo</strong> (<kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd>)</li>
+        <li><strong>Cut / Copy / Paste</strong></li>
+        <li><strong>Select All</strong> (<kbd>Ctrl</kbd>+<kbd>A</kbd>)</li>
+      </ul>
+    </div>
+
+    <div class="menu-card" style="grid-column:1/-1;border-color:var(--accent)">
+      <h4>🌸 Lotus <span style="font-size:12px;color:var(--muted);font-weight:normal">— <span class="th">เมนูเด่นของ Lotus IDE</span><span class="en">— Lotus IDE's signature menu</span></span></h4>
+      <ul>
+        <li><strong>Verify / Compile</strong> (<kbd>Ctrl</kbd>+<kbd>R</kbd>) — <span class="th">คอมไพล์เพื่อตรวจ error</span><span class="en">Compile to check for errors</span></li>
+        <li><strong>Upload</strong> (<kbd>Ctrl</kbd>+<kbd>U</kbd>) — <span class="th">อัปโหลดไปบอร์ด</span><span class="en">Flash to board</span></li>
+        <li><strong>Boards Setup...</strong> — <span class="th">ดูที่หัวข้อ 10</span><span class="en">See section 10</span></li>
+        <li><strong>Plugin Setup...</strong> — <span class="th">ดูที่หัวข้อ 11</span><span class="en">See section 11</span></li>
+        <li><strong>GitHub</strong> — <span class="th">ดูที่หัวข้อ 12</span><span class="en">See section 12</span></li>
+        <li><strong>ตรวจสุขภาพ ESP32...</strong> — <span class="th">ดูที่หัวข้อ 13</span><span class="en">See section 13</span></li>
+        <li><strong>Include Library</strong> — <span class="th">แทรก <code>#include "..."</code> ของไลบรารีที่ติดตั้งแล้ว</span><span class="en">Insert <code>#include "..."</code> for an installed library</span></li>
+      </ul>
+    </div>
+
+    <div class="menu-card">
+      <h4>👁 View</h4>
+      <ul>
+        <li><strong>Block Mode</strong> (<kbd>Ctrl</kbd>+<kbd>1</kbd>) — Blockly</li>
+        <li><strong>Code Mode</strong> (<kbd>Ctrl</kbd>+<kbd>2</kbd>) — C/C++</li>
+        <li><strong>Theme</strong> — Lotus (default), Dark, Light</li>
+      </ul>
+    </div>
+
+    <div class="menu-card">
+      <h4>🔧 Tools</h4>
+      <ul>
+        <li><strong>Serial Monitor</strong> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd>)</li>
+        <li><strong>Serial Plotter</strong> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd>)</li>
+        <li><strong>Select Board...</strong></li>
+        <li><strong>Install USB Drivers</strong> — CP210x / CH340</li>
+      </ul>
+    </div>
+
+    <div class="menu-card">
+      <h4>🪟 Window</h4>
+      <ul>
+        <li><strong>Minimize</strong> / <strong>Maximize / Restore</strong></li>
+      </ul>
+    </div>
+
+    <div class="menu-card">
+      <h4>❓ Help</h4>
+      <ul>
+        <li><strong>Check for Updates...</strong></li>
+        <li><strong>About Lotus IDE</strong> — <span class="th">เวอร์ชัน, ลิงก์ EULA &amp; Third-Party Notices</span><span class="en">Version, EULA &amp; Third-Party Notices links</span></li>
+        <li><strong>Website</strong> — www.lotus-arduibot.com</li>
+        <li><strong>Report Bug...</strong> — <span class="th">เปิด GitHub Issues</span><span class="en">Opens GitHub Issues</span></li>
+        <li><strong>Getting Started</strong></li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ 6. BLOCKLY ============ -->
+<section id="blockly">
+  <h2><span class="th">6. การเขียนด้วย Blockly</span><span class="en">6. Blockly Editor</span></h2>
+
+  <div class="th">
+    <p><strong>Toolbox</strong> ทางซ้ายแบ่งหมวดบล็อกตามฟังก์ชัน:</p>
+    <ul>
+      <li><strong>Logic / Loops / Math / Text / Variables / Functions</strong> — หมวดมาตรฐานของ Blockly</li>
+      <li><strong>Input/Output / Time / Serial</strong> — บล็อกมาตรฐาน Arduino</li>
+      <li><strong>หมวดเฉพาะบอร์ด</strong> — ติดตั้งผ่าน Plugin Setup จะแยกหมวดและสีของตัวเองตามชื่อปลั๊กอิน</li>
+    </ul>
+    <p>โค้ดที่ Blockly สร้างจะแสดงสดที่ pane ขวา — สลับไปโหมด Code แล้วแก้เพิ่มได้</p>
+
+    <div class="callout tip">
+      <span class="lbl">💡 เคล็ดลับ — บล็อก text</span>
+      Lotus IDE ปรับบล็อก <code>text</code> ให้สร้างสตริงแบบ <code>"abc"</code> (double-quote) แทน <code>'abc'</code> (single-quote) เพื่อให้ตรงกับ Arduino String จริง
+    </div>
+  </div>
+  <div class="en">
+    <p>The <strong>Toolbox</strong> on the left groups blocks by category:</p>
+    <ul>
+      <li><strong>Logic / Loops / Math / Text / Variables / Functions</strong> — standard Blockly categories.</li>
+      <li><strong>Input/Output / Time / Serial</strong> — standard Arduino blocks.</li>
+      <li><strong>Board-specific categories</strong> — installed via Plugin Setup; each plugin gets its own category and color.</li>
+    </ul>
+    <p>Generated code is shown live on the right — you can switch to Code Mode and continue editing.</p>
+
+    <div class="callout tip">
+      <span class="lbl">💡 Tip — text block</span>
+      Lotus IDE overrides the stock <code>text</code> block to emit <code>"abc"</code> (double quotes) instead of <code>'abc'</code> (single quotes), matching real Arduino String literals.
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7. CODE ============ -->
+<section id="code">
+  <h2><span class="th">7. โหมด Code</span><span class="en">7. Code Mode</span></h2>
+
+  <div class="th">
+    <p>กด <kbd>Ctrl</kbd>+<kbd>2</kbd> เพื่อสลับเป็นโหมดเขียน C/C++ โดยตรง — เหมาะกับผู้ใช้ขั้นกลางขึ้นไป</p>
+    <ul>
+      <li>มี syntax highlight + auto-indent</li>
+      <li>กด <strong>Verify</strong>/<strong>Upload</strong> ใช้ได้ตามปกติ</li>
+      <li>ใช้คู่กับเมนู <strong>Lotus → Include Library</strong> เพื่อแทรก <code>#include</code> ได้</li>
+    </ul>
+    <div class="callout warn">
+      <span class="lbl">⚠ ระวัง</span>
+      เมื่ออยู่ในโหมด Code แล้วสลับกลับไป Blockly โค้ดที่แก้ไขเองจะถูกแทนที่ด้วยโค้ดที่ Blockly สร้างใหม่ — เก็บไฟล์เป็น .ino ไว้ก่อน
+    </div>
+  </div>
+  <div class="en">
+    <p>Press <kbd>Ctrl</kbd>+<kbd>2</kbd> to switch to direct C/C++ editing — for intermediate users and up.</p>
+    <ul>
+      <li>Syntax highlighting + auto-indent.</li>
+      <li><strong>Verify</strong> / <strong>Upload</strong> work as usual.</li>
+      <li>Use <strong>Lotus → Include Library</strong> to insert <code>#include</code> directives.</li>
+    </ul>
+    <div class="callout warn">
+      <span class="lbl">⚠ Caution</span>
+      Switching from Code back to Blockly will overwrite your edits with newly generated code. Save as .ino first.
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8. COMPILE ============ -->
+<section id="compile">
+  <h2><span class="th">8. คอมไพล์ &amp; อัปโหลด</span><span class="en">8. Compile &amp; Upload</span></h2>
+
+  <div class="th">
+    <h3>ขั้นตอน</h3>
+    <ol>
+      <li>เลือกบอร์ดและพอร์ตให้ถูก</li>
+      <li>กด <strong>Verify</strong> (<kbd>Ctrl</kbd>+<kbd>R</kbd>) — ทดลองคอมไพล์ก่อน</li>
+      <li>ดู Console — ถ้ามี error จะมีสีแดง คลิกเพื่อ jump ไปบรรทัด (ในโหมด Code)</li>
+      <li>เมื่อ Verify สำเร็จ กด <strong>Upload</strong> (<kbd>Ctrl</kbd>+<kbd>U</kbd>)</li>
+    </ol>
+
+    <h3>ESP32 Fast Compile</h3>
+    <p>Lotus IDE มีระบบ Fast Compile สำหรับ ESP32 ที่จะ:</p>
+    <ul>
+      <li>รอบแรก: คอมไพล์เต็มและบันทึก compile command ทุกตัวลง cache (<code>%TEMP%/lotus_build/</code>)</li>
+      <li>รอบถัดไป: รัน command เดิมซ้ำเฉพาะไฟล์ที่เปลี่ยน — เร็วขึ้น ~11.5 เท่า (จาก 213s เหลือ 18.5s)</li>
+    </ul>
+    <p>หาก cache เพี้ยน (เช่น "header not found" ทั้งที่มีจริง) ให้ลบโฟลเดอร์ <code>%TEMP%/lotus_build/</code> แล้วคอมไพล์ใหม่</p>
+  </div>
+  <div class="en">
+    <h3>Steps</h3>
+    <ol>
+      <li>Pick board and port.</li>
+      <li>Press <strong>Verify</strong> (<kbd>Ctrl</kbd>+<kbd>R</kbd>) to test-compile.</li>
+      <li>Check the console — errors are red; click to jump to the line (in Code Mode).</li>
+      <li>If verify succeeds, press <strong>Upload</strong> (<kbd>Ctrl</kbd>+<kbd>U</kbd>).</li>
+    </ol>
+
+    <h3>ESP32 Fast Compile</h3>
+    <p>Lotus IDE includes a Fast Compile path for ESP32:</p>
+    <ul>
+      <li>First build: full compile, captures every compile command in cache (<code>%TEMP%/lotus_build/</code>).</li>
+      <li>Subsequent builds: replays cached commands only for changed files — ~11.5× faster (213s → 18.5s).</li>
+    </ul>
+    <p>If the cache gets confused (e.g. "header not found" even though it exists), delete <code>%TEMP%/lotus_build/</code> and recompile.</p>
+  </div>
+</section>
+
+<!-- ============ 9. SERIAL ============ -->
+<section id="serial">
+  <h2><span class="th">9. Serial Monitor / Plotter</span><span class="en">9. Serial Monitor / Plotter</span></h2>
+
+  <div class="th">
+    <p>เปิดจาก <strong>Tools → Serial Monitor</strong> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd>) หรือ <strong>Serial Plotter</strong> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd>)</p>
+    <ul>
+      <li><strong>Baud rate</strong> เลือกได้ 9600 / 115200 ฯลฯ — ต้องตรงกับใน <code>Serial.begin()</code></li>
+      <li><strong>Line ending</strong> เลือกได้ None, \n, \r\n</li>
+      <li><strong>Plotter</strong> รับค่าตัวเลขคั่นด้วย space หรือ comma — วาดเป็นกราฟอัตโนมัติ</li>
+      <li>เปิด Serial ค้างไว้แล้วอัปโหลดได้ — IDE จะปิดพอร์ตให้ชั่วคราว</li>
+    </ul>
+  </div>
+  <div class="en">
+    <p>Open via <strong>Tools → Serial Monitor</strong> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd>) or <strong>Serial Plotter</strong> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd>).</p>
+    <ul>
+      <li><strong>Baud rate</strong>: 9600 / 115200 / etc. — must match <code>Serial.begin()</code>.</li>
+      <li><strong>Line ending</strong>: None, \n, or \r\n.</li>
+      <li><strong>Plotter</strong>: accepts space- or comma-separated numbers, auto-plots.</li>
+      <li>You can leave Serial open and upload — the IDE will release the port temporarily.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 10. BOARDS ============ -->
+<section id="boards">
+  <h2><span class="th">10. Boards Setup</span><span class="en">10. Boards Setup</span></h2>
+
+  <div class="th">
+    <p>เปิดจาก <strong>Lotus → Boards Setup...</strong></p>
+    <p>แท็บหลัก:</p>
+    <ul>
+      <li><strong>Available</strong> — รายการบอร์ดทั้งหมดจาก catalog (default: <code>jaturong-kamonlers/lotus-boards</code>)</li>
+      <li><strong>Installed</strong> — บอร์ดที่ติดตั้งแล้ว</li>
+      <li><strong>Settings</strong> — แก้ URL ของ catalog เพิ่มเติมได้</li>
+    </ul>
+    <p>กด <strong>Install</strong> ที่บอร์ดที่ต้องการ — IDE จะดาวน์โหลด toolchain + cores ให้อัตโนมัติ (ขนาด 50 MB – 1 GB ขึ้นกับบอร์ด)</p>
+
+    <div class="callout tip">
+      <span class="lbl">💡 ESP32</span>
+      ถ้า ESP32 core ติดตั้งไม่ครบ (ปกติเพราะถูก interrupt) ระบบจะตรวจจับและ "ติดตั้งซ่อม" ให้อัตโนมัติในการเปิดครั้งถัดไป — ตรวจสอบสถานะจาก <strong>ตรวจสุขภาพ ESP32</strong> ได้
+    </div>
+  </div>
+  <div class="en">
+    <p>Open via <strong>Lotus → Boards Setup...</strong>.</p>
+    <p>Main tabs:</p>
+    <ul>
+      <li><strong>Available</strong> — boards from the catalog (default: <code>jaturong-kamonlers/lotus-boards</code>).</li>
+      <li><strong>Installed</strong> — installed boards.</li>
+      <li><strong>Settings</strong> — add custom catalog URLs.</li>
+    </ul>
+    <p>Click <strong>Install</strong> on a board — the IDE downloads its toolchain + cores (50 MB – 1 GB depending on the board).</p>
+
+    <div class="callout tip">
+      <span class="lbl">💡 ESP32</span>
+      If an ESP32 core install was interrupted, the IDE detects the half-installed state and repairs it on the next launch. Check via <strong>ESP32 Health Check</strong>.
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11. PLUGINS ============ -->
+<section id="plugins">
+  <h2><span class="th">11. Plugin Setup</span><span class="en">11. Plugin Setup</span></h2>
+
+  <div class="th">
+    <p>เปิดจาก <strong>Lotus → Plugin Setup...</strong></p>
+    <p>Plugin = ชุดบล็อก Blockly + library + ตัวอย่าง สำหรับเซ็นเซอร์/มอเตอร์/บอร์ดเฉพาะ</p>
+    <ul>
+      <li>catalog เริ่มต้น: <code>jaturong-kamonlers/lotus-plugins</code> มี 15 plugins ให้เลือก</li>
+      <li>ติดตั้งแล้วบล็อกจะปรากฏใน Toolbox ใต้หมวดแยก พร้อมสีของปลั๊กอินเอง</li>
+      <li>ถอนการติดตั้งได้ที่แท็บ Installed</li>
+    </ul>
+  </div>
+  <div class="en">
+    <p>Open via <strong>Lotus → Plugin Setup...</strong>.</p>
+    <p>A plugin bundles Blockly blocks + Arduino library + examples for a sensor / motor / board.</p>
+    <ul>
+      <li>Default catalog: <code>jaturong-kamonlers/lotus-plugins</code> (15 plugins).</li>
+      <li>Once installed, blocks appear under their own toolbox category with the plugin's color.</li>
+      <li>Uninstall from the Installed tab.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 12. GITHUB ============ -->
+<section id="github">
+  <h2><span class="th">12. GitHub Integration</span><span class="en">12. GitHub Integration</span></h2>
+
+  <div class="th">
+    <p>เปิดจาก <strong>Lotus → GitHub</strong> — ใช้สำหรับเผยแพร่ plugin/board ของคุณเองขึ้น GitHub</p>
+    <ol>
+      <li>กด <strong>Sign in with GitHub</strong> — เปิด browser ให้ login (OAuth flow)</li>
+      <li>เลือกปลั๊กอินหรือบอร์ดที่ติดตั้งแล้วและต้องการเผยแพร่</li>
+      <li>กด <strong>Publish</strong> — IDE จะ:
+        <ul>
+          <li>zip ไฟล์ทั้งหมด</li>
+          <li>สร้าง GitHub repo (ถ้ายังไม่มี)</li>
+          <li>สร้าง release ใหม่ และ upload zip</li>
+        </ul>
+      </li>
+    </ol>
+
+    <div class="callout tip">
+      <span class="lbl">💡 ใช้ catalog ของตัวเอง</span>
+      ในแท็บ Settings ของ Boards/Plugin Setup สามารถใส่ URL ของ catalog ที่ตนเองสร้างได้ — ทำให้ทีม/โรงเรียนของคุณเห็นบอร์ดที่จัดเตรียมไว้
+    </div>
+  </div>
+  <div class="en">
+    <p>Open via <strong>Lotus → GitHub</strong> — used to publish your own plugin or board to GitHub.</p>
+    <ol>
+      <li>Click <strong>Sign in with GitHub</strong> — opens the browser for OAuth login.</li>
+      <li>Pick an installed plugin or board to publish.</li>
+      <li>Click <strong>Publish</strong> — the IDE will:
+        <ul>
+          <li>Zip all files.</li>
+          <li>Create the GitHub repo if needed.</li>
+          <li>Create a new release and upload the zip asset.</li>
+        </ul>
+      </li>
+    </ol>
+
+    <div class="callout tip">
+      <span class="lbl">💡 Custom catalogs</span>
+      In the Settings tab of Boards/Plugin Setup you can add a URL pointing to your own catalog — perfect for distributing curated boards to your team or classroom.
+    </div>
+  </div>
+</section>
+
+<!-- ============ 13. ESP32 ============ -->
+<section id="esp32">
+  <h2><span class="th">13. ตรวจสุขภาพ ESP32</span><span class="en">13. ESP32 Health Check</span></h2>
+
+  <div class="th">
+    <p>เปิดจาก <strong>Lotus → ตรวจสุขภาพ ESP32...</strong> เพื่อตรวจและแก้ปัญหา toolchain ของ ESP32 อัตโนมัติ</p>
+    <p>การตรวจสอบ:</p>
+    <ul>
+      <li><strong>ESP32 core ติดตั้งครบหรือไม่</strong> — ตรวจที่ <code>tools/</code> ไม่ใช่แค่ <code>hardware/</code></li>
+      <li><strong>gcc compiler</strong> — รองรับทั้ง esp-x32 (Xtensa) และ esp-rv32 (RISC-V) ของ core 3.x</li>
+      <li><strong>Windows Defender exclusion</strong> — ถ้ายังไม่ได้เพิ่ม IDE เข้า exclusion list จะมีปุ่ม <strong>Fix</strong> ให้กด (เรียก UAC)</li>
+      <li><strong>cache สถานะ</strong> — ตรวจ <code>%TEMP%/lotus_build/</code> และเสนอให้ลบถ้าเพี้ยน</li>
+    </ul>
+
+    <div class="callout warn">
+      <span class="lbl">⚠ Defender slow build</span>
+      บน Windows ถ้าไม่เพิ่ม exclusion การคอมไพล์ครั้งแรกอาจช้ากว่าควรหลายเท่า — แนะนำให้กด Fix ครั้งเดียวตั้งแต่ติดตั้ง
+    </div>
+  </div>
+  <div class="en">
+    <p>Open via <strong>Lotus → ตรวจสุขภาพ ESP32...</strong> to diagnose and auto-fix the ESP32 toolchain.</p>
+    <p>It checks:</p>
+    <ul>
+      <li><strong>ESP32 core completeness</strong> — verifies <code>tools/</code> not just <code>hardware/</code>.</li>
+      <li><strong>gcc compiler</strong> — supports both esp-x32 (Xtensa) and esp-rv32 (RISC-V) of core 3.x.</li>
+      <li><strong>Windows Defender exclusion</strong> — if the IDE folder isn't excluded, a <strong>Fix</strong> button auto-adds it via UAC.</li>
+      <li><strong>Build cache</strong> — inspects <code>%TEMP%/lotus_build/</code> and offers cleanup if stale.</li>
+    </ul>
+
+    <div class="callout warn">
+      <span class="lbl">⚠ Defender slow build</span>
+      Without exclusion, first compile on Windows can be many times slower — click Fix once after installation.
+    </div>
+  </div>
+</section>
+
+<!-- ============ 14. DRIVERS ============ -->
+<section id="drivers">
+  <h2><span class="th">14. ติดตั้งไดรเวอร์ USB</span><span class="en">14. USB Drivers</span></h2>
+
+  <div class="th">
+    <p>เปิดจาก <strong>Tools → Install USB Drivers</strong> — รองรับสองชิป USB-Serial ยอดนิยม:</p>
+    <ul>
+      <li><strong>CP210x</strong> — ใช้กับ ESP32 DevKit, NodeMCU ส่วนใหญ่</li>
+      <li><strong>CH340 / CH341</strong> — ใช้กับ Arduino Nano clone, ESP8266 บางรุ่น</li>
+      <li><strong>Open Drivers Folder</strong> — เปิดโฟลเดอร์เพื่อติดตั้ง manual</li>
+    </ul>
+    <p>หลังติดตั้งไดรเวอร์ ต้อง <strong>ถอด USB แล้วเสียบใหม่</strong> เพื่อให้ Windows assign COM port</p>
+  </div>
+  <div class="en">
+    <p>Open via <strong>Tools → Install USB Drivers</strong> — supports the two common USB-Serial chips:</p>
+    <ul>
+      <li><strong>CP210x</strong> — most ESP32 DevKit and NodeMCU boards.</li>
+      <li><strong>CH340 / CH341</strong> — Arduino Nano clones, some ESP8266 boards.</li>
+      <li><strong>Open Drivers Folder</strong> — opens the folder for manual installation.</li>
+    </ul>
+    <p>After installing, <strong>unplug and re-plug</strong> the USB cable so Windows assigns a COM port.</p>
+  </div>
+</section>
+
+<!-- ============ 15. SHORTCUTS ============ -->
+<section id="shortcuts">
+  <h2><span class="th">15. ปุ่มลัด</span><span class="en">15. Keyboard Shortcuts</span></h2>
+
+  <table class="shortcut-tbl">
+    <thead><tr>
+      <th><span class="th">ปุ่ม</span><span class="en">Shortcut</span></th>
+      <th><span class="th">การทำงาน</span><span class="en">Action</span></th>
+    </tr></thead>
+    <tbody>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>N</kbd></td><td><span class="th">Workspace ใหม่</span><span class="en">New workspace</span></td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>O</kbd></td><td><span class="th">เปิดไฟล์</span><span class="en">Open file</span></td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td><span class="th">บันทึก</span><span class="en">Save</span></td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td><td><span class="th">บันทึกเป็น</span><span class="en">Save As</span></td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>R</kbd></td><td><span class="th">Verify / Compile</span><span class="en">Verify / Compile</span></td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>U</kbd></td><td>Upload</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>1</kbd></td><td><span class="th">Block Mode (Blockly)</span><span class="en">Block Mode (Blockly)</span></td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>2</kbd></td><td>Code Mode</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd></td><td>Serial Monitor</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd></td><td>Serial Plotter</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Undo / Redo</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> / <kbd>C</kbd> / <kbd>V</kbd></td><td>Cut / Copy / Paste</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Select All</td></tr>
+      <tr><td><kbd>Alt</kbd>+<kbd>F4</kbd></td><td>Quit</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ 16. TROUBLESHOOT ============ -->
+<section id="troubleshoot">
+  <h2><span class="th">16. การแก้ปัญหา</span><span class="en">16. Troubleshooting</span></h2>
+
+  <table>
+    <thead><tr>
+      <th><span class="th">อาการ</span><span class="en">Symptom</span></th>
+      <th><span class="th">วิธีแก้</span><span class="en">Fix</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="th">ไม่เห็นพอร์ตในแอป</span><span class="en">No port shown</span></td>
+        <td>
+          <span class="th">เช็คสาย USB (ต้องเป็นแบบ data, ไม่ใช่ charge only) · ติดตั้งไดรเวอร์ CP210x หรือ CH340 · ถอด-เสียบ USB ใหม่</span>
+          <span class="en">Verify USB cable is a data cable (not charge-only) · install CP210x or CH340 driver · re-plug USB</span>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="th">คอมไพล์ ESP32 ช้ามาก</span><span class="en">ESP32 compile is very slow</span></td>
+        <td>
+          <span class="th">เปิด <strong>ตรวจสุขภาพ ESP32</strong> → กด <strong>Fix</strong> เพื่อเพิ่ม Defender exclusion</span>
+          <span class="en">Run <strong>ESP32 Health Check</strong> → click <strong>Fix</strong> to add Defender exclusion</span>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="th">error: header not found ทั้งที่ไฟล์มีจริง</span><span class="en">"header not found" even when present</span></td>
+        <td>
+          <span class="th">cache เพี้ยน — ลบโฟลเดอร์ <code>%TEMP%/lotus_build/</code> แล้วคอมไพล์ใหม่</span>
+          <span class="en">Stale cache — delete <code>%TEMP%/lotus_build/</code> and rebuild</span>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="th">Upload ล้มเหลว "Failed to connect" (ESP32)</span><span class="en">Upload fails: "Failed to connect" (ESP32)</span></td>
+        <td>
+          <span class="th">กดปุ่ม BOOT ค้างขณะกด Upload · ปิด Serial Monitor ก่อน · ตรวจว่าไม่มีโปรแกรมอื่นจับพอร์ตอยู่</span>
+          <span class="en">Hold BOOT during upload · close Serial Monitor first · check no other app holds the port</span>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="th">Plugin ไม่ปรากฏใน Toolbox</span><span class="en">Plugin not in Toolbox</span></td>
+        <td>
+          <span class="th">รีสตาร์ท IDE หลังติดตั้ง · ตรวจที่แท็บ Installed ว่าติดตั้งจริง</span>
+          <span class="en">Restart the IDE after install · verify under the Installed tab</span>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="th">ESP32 core ติดตั้งค้าง</span><span class="en">ESP32 core stuck mid-install</span></td>
+        <td>
+          <span class="th">ปิดและเปิด IDE ใหม่ — ระบบจะตรวจพบและติดตั้งซ่อมอัตโนมัติ · หรือลบ core แล้วติดตั้งใหม่จาก Boards Setup</span>
+          <span class="en">Restart the IDE — it will auto-detect and repair · or uninstall core and reinstall via Boards Setup</span>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="th">GitHub login ล้มเหลว</span><span class="en">GitHub login fails</span></td>
+        <td>
+          <span class="th">ตรวจการเชื่อมต่ออินเทอร์เน็ต · ถ้ามี firewall ให้อนุญาต Lotus IDE · ลอง Sign out แล้ว Sign in ใหม่</span>
+          <span class="en">Check internet connection · allow Lotus IDE through firewall · sign out and sign in again</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <span class="lbl">📮 <span class="th">รายงานบั๊ก</span><span class="en">Report bugs</span></span>
+    <span class="th">ใช้เมนู <strong>Help → Report Bug...</strong> จะเปิด GitHub Issues ของโปรเจกต์</span>
+    <span class="en">Use <strong>Help → Report Bug...</strong> to open the project's GitHub Issues page.</span>
+  </div>
+</section>
+
+<!-- ============ 17. LICENSE ============ -->
+<section id="license">
+  <h2><span class="th">17. ลิขสิทธิ์ &amp; เครดิต</span><span class="en">17. License &amp; Credits</span></h2>
+
+  <div class="th">
+    <p><strong>Lotus IDE</strong> เป็นซอฟต์แวร์ <em>Proprietary Freeware</em> — ใช้งานได้ฟรี แต่ห้ามแก้ไข/แจกจ่ายซ้ำโดยไม่ได้รับอนุญาต ดูรายละเอียดในไฟล์ LICENSE</p>
+    <p>ระบบ Plugin/Board เป็น <strong>Open API</strong> — ผู้ใช้สามารถสร้าง plugin/board ของตัวเองและเผยแพร่ผ่าน catalog ของตัวเองได้อย่างอิสระ</p>
+    <p>Lotus IDE พัฒนาต่อยอดจาก KBProIDE (MIT License © tookit) — รายการเครดิตทั้งหมดอยู่ในไฟล์ THIRD-PARTY-NOTICES.md</p>
+    <p>ติดต่อผู้พัฒนา: <a href="mailto:jaturong9999@gmail.com">jaturong9999@gmail.com</a> · <a href="https://www.lotus-arduibot.com">www.lotus-arduibot.com</a></p>
+  </div>
+  <div class="en">
+    <p><strong>Lotus IDE</strong> is <em>Proprietary Freeware</em> — free to use, but redistribution/modification requires permission. See LICENSE for details.</p>
+    <p>The Plugin/Board system is an <strong>Open API</strong> — you may freely build and distribute your own plugins or boards via your own catalog.</p>
+    <p>Lotus IDE is built on KBProIDE (MIT License © tookit) — full attribution in THIRD-PARTY-NOTICES.md.</p>
+    <p>Contact: <a href="mailto:jaturong9999@gmail.com">jaturong9999@gmail.com</a> · <a href="https://www.lotus-arduibot.com">www.lotus-arduibot.com</a></p>
+  </div>
+</section>
+
+<footer>
+  <span class="th">© 2026 Jaturong Kamonlers · Lotus IDE v1.7.2</span>
+  <span class="en">© 2026 Jaturong Kamonlers · Lotus IDE v1.7.2</span>
+</footer>
+
+</main>
+</div>
+
+<script>
+function setLang(lang){
+  document.body.dataset.lang = lang;
+  document.documentElement.lang = lang;
+  document.getElementById('btnTh').classList.toggle('on', lang==='th');
+  document.getElementById('btnEn').classList.toggle('on', lang==='en');
+  try{ localStorage.setItem('lotusManualLang', lang); }catch(e){}
+}
+// restore on load
+try{
+  const saved = localStorage.getItem('lotusManualLang');
+  if(saved==='en') setLang('en');
+}catch(e){}
+
+// active TOC link as you scroll
+const links = document.querySelectorAll('nav.toc a[href^="#"]');
+const sections = [...links].map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function onScroll(){
+  const y = window.scrollY + 120;
+  let active = sections[0];
+  for(const s of sections){ if(s.offsetTop <= y) active = s; }
+  links.forEach(a=>a.classList.toggle('active', a.getAttribute('href') === '#'+active.id));
+}
+window.addEventListener('scroll', onScroll, {passive:true});
+onScroll();
+</script>
+</body>
+</html>

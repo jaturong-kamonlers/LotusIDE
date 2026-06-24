@@ -319,7 +319,7 @@ function runTool(exe, args, cwd) {
         const raw = stderr || stdout || `Exit code ${code}`
         const firstError = raw.split('\n')
           .map(l => l.trim())
-          .filter(l => l && !l.startsWith('avrdude.exe: ser_') && !l.startsWith('avrdude.exe: stk500'))
+          .filter(l => l && !/^avrdude(\.exe)?: (ser_|stk500)/.test(l))
           .slice(0, 4)
           .join('\n')
         reject(new Error(firstError || raw.split('\n')[0]))
@@ -827,10 +827,15 @@ async function buildWithArduinoCli({ code, boardId, buildDir, port, upload }) {
       verboseOut += chunk
       chunk.split('\n').forEach(line => {
         const t = line.trim()
-        // Skip raw command lines (start with quoted absolute exe path) — they
-        // flood the output panel. Everything else (Compiling X..., Linking...,
-        // Used library, Sketch uses N bytes) still flows through.
-        if (t && !(t.startsWith('"') && t.includes('.exe"'))) {
+        // Skip raw command lines — they flood the output panel. Everything
+        // else (Compiling X..., Linking..., Used library, Sketch uses N bytes)
+        // still flows through. arduino-cli verbose emits these as:
+        //   Windows: `"C:\...\xtensa-esp32-elf-g++.exe" ...`  (quoted, .exe)
+        //   Linux:   `/home/.../xtensa-esp32-elf-g++ -DESP32 ...`  (unquoted)
+        const isRawCmdLine =
+          (t.startsWith('"') && (t.includes('.exe"') || t.includes('.py"'))) ||
+          (t.startsWith('/') && /^\/\S+ /.test(t))
+        if (t && !isRawCmdLine) {
           sendProgress(t)
         }
       })
@@ -896,6 +901,15 @@ function buildDirFor(boardId) {
 async function tryFastPathIfEsp32(code, boardId, buildDir) {
   const { cfg, boardDir } = readBoardConfigSync(boardId)
   if (cfg.platform !== 'arduino-esp32') return false
+  // The recipe parser (extractRecipeFromVerbose) and the esptool path matcher
+  // in uploadEsp32WithRecipe were authored against Windows arduino-cli verbose
+  // output: quoted absolute paths ending in `.exe`. On Linux/macOS verbose
+  // output is unquoted and lacks the `.exe` suffix, so the captured recipe
+  // would either be empty or unflashable. Until those parsers are re-tested
+  // on Linux (Phase 5 — Jetson Nano hardware tests), fall back to the full
+  // arduino-cli pipeline off-Windows. First compile is slower (~30-180s vs
+  // ~18s fast-path) but always correct.
+  if (process.platform !== 'win32') return false
   const { wrappedCode, sketchDir } = prepareSketch({ code, boardDir, boardId, buildDir })
   const fast = await tryEsp32FastBuild({ wrappedCode, sketchDir, buildDir })
   if (fast.ok) return true

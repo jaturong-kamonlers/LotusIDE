@@ -99,6 +99,21 @@ app.whenReady().then(() => {
   // replacing 'app.asar' in __dirname. In dev there's no asar so the replace
   // is a no-op and we read directly from the project tree.
   ipcMain.handle('drivers:install', (_e, name) => {
+    // The CH340 / CP210x kernel modules are in-tree on Linux (since ~3.x and
+    // ~2.x respectively) and macOS ships its own driver. The UI hides this
+    // submenu off-Windows, but if a renderer calls the IPC anyway return a
+    // helpful note instead of trying to spawn pnputil / CH341SER.EXE which
+    // don't exist outside Windows.
+    if (process.platform !== 'win32') {
+      if (name === 'open-folder') {
+        const DRIVERS_DIR = path.join(__dirname, '..', 'drivers').replace(/app\.asar([\\/])/, 'app.asar.unpacked$1')
+        shell.openPath(DRIVERS_DIR)
+        return { note: `Drivers folder opened: ${DRIVERS_DIR} (Windows-only installers; ignore on Linux/macOS).` }
+      }
+      return {
+        note: `${name}: ไม่ต้องติดตั้ง — ${process.platform === 'darwin' ? 'macOS' : 'Linux kernel'} มี driver ให้แล้ว เสียบ USB เลย`,
+      }
+    }
     const DRIVERS_DIR = path.join(__dirname, '..', 'drivers').replace(/app\.asar([\\/])/, 'app.asar.unpacked$1')
     if (name === 'open-folder') {
       shell.openPath(DRIVERS_DIR)

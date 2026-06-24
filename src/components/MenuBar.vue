@@ -42,6 +42,55 @@
 
     <!-- Click outside to close -->
     <div v-if="openMenu" class="menu-backdrop" @click="close" />
+
+    <!-- About dialog (sibling of menu items, OUTSIDE the v-if/v-else-if chain) -->
+    <v-dialog v-model="aboutOpen" max-width="540" persistent>
+      <v-card class="about-card">
+        <v-card-title class="d-flex align-center pb-1">
+          <v-icon size="28" color="primary" class="mr-2">mdi-information-outline</v-icon>
+          About Lotus IDE
+        </v-card-title>
+        <v-card-text class="pt-2">
+          <div class="text-h6 mb-1">Lotus IDE</div>
+          <div class="text-body-2 text-medium-emphasis mb-3">
+            Version {{ appVersion }} — Learning by Doing<br>
+            Copyright © {{ new Date().getFullYear() }} Jaturong Kamonlers
+          </div>
+
+          <div class="text-body-2 mb-3">
+            <strong>License:</strong> ฟรีสำหรับใช้งานทุกกรณี รวมการศึกษา
+            อนุญาตให้แจกจ่ายตัวติดตั้งทางการได้ตามไม่ดัดแปลง
+            และพัฒนา Plugin / Board ของตนเองได้เสรี
+            ห้ามดัดแปลงตัว IDE หรือใช้เครื่องหมายการค้า "Lotus" เป็นแบรนด์อื่น
+          </div>
+
+          <div class="d-flex flex-wrap ga-2 mb-3">
+            <v-btn size="small" variant="outlined" prepend-icon="mdi-file-document-outline"
+                   @click="openLink('https://github.com/jaturong-kamonlers/LotusIDE-Releases/blob/main/LICENSE')">
+              View Full License
+            </v-btn>
+            <v-btn size="small" variant="outlined" prepend-icon="mdi-package-variant-closed"
+                   @click="openLink('https://github.com/jaturong-kamonlers/LotusIDE-Releases/blob/main/THIRD-PARTY-NOTICES.md')">
+              Third-Party Notices
+            </v-btn>
+            <v-btn size="small" variant="outlined" prepend-icon="mdi-github"
+                   @click="openLink('https://github.com/jaturong-kamonlers/LotusIDE-Releases')">
+              GitHub
+            </v-btn>
+          </div>
+
+          <div class="text-caption text-medium-emphasis">
+            Built on Electron, Vue, Vuetify, Blockly, arduino-cli.
+            Plugin/board ecosystem inspired by KBProIDE (MIT, © tookit).
+            ดูรายการลิขสิทธิ์ครบถ้วนได้ที่ "Third-Party Notices"
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="primary" variant="text" @click="aboutOpen = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -56,6 +105,13 @@ const serialStore = useSerialStore()
 const libStore = useLibraryManagerStore()
 const openMenu = ref(null)
 const openSub = ref(null)
+const aboutOpen = ref(false)
+const appVersion = APP_VERSION
+
+function openLink(url) {
+  if (window.lotusAPI?.openExternal) window.lotusAPI.openExternal(url)
+  else window.open(url, '_blank')
+}
 
 // One refresh on mount populates libStore.installed for the Include Library
 // submenu. Install/uninstall via the Manage dialog calls refresh() itself, so
@@ -239,7 +295,7 @@ const menus = computed(() => [
       { label: 'Website', icon: 'mdi-web', action: () => appStore.log('www.lotus-arduibot.com', 'info') },
       { label: 'Report Bug...', icon: 'mdi-bug-outline', action: reportBug },
       '---',
-      { label: 'Getting Started', icon: 'mdi-book-open-page-variant-outline', action: () => appStore.log('Documentation coming soon', 'info') },
+      { label: 'Getting Started', icon: 'mdi-book-open-page-variant-outline', action: () => window.lotusAPI?.shell?.openExternal('https://jaturong-kamonlers.github.io/LotusIDE-Releases/manual.html') },
     ],
   },
 ])
@@ -276,20 +332,20 @@ async function openFile() {
 }
 async function saveFile() {
   if (!window.lotusAPI) return
-  const currentName = appStore.currentFile?.split('\\').pop()?.replace(/\.[^.]+$/, '') || appStore.selectedBoard?.id || 'sketch'
+  const currentName = appStore.currentFile?.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, '') || appStore.selectedBoard?.id || 'sketch'
   const filePath = appStore.currentFile || await window.lotusAPI.fs.saveDialog({ filters: [{ name: 'Lotus Workspace', extensions: ['json'] }], defaultPath: `${currentName}.json` })
   if (!filePath) return
   const result = await window.lotusAPI.fs.writeFile(filePath, appStore.workspaceJson)
-  if (!result?.error) { appStore.currentFile = filePath; appStore.isDirty = false; appStore.log(`Saved: ${filePath.split('\\').pop()}`, 'success') }
+  if (!result?.error) { appStore.currentFile = filePath; appStore.isDirty = false; appStore.log(`Saved: ${filePath.split(/[\\/]/).pop()}`, 'success') }
   else appStore.log(result.error, 'error')
 }
 async function saveAs() {
   if (!window.lotusAPI) return
-  const currentName = appStore.currentFile?.split('\\').pop()?.replace(/\.[^.]+$/, '') || appStore.selectedBoard?.id || 'sketch'
+  const currentName = appStore.currentFile?.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, '') || appStore.selectedBoard?.id || 'sketch'
   const filePath = await window.lotusAPI.fs.saveDialog({ filters: [{ name: 'Lotus Workspace', extensions: ['json'] }], defaultPath: `${currentName}.json` })
   if (!filePath) return
   const result = await window.lotusAPI.fs.writeFile(filePath, appStore.workspaceJson)
-  if (!result?.error) { appStore.currentFile = filePath; appStore.isDirty = false; appStore.log(`Saved: ${filePath.split('\\').pop()}`, 'success') }
+  if (!result?.error) { appStore.currentFile = filePath; appStore.isDirty = false; appStore.log(`Saved: ${filePath.split(/[\\/]/).pop()}`, 'success') }
   else appStore.log(result.error, 'error')
 }
 async function compile() {
@@ -316,7 +372,7 @@ function loadExample(name) {
   appStore.log(`Load example: ${name}`, 'info')
 }
 function showAbout() {
-  appStore.log('Lotus IDE v1.0.0 — ArduiBot Version — Learning by Doing — www.lotus-arduibot.com', 'info')
+  aboutOpen.value = true
 }
 
 // Open GitHub's "New Issue" page with a pre-filled bug template. We pass

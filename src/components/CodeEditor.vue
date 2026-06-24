@@ -33,7 +33,7 @@ const code = computed({
 
 const fileName = computed(() => {
   if (!appStore.currentFile) return 'sketch.ino'
-  return appStore.currentFile.split('\\').pop()
+  return appStore.currentFile.split(/[\\/]/).pop()
 })
 
 function insertTab() {

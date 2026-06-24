@@ -1,6 +1,6 @@
 {
   "name": "lotus-ide",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "Lotus ArduiBot IDE - Learning by Doing",
   "author": "Jaturong Kamonlers <jaturong9999@gmail.com>",
   "homepage": "https://github.com/jaturong-kamonlers/LotusIDE-Releases",
@@ -8,11 +8,11 @@
     "type": "git",
     "url": "https://github.com/jaturong-kamonlers/LotusIDE.git"
   },
-  "license": "UNLICENSED",
+  "license": "SEE LICENSE IN LICENSE",
   "main": "electron/main.js",
   "scripts": {
-    "dev": "taskkill /F /IM electron.exe /T 2>nul & concurrently -k \"npm run vite\" \"npm run electron:dev\"",
-    "kill": "taskkill /F /IM electron.exe /T 2>nul & npx kill-port 5173 2>nul",
+    "dev": "node scripts/kill-electron.js && concurrently -k \"npm run vite\" \"npm run electron:dev\"",
+    "kill": "node scripts/kill-electron.js && npx kill-port 5173",
     "vite": "vite",
     "electron:dev": "wait-on http://localhost:5173 && electron .",
     "build": "vite build && electron-builder",
@@ -68,7 +68,9 @@
       "public/icons/**/*",
       "public/logo/**/*",
       "sounds/**/*",
-      "drivers/**/*"
+      "drivers/**/*",
+      "LICENSE",
+      "THIRD-PARTY-NOTICES.md"
     ],
     "extraResources": [
       {
@@ -79,6 +81,10 @@
           "!arduino-cli/staging${/*}",
           "!arduino-cli/staging"
         ]
+      },
+      {
+        "from": "build/linux/99-lotus.rules",
+        "to": "udev/99-lotus.rules"
       }
     ],
     "win": {
@@ -92,12 +98,40 @@
     "afterPack": "build/afterPack.js",
     "linux": {
       "target": [
-        "AppImage",
-        "deb"
+        { "target": "AppImage", "arch": ["x64", "arm64"] },
+        { "target": "deb",      "arch": ["x64", "arm64"] }
       ],
       "icon": "public/logo/lotus.png",
       "category": "Development",
-      "synopsis": "Arduino-style IDE for Lotus robotics boards"
+      "synopsis": "Arduino-style IDE for Lotus robotics boards",
+      "description": "Blockly + Arduino IDE for Lotus robotics boards (AVR, SAM, ESP32). Visual programming for K-12 + makers, with offline-bundled toolchain.",
+      "executableName": "lotus-ide",
+      "desktop": {
+        "entry": {
+          "Name": "Lotus IDE",
+          "Comment": "Blockly + Arduino IDE for Lotus robotics boards",
+          "GenericName": "Robotics IDE",
+          "Keywords": "arduino;blockly;robotics;esp32;lotus;ide;education",
+          "StartupWMClass": "Lotus IDE",
+          "MimeType": "text/x-arduino;application/x-arduino-sketch"
+        }
+      }
+    },
+    "deb": {
+      "afterInstall": "build/linux/after-install.sh",
+      "afterRemove": "build/linux/after-remove.sh",
+      "depends": [
+        "libgtk-3-0",
+        "libnotify4",
+        "libnss3",
+        "libxss1",
+        "libxtst6",
+        "xdg-utils",
+        "libatspi2.0-0",
+        "libdrm2",
+        "libgbm1",
+        "libsecret-1-0"
+      ]
     },
     "nsis": {
       "oneClick": false,
@@ -106,7 +140,8 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Lotus IDE",
       "differentialPackage": true,
-      "include": "build/installer.nsh"
+      "include": "build/installer.nsh",
+      "license": "build/license.txt"
     }
   }
 }

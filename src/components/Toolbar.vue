@@ -204,7 +204,7 @@ async function openFile() {
 
 async function saveFile() {
   if (!window.lotusAPI) return
-  const currentName = appStore.currentFile?.split('\\').pop()?.replace(/\.[^.]+$/, '') || appStore.selectedBoard?.id || 'sketch'
+  const currentName = appStore.currentFile?.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, '') || appStore.selectedBoard?.id || 'sketch'
   const filePath = appStore.currentFile || await window.lotusAPI.fs.saveDialog({
     filters: [{ name: 'Lotus Workspace', extensions: ['json'] }],
     defaultPath: `${currentName}.json`,
@@ -214,7 +214,7 @@ async function saveFile() {
   if (!result?.error) {
     appStore.currentFile = filePath
     appStore.isDirty = false
-    appStore.log(`Saved: ${filePath.split('\\').pop()}`, 'success')
+    appStore.log(`Saved: ${filePath.split(/[\\/]/).pop()}`, 'success')
   } else {
     appStore.log(result.error, 'error')
   }

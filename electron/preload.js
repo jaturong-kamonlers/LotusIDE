@@ -74,6 +74,7 @@ contextBridge.exposeInMainWorld('lotusAPI', {
   // Diagnostics (ESP32 compile health check + one-click auto-fixes)
   diagnostics: {
     runEsp32Check:         () => ipcRenderer.invoke('diagnostics:runEsp32Check'),
+    linuxStartupCheck:     () => ipcRenderer.invoke('diagnostics:linuxStartupCheck'),
     clearBuildCache:       () => ipcRenderer.invoke('diagnostics:clearBuildCache'),
     removeEsp32Core:       () => ipcRenderer.invoke('diagnostics:removeEsp32Core'),
     addDefenderExclusion:  () => ipcRenderer.invoke('diagnostics:addDefenderExclusion'),
