@@ -66,6 +66,7 @@ import { javascriptGenerator } from 'blockly/javascript'
 import 'blockly/blocks'
 import { toolbox as baseToolbox } from '../blockly/index'
 import { getPluginToolboxCategories, getPluginIncludes, setBoardProvider } from '../plugins/pluginLoader'
+import { useT } from '../i18n/useT'
 
 // Resolve the board context that plugin generators receive as their 3rd arg.
 // Pin numbers are the conservative defaults — sketches can still override by
@@ -99,6 +100,7 @@ import sensorsRaw   from '../../public/icons/sensors.svg?raw'
 import actuatorsRaw from '../../public/icons/actuators.svg?raw'
 import visionRaw    from '../../public/icons/vision.svg?raw'
 import motionRaw    from '../../public/icons/motion.svg?raw'
+import otherRaw     from '../../public/icons/other.svg?raw'
 
 function toDataUri(svgRaw) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgRaw)}`
@@ -174,9 +176,13 @@ function evalBlockFile(code, boardId) {
       return true
     },
   })
-  // Inject patched Blockly object with proxied JavaScript generator
+  // Inject patched Blockly object with proxied JavaScript generator + i18n
+  // bridge. Block files call `Blockly.lotus.t('key', ...)` inside init() to
+  // produce localised tooltips/labels — the captured t() reads the live store
+  // each call, so blocks rebuilt after a language switch get the new strings.
   const patchedBlockly = Object.assign(Object.create(Object.getPrototypeOf(Blockly)), Blockly, {
     JavaScript: generatorProxy,
+    lotus: { t: useT() },
   })
   const mod = { exports: null }
   try {
@@ -332,6 +338,46 @@ async function loadBoardBlocks(boardId) {
     kind: 'categoryToolbox',
     contents: [...toolboxDefs, ...baseContents, ...pluginCats],
   })
+
+  // Workspace blocks survive board switches (Blockly design — protects the
+  // user's work). When the new board has incompatible blocks, prompt the
+  // user: "clean" (dispose non-wrapper blocks, backup first) OR "keep"
+  // (mark them disabled with a warning). When the switch goes the other
+  // way (back to a board that supports previously-disabled blocks), those
+  // re-enable silently regardless of which path the user took.
+  const allowed = new Set()
+  collectToolboxBlockTypes(toolboxDefs,  allowed)
+  collectToolboxBlockTypes(baseContents, allowed)
+  collectToolboxBlockTypes(pluginCats,   allowed)
+
+  const incompat = countIncompatible(workspace, allowed)
+  if (incompat > 0) {
+    const t         = useT()
+    const boardName = appStore.selectedBoard?.name || boardId
+    const proceed   = window.confirm(t('boardCompat.popup', incompat, boardName))
+    if (proceed) {
+      const backupKey = backupWorkspace(workspace, previousBoardId)
+      const removed   = cleanupToSetupLoopOnly(workspace)
+      const msg       = backupKey
+        ? t('boardCompat.removed_with_backup', removed, backupKey)
+        : t('boardCompat.removed_no_backup',   removed)
+      appStore.log(msg, 'info')
+    } else {
+      const compat = refreshWorkspaceBlockCompat(workspace, allowed)
+      if (compat.disabled > 0) {
+        appStore.log(t('boardCompat.disabled_count', compat.disabled), 'warning')
+      }
+    }
+  } else {
+    // No incompatible blocks — but blocks previously disabled by us may need
+    // re-enabling (user switched back to a board that supports them).
+    const compat = refreshWorkspaceBlockCompat(workspace, allowed)
+    if (compat.reenabled > 0) {
+      const t = useT()
+      appStore.log(t('boardCompat.reenabled_count', compat.reenabled), 'info')
+    }
+  }
+
   setTimeout(() => { injectCategoryIcons(); injectBoardCategoryIcons(iconMetas); injectPluginCategoryIcons(); positionToolboxDivider() }, 600)
 }
 
@@ -434,6 +480,7 @@ const CATEGORY_ICONS = {
   'plugin-cat-Actuators': { icon: toDataUri(actuatorsRaw), color: '#FFB74D' },
   'plugin-cat-Vision':    { icon: toDataUri(visionRaw),    color: '#BA68C8' },
   'plugin-cat-Motion':    { icon: toDataUri(motionRaw),    color: '#81C784' },
+  'plugin-cat-Other':     { icon: toDataUri(otherRaw),     color: '#78909C' },
 }
 
 function injectCategoryIcons() {
@@ -674,10 +721,30 @@ watch(() => pluginStore.loaded.map(p => p.manifest.id).join('|'), () => {
 // target. The provider is read on every block code-gen call, so a single
 // install at mount time is enough — this watch just keeps the toolbox
 // in sync when the board switch would also change which plugins apply.
+// Watching `id` (not `platform`) is required so switches between two ESP32
+// boards (LotusDevkit ↔ LotusDevkit4Wheels) still rebuild the toolbox + run
+// the compat refresh — they share a platform but have different block sets.
 setBoardProvider(() => makeBoardCtx(appStore.selectedBoard))
-watch(() => appStore.selectedBoard?.platform, () => {
+watch(() => appStore.selectedBoard?.id, (newId, oldId) => {
   if (!workspace) return
+  // Remember the source board so backups + log messages can name it.
+  previousBoardId = oldId || previousBoardId
   if (appStore.selectedBoard) boardLoadPromise = loadBoardBlocks(appStore.selectedBoard.id)
+})
+
+// Language toggle (Phase 2 i18n) — re-eval block defs so init() picks up new
+// strings, then restore the workspace so existing blocks redraw with the new
+// language. Workspace JSON is the source of truth; deserialising calls init()
+// on every block which reads Blockly.lotus.t() against the current language.
+watch(() => appStore.language, async () => {
+  if (!workspace || !appStore.selectedBoard) return
+  const snapshot = Blockly.serialization.workspaces.save(workspace)
+  workspace.clear()
+  loadedBoards.delete(appStore.selectedBoard.id)
+  boardLoadPromise = loadBoardBlocks(appStore.selectedBoard.id)
+  await boardLoadPromise
+  try { Blockly.serialization.workspaces.load(snapshot, workspace) }
+  catch (e) { appStore.log('Restore after language switch failed: ' + e.message, 'error') }
 })
 
 watch(() => appStore.theme, (newTheme) => {
@@ -700,6 +767,130 @@ function collectBlockTypes(obj, out) {
     if (v && typeof v === 'object') collectBlockTypes(v, out)
   }
 }
+
+// ── Board-compat: handle workspace blocks when switching boards ──
+// Blockly's drag/drop area is independent of toolbox by design (so switching
+// boards doesn't destroy work). On board switch we offer the user a choice:
+//   (B) Clean — keep only lotus_setup/lotus_loop wrappers, backup the rest
+//   (A) Disable+warn — leave incompatible blocks in place but grey them out
+// User makes the choice via window.confirm() each time. On a switch that
+// re-introduces compatibility (back to original board), previously disabled
+// blocks auto-re-enable.
+
+const COMPAT_WARNING_ID = 'lotus_board_compat'
+
+// Top-level wrappers that always survive a "clean" — every Lotus sketch needs
+// exactly one of each so the compile pipeline has a setup() and loop() to fill.
+const WRAPPER_TYPES = new Set(['lotus_setup', 'lotus_loop'])
+
+// Built-in Blockly categories (variables/procedures/math/etc.) are board-agnostic.
+// Their blocks are always usable so we skip the toolbox-membership check for them.
+const ALWAYS_ALLOWED_PREFIXES = [
+  'variables_', 'procedures_', 'math_', 'logic_',
+  'controls_',  'text_',       'lists_', 'colour_',
+]
+function isAlwaysAllowed(type) {
+  for (const p of ALWAYS_ALLOWED_PREFIXES) if (type.startsWith(p)) return true
+  return false
+}
+
+// Walk a toolbox `contents` tree (Blockly JSON format) and collect every block
+// type mentioned, including inside <block type="..."> / <shadow type="..."> XML
+// strings the menu groups embed for default-value shadows.
+function collectToolboxBlockTypes(contents, out) {
+  if (!Array.isArray(contents)) return
+  for (const item of contents) {
+    if (!item || typeof item !== 'object') continue
+    if (item.kind === 'block' && typeof item.type === 'string') out.add(item.type)
+    if (item.kind === 'category' && Array.isArray(item.contents)) {
+      collectToolboxBlockTypes(item.contents, out)
+    }
+    if (typeof item.xml === 'string') {
+      const re = /<(?:block|shadow)\s+type="([^"]+)"/g
+      let m
+      while ((m = re.exec(item.xml)) !== null) out.add(m[1])
+    }
+  }
+}
+
+function refreshWorkspaceBlockCompat(ws, allowedTypes) {
+  // Resolved per call so a runtime language switch updates new warnings.
+  // Existing warnings on already-disabled blocks won't repaint until the
+  // next board switch retriggers this function — acceptable for Phase 1.
+  const t = useT()
+  let disabled = 0, reenabled = 0
+  for (const block of ws.getAllBlocks(false)) {
+    const ok = isAlwaysAllowed(block.type) || allowedTypes.has(block.type) ||
+               WRAPPER_TYPES.has(block.type)
+    if (!ok && block.isEnabled()) {
+      block.setEnabled(false)
+      block.setWarningText(t('boardCompat.warning_tooltip'), COMPAT_WARNING_ID)
+      disabled++
+    } else if (ok && !block.isEnabled()) {
+      // Aggressive re-enable. Edge case: a block the user manually disabled
+      // will get re-enabled when it happens to also be on the new board's
+      // toolbox. Rare in practice; preferred over leaving compat-disabled
+      // blocks stuck off when the user switches back to the original board.
+      block.setEnabled(true)
+      block.setWarningText(null, COMPAT_WARNING_ID)
+      reenabled++
+    }
+  }
+  return { disabled, reenabled }
+}
+
+// Count blocks anywhere in the workspace that aren't valid on the new board.
+function countIncompatible(ws, allowedTypes) {
+  let n = 0
+  for (const block of ws.getAllBlocks(false)) {
+    const ok = isAlwaysAllowed(block.type) || allowedTypes.has(block.type) ||
+               WRAPPER_TYPES.has(block.type)
+    if (!ok) n++
+  }
+  return n
+}
+
+// Snapshot the full workspace to localStorage so a user who accidentally
+// chose "clean" can recover their work. Key encodes the previous board id +
+// timestamp so multiple backups coexist. Returns the key on success, null
+// if localStorage was unavailable (quota / private mode).
+function backupWorkspace(ws, fromBoardId) {
+  try {
+    const json = Blockly.serialization.workspaces.save(ws)
+    const ts   = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+    const key  = `lotus-backup-${fromBoardId || 'unknown'}-${ts}`
+    localStorage.setItem(key, JSON.stringify(json))
+    return key
+  } catch (e) {
+    console.error('[board-compat] backup failed:', e)
+    return null
+  }
+}
+
+// "Clean" mode: dispose every top-level block except the lotus_setup /
+// lotus_loop wrappers, and dispose all children attached to those wrappers.
+// Result: a fresh workspace with just empty setup + loop, ready for the new
+// board's blocks. Returns total block count removed.
+function cleanupToSetupLoopOnly(ws) {
+  const before = ws.getAllBlocks(false).length
+  for (const top of ws.getTopBlocks(false)) {
+    if (!WRAPPER_TYPES.has(top.type)) {
+      top.dispose(false)  // not a wrapper — drop entire stack
+      continue
+    }
+    // Wrapper survives but empty out anything plugged into its inputs.
+    for (const input of top.inputList) {
+      const child = input.connection?.targetBlock?.()
+      if (child) child.dispose(true)
+    }
+  }
+  return before - ws.getAllBlocks(false).length
+}
+
+// Track the previously-selected board id so the backup file can be named
+// after the source board, not the new destination. Updated by the watcher
+// at the bottom of <script>.
+let previousBoardId = null
 
 watch(() => appStore.loadWorkspaceRequest, async (req) => {
   if (!req || !workspace) return

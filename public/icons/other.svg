@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- puzzle piece — universal "plugin / extension" symbol.
+       Style matches sensors/actuators/vision/motion: dark fill + coloured line-art stroke. -->
+  <path d="
+    M 6 9
+    L 12 9
+    Q 12 5 16 5
+    Q 20 5 20 9
+    L 26 9
+    L 26 14
+    Q 22 14 22 18
+    Q 22 22 26 22
+    L 26 27
+    L 6 27
+    Z"
+    fill="#0D1117" stroke="#78909C" stroke-width="1.6" stroke-linejoin="round"/>
+</svg>

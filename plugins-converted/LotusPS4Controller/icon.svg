@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- gamepad body -->
+  <rect x="2" y="10" width="28" height="14" rx="6" fill="#0070D1" stroke="#0D1117" stroke-width="1"/>
+  <!-- touchpad strip -->
+  <rect x="12" y="11.5" width="8" height="3" rx="0.6" fill="#1a1a1a" opacity="0.5"/>
+  <!-- left stick -->
+  <circle cx="10" cy="18" r="2.2" fill="#222" stroke="#fff" stroke-width="0.8"/>
+  <!-- right stick -->
+  <circle cx="22" cy="18" r="2.2" fill="#222" stroke="#fff" stroke-width="0.8"/>
+  <!-- D-pad -->
+  <rect x="5"  y="15.4" width="4" height="1.8" fill="#fff" rx="0.4"/>
+  <rect x="6.1" y="14.3" width="1.8" height="4" fill="#fff" rx="0.4"/>
+  <!-- buttons -->
+  <text x="23.5" y="15"  font-family="Arial" font-size="3.8" fill="#fff" text-anchor="middle">△</text>
+  <text x="25.6" y="18.6" font-family="Arial" font-size="3.8" fill="#fff" text-anchor="middle">◯</text>
+  <text x="21.5" y="18.6" font-family="Arial" font-size="3.8" fill="#fff" text-anchor="middle">□</text>
+  <text x="23.5" y="22.2" font-family="Arial" font-size="3.8" fill="#fff" text-anchor="middle">×</text>
+  <!-- label -->
+  <text x="16" y="29" font-family="Arial" font-size="3.5" font-weight="bold" fill="#0070D1" text-anchor="middle">PS4</text>
+</svg>

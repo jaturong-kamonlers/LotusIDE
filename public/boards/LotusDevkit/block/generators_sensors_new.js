@@ -29,48 +29,47 @@ module.exports = function(Blockly) {
   };
 
   // ─── BH1750 ─────────────────────────────────────────────────────────────────
+  // Board has no BH1750 global, so we declare our own. Begin is wrapped in
+  // #SETUP/#END so it runs at startup regardless of where the user drops the
+  // "begin" block — dropping it in loop would otherwise re-begin every
+  // iteration and reset the sensor state.
   Blockly.JavaScript['lt_bh1750_begin'] = function(block) {
-    return `#EXTINC
-\t#include "BH1750.h"
-\t#END
-\t#VARIABLE
-\tBH1750 _bh1750;
-\t#END
-\t_bh1750.begin();\n`;
+    return '#EXTINC\n#include "BH1750.h"\n#END\n' +
+           '#VARIABLE\nBH1750 _bh1750;\n#END\n' +
+           '#SETUP\n_bh1750.begin();\n#END\n';
   };
   Blockly.JavaScript['lt_bh1750_lux'] = function(block) {
     return [`_bh1750.readLightLevel()`, Blockly.JavaScript.ORDER_ATOMIC];
   };
 
   // ─── MLX90614 ───────────────────────────────────────────────────────────────
+  // Uses the board-level `mlx90614` instance declared in LotusDevkit.h.
+  // LotusDevkit() already runs a 500ms retry loop calling mlx90614.begin().
+  // We deliberately do NOT call begin() again here: the bundled
+  // Adafruit_MLX90614 wrapper overwrites its `_working` flag on every begin()
+  // attempt, and a second call can transiently fail (sensor mid-measurement →
+  // raw register reads 0xFFFF). That flips _working to false and every
+  // readObjectTempC()/readAmbientTempC() returns -999 from then on.
   Blockly.JavaScript['lt_mlx_begin'] = function(block) {
-    return `#EXTINC
-\t#include "Adafruit_MLX90614.h"
-\t#END
-\t#VARIABLE
-\tAdafruit_MLX90614 _mlx;
-\t#END
-\t_mlx.begin();\n`;
+    return '#SETUP\n// MLX90614 already initialised by LotusDevkit() board constructor\n#END\n';
   };
   Blockly.JavaScript['lt_mlx_object_temp'] = function(block) {
-    return [`_mlx.readObjectTempC()`, Blockly.JavaScript.ORDER_ATOMIC];
+    return [`mlx90614.readObjectTempC()`, Blockly.JavaScript.ORDER_ATOMIC];
   };
   Blockly.JavaScript['lt_mlx_ambient_temp'] = function(block) {
-    return [`_mlx.readAmbientTempC()`, Blockly.JavaScript.ORDER_ATOMIC];
+    return [`mlx90614.readAmbientTempC()`, Blockly.JavaScript.ORDER_ATOMIC];
   };
 
   // ─── DHT ────────────────────────────────────────────────────────────────────
+  // DHT needs the GPIO pin at construction time so we can't share a board
+  // global. Begin is wrapped in #SETUP so the block can be dropped anywhere.
   Blockly.JavaScript['lt_dht_begin'] = function(block) {
     var pin  = block.getFieldValue('PIN')  || '26';
     var type = block.getFieldValue('TYPE') || 'DHT22';
     var typeMap = {DHT22:'22', DHT11:'11', DHT21:'21'};
-    return `#EXTINC
-\t#include "DHT.h"
-\t#END
-\t#VARIABLE
-\tDHT _dht(${pin}, ${typeMap[type]||22});
-\t#END
-\t_dht.begin();\n`;
+    return '#EXTINC\n#include "DHT.h"\n#END\n' +
+           '#VARIABLE\nDHT _dht(' + pin + ', ' + (typeMap[type]||22) + ');\n#END\n' +
+           '#SETUP\n_dht.begin();\n#END\n';
   };
   Blockly.JavaScript['lt_dht_temperature'] = function(block) {
     return [`_dht.readTemperature()`, Blockly.JavaScript.ORDER_ATOMIC];
@@ -80,34 +79,31 @@ module.exports = function(Blockly) {
   };
 
   // ─── BMP280 ─────────────────────────────────────────────────────────────────
+  // Uses the board-level `bmp280` instance declared in LotusDevkit.h.
+  // LotusDevkit() already calls bmp280.begin() in the constructor, so the
+  // begin block is a no-op comment — declaring a parallel `_bmp` instance
+  // would waste RAM + diverge state from the board's `bmp280`.
   Blockly.JavaScript['lt_bmp280_begin'] = function(block) {
-    return `#EXTINC
-\t#include "Adafruit_BMP280.h"
-\t#END
-\t#VARIABLE
-\tAdafruit_BMP280 _bmp;
-\t#END
-\t_bmp.begin(0x76);\n`;
+    return '#SETUP\n// BMP280 already initialised by LotusDevkit() board constructor\n#END\n';
   };
   Blockly.JavaScript['lt_bmp280_temperature'] = function(block) {
-    return [`_bmp.readTemperature()`, Blockly.JavaScript.ORDER_ATOMIC];
+    return [`bmp280.readTemperature()`, Blockly.JavaScript.ORDER_ATOMIC];
   };
   Blockly.JavaScript['lt_bmp280_pressure'] = function(block) {
-    return [`_bmp.readPressure()`, Blockly.JavaScript.ORDER_ATOMIC];
+    return [`bmp280.readPressure()`, Blockly.JavaScript.ORDER_ATOMIC];
   };
   Blockly.JavaScript['lt_bmp280_altitude'] = function(block) {
-    return [`_bmp.readAltitude(1013.25)`, Blockly.JavaScript.ORDER_ATOMIC];
+    return [`bmp280.readAltitude(1013.25)`, Blockly.JavaScript.ORDER_ATOMIC];
   };
 
   // ─── SHT31 ──────────────────────────────────────────────────────────────────
+  // Board has no SHT31 global so we declare our own. Bundled stub
+  // Adafruit_SHT31.h was added 2026-06-25 — supports begin/read T/read H,
+  // returns -999.0f sentinel on read failure (matches MLX90614 convention).
   Blockly.JavaScript['lt_sht31_begin'] = function(block) {
-    return `#EXTINC
-\t#include "Adafruit_SHT31.h"
-\t#END
-\t#VARIABLE
-\tAdafruit_SHT31 _sht31;
-\t#END
-\t_sht31.begin(0x44);\n`;
+    return '#EXTINC\n#include "Adafruit_SHT31.h"\n#END\n' +
+           '#VARIABLE\nAdafruit_SHT31 _sht31;\n#END\n' +
+           '#SETUP\n_sht31.begin(0x44);\n#END\n';
   };
   Blockly.JavaScript['lt_sht31_temperature'] = function(block) {
     return [`_sht31.readTemperature()`, Blockly.JavaScript.ORDER_ATOMIC];

@@ -9,6 +9,9 @@
       <span v-if="appStore.isDirty" class="titlebar-dirty" title="Unsaved changes">●</span>
     </div>
     <div class="titlebar-controls">
+      <button class="tc-btn tc-lang" :title="t('language.toggle_tooltip')" @click="appStore.toggleLanguage">
+        {{ appStore.language === 'en' ? 'EN' : 'TH' }}
+      </button>
       <button class="tc-btn" @click="minimize"><v-icon size="14">mdi-minus</v-icon></button>
       <button class="tc-btn" @click="maximize"><v-icon size="14">mdi-square-outline</v-icon></button>
       <button class="tc-btn tc-close" @click="closeApp"><v-icon size="14">mdi-close</v-icon></button>
@@ -19,7 +22,9 @@
 <script setup>
 import { computed } from 'vue'
 import { useAppStore } from '../stores/app'
+import { useT } from '../i18n/useT'
 const appStore = useAppStore()
+const t = useT()
 const theme = computed(() => appStore.theme)
 const fileName = computed(() => {
   if (!appStore.currentFile) return `${appStore.selectedBoard?.id || 'sketch'}.json`
@@ -53,4 +58,7 @@ function closeApp() { window.lotusAPI?.window.close() }
 }
 .tc-btn:hover { background: rgba(255,255,255,0.1); }
 .tc-close:hover { background: #e81123; color: white; }
+/* Language toggle is text, not an icon — sit narrower than window controls
+   and use a slightly more prominent font so EN/TH reads at a glance. */
+.tc-lang { width: 38px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
 </style>

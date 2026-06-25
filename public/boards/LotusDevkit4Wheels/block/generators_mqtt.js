@@ -66,6 +66,11 @@ module.exports = function(Blockly) {
       '  }\n' +
       '}\n' +
       '#END\n' +
+      // Wrap the runtime init (WiFi connect + broker connect) in #SETUP so
+      // it lands in setup() regardless of where the user drops the block.
+      // Without this, dropping lt_mqtt_begin in loop() would reconnect WiFi
+      // every iteration.
+      '#SETUP\n' +
       'WiFi.begin("' + ssid + '", "' + pass + '");\n' +
       'Serial.print("Connecting WiFi");\n' +
       'int _wifiTimeout = 0;\n' +
@@ -83,7 +88,8 @@ module.exports = function(Blockly) {
       '}\n' +
       '_mqClient.setServer("' + broker + '", ' + port + ');\n' +
       '_mqClient.setCallback(_mqCB);\n' +
-      '_mqReconnect();\n';
+      '_mqReconnect();\n' +
+      '#END\n';
     return code;
   };
 

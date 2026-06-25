@@ -3,6 +3,7 @@
 
 module.exports = function(Blockly) {
   'use strict';
+var t = Blockly.lotus.t;
   var motor_colour = Blockly.Msg.MUSIC_HUE;
 
 
@@ -98,7 +99,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(motor_colour);
-      this.setTooltip('ควบคุมมอเตอร์คู่หน้า: M1=ซ้ายหน้า (D13), M2=ขวาหน้า (D4). Range -100 to +100 %.');
+      this.setTooltip(t('motor.move_front.tooltip'));
     }
   };
 
@@ -114,7 +115,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(motor_colour);
-      this.setTooltip('ควบคุมมอเตอร์คู่หลัง: M3=ซ้ายหลัง (D14), M4=ขวาหลัง (D23). Range -100 to +100 %.');
+      this.setTooltip(t('motor.move_rear.tooltip'));
     }
   };
 

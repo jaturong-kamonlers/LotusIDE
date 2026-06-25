@@ -1,31 +1,37 @@
-﻿/**
+/**
  * blocks_sensors_new.js - LotusDevkit Sensor Blocks
- * จัดกลุ่มตาม function ที่คล้ายกัน สีแตกต่างกัน:
+ * Grouped by function (matching toolbox colour):
  *
- * 🌡 อุณหภูมิ/ความชื้น  DHT, SHT31, MLX90614        #C62828 แดงเข้ม
- * 🌤 สิ่งแวดล้อม       BMP280, BH1750, PMS Dust     #1565C0 น้ำเงินเข้ม  
- * 🧭 การเคลื่อนไหว     MPU6050, HMC5883/QMC5883L   #4527A0 ม่วงเข้ม
- * 📡 ระยะทาง           Ultrasonic                   #00695C เขียวเทอร์ควอยซ์
- * 🕐 เวลา              RTC DS1307                   #E65100 ส้มเข้ม
- * 🔊 เสียง             DFPlayerMini MP3             #558B2F เขียวมะกอก
- * 📺 จอแสดงผล          LiquidCrystal I2C            #2979FF น้ำเงินสว่าง
+ * 🌡 Temperature/Humidity   DHT, SHT31, MLX90614        #C62828 deep red
+ * 🌤 Environment            BMP280, BH1750, PMS Dust    #1565C0 deep blue
+ * 🧭 Motion                 MPU6050, HMC5883/QMC5883L   #4527A0 deep purple
+ * 📡 Distance               Ultrasonic                  #00695C turquoise
+ * 🕐 Time                   RTC DS1307                  #E65100 deep orange
+ * 🔊 Audio                  DFPlayerMini MP3            #558B2F olive green
+ * 📺 Display                LiquidCrystal I2C           #2979FF bright blue
+ *
+ * Tooltips go through Blockly.lotus.t() so they switch with the TitleBar
+ * language toggle. Labels (DHT begin pin, RTC set time YY, etc.) stay
+ * English — they're technical identifiers, not prose.
  */
 
 module.exports = function(Blockly) {
   'use strict';
 
-  // ── สีแต่ละหมวด ──────────────────────────────────────────────────
-  var C_TEMP    = '#C62828';  // อุณหภูมิ/ความชื้น
-  var C_ENV     = '#1565C0';  // สิ่งแวดล้อม
-  var C_MOTION  = '#4527A0';  // การเคลื่อนไหว/ทิศทาง
-  var C_DIST    = '#00695C';  // ระยะทาง
-  var C_RTC     = '#E65100';  // เวลา RTC
-  var C_AUDIO   = '#558B2F';  // เสียง/MP3
-  var C_LCD     = '#2979FF';  // จอ LCD
+  var t = Blockly.lotus.t;
+
+  // ── Category colours ────────────────────────────────────────────
+  var C_TEMP    = '#C62828';  // temperature / humidity
+  var C_ENV     = '#1565C0';  // environment
+  var C_MOTION  = '#4527A0';  // motion / direction
+  var C_DIST    = '#00695C';  // distance
+  var C_RTC     = '#E65100';  // RTC
+  var C_AUDIO   = '#558B2F';  // audio / MP3
+  var C_LCD     = '#2979FF';  // LCD
 
 
   // ================================================================
-  // 🌡 อุณหภูมิ/ความชื้น — สี แดง C62828
+  // 🌡 Temperature / Humidity — C62828 deep red
   // ================================================================
 
   // ── DHT ──
@@ -45,7 +51,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_TEMP);
-      this.setTooltip('เริ่มต้น DHT sensor');
+      this.setTooltip(t('sensors.lt_dht_begin.tooltip'));
     }
   };
 
@@ -55,7 +61,7 @@ module.exports = function(Blockly) {
         .appendField('DHT temperature (°C)');
       this.setOutput(true, 'Number');
       this.setColour(C_TEMP);
-      this.setTooltip('อ่านอุณหภูมิจาก DHT (°C)');
+      this.setTooltip(t('sensors.lt_dht_temperature.tooltip'));
     }
   };
 
@@ -65,7 +71,7 @@ module.exports = function(Blockly) {
         .appendField('DHT humidity (%)');
       this.setOutput(true, 'Number');
       this.setColour(C_TEMP);
-      this.setTooltip('อ่านความชื้นสัมพัทธ์จาก DHT (%)');
+      this.setTooltip(t('sensors.lt_dht_humidity.tooltip'));
     }
   };
 
@@ -77,7 +83,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_TEMP);
-      this.setTooltip('เริ่มต้น SHT31 (I2C 0x44)');
+      this.setTooltip(t('sensors.lt_sht31_begin.tooltip'));
     }
   };
 
@@ -87,7 +93,7 @@ module.exports = function(Blockly) {
         .appendField('SHT31 temperature (°C)');
       this.setOutput(true, 'Number');
       this.setColour(C_TEMP);
-      this.setTooltip('อ่านอุณหภูมิจาก SHT31 (°C)');
+      this.setTooltip(t('sensors.lt_sht31_temperature.tooltip'));
     }
   };
 
@@ -97,7 +103,7 @@ module.exports = function(Blockly) {
         .appendField('SHT31 humidity (%)');
       this.setOutput(true, 'Number');
       this.setColour(C_TEMP);
-      this.setTooltip('อ่านความชื้นจาก SHT31 (%)');
+      this.setTooltip(t('sensors.lt_sht31_humidity.tooltip'));
     }
   };
 
@@ -109,7 +115,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_TEMP);
-      this.setTooltip('เริ่มต้น MLX90614 IR Temperature sensor (I2C)');
+      this.setTooltip(t('sensors.lt_mlx_begin.tooltip'));
     }
   };
 
@@ -119,7 +125,7 @@ module.exports = function(Blockly) {
         .appendField('MLX90614 object temp (°C)');
       this.setOutput(true, 'Number');
       this.setColour(C_TEMP);
-      this.setTooltip('อ่านอุณหภูมิวัตถุ (IR) จาก MLX90614');
+      this.setTooltip(t('sensors.lt_mlx_object_temp.tooltip'));
     }
   };
 
@@ -129,12 +135,12 @@ module.exports = function(Blockly) {
         .appendField('MLX90614 ambient temp (°C)');
       this.setOutput(true, 'Number');
       this.setColour(C_TEMP);
-      this.setTooltip('อ่านอุณหภูมิสิ่งแวดล้อมจาก MLX90614');
+      this.setTooltip(t('sensors.lt_mlx_ambient_temp.tooltip'));
     }
   };
 
   // ================================================================
-  // 🌤 สิ่งแวดล้อม — สี น้ำเงินเข้ม 1565C0
+  // 🌤 Environment — 1565C0 deep blue
   // ================================================================
 
   // ── BMP280 ──
@@ -145,7 +151,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_ENV);
-      this.setTooltip('เริ่มต้น BMP280 (I2C 0x76 หรือ 0x77)');
+      this.setTooltip(t('sensors.lt_bmp280_begin.tooltip'));
     }
   };
 
@@ -155,7 +161,7 @@ module.exports = function(Blockly) {
         .appendField('BMP280 temperature (°C)');
       this.setOutput(true, 'Number');
       this.setColour(C_ENV);
-      this.setTooltip('อ่านอุณหภูมิจาก BMP280');
+      this.setTooltip(t('sensors.lt_bmp280_temperature.tooltip'));
     }
   };
 
@@ -165,7 +171,7 @@ module.exports = function(Blockly) {
         .appendField('BMP280 pressure (hPa)');
       this.setOutput(true, 'Number');
       this.setColour(C_ENV);
-      this.setTooltip('อ่านความดันอากาศจาก BMP280 (hPa)');
+      this.setTooltip(t('sensors.lt_bmp280_pressure.tooltip'));
     }
   };
 
@@ -175,7 +181,7 @@ module.exports = function(Blockly) {
         .appendField('BMP280 altitude (m)');
       this.setOutput(true, 'Number');
       this.setColour(C_ENV);
-      this.setTooltip('คำนวณความสูงจากระดับน้ำทะเล (m)');
+      this.setTooltip(t('sensors.lt_bmp280_altitude.tooltip'));
     }
   };
 
@@ -187,7 +193,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_ENV);
-      this.setTooltip('เริ่มต้น BH1750 Light sensor (I2C)');
+      this.setTooltip(t('sensors.lt_bh1750_begin.tooltip'));
     }
   };
 
@@ -197,7 +203,7 @@ module.exports = function(Blockly) {
         .appendField('BH1750 light (lux)');
       this.setOutput(true, 'Number');
       this.setColour(C_ENV);
-      this.setTooltip('อ่านความเข้มแสง (lux) จาก BH1750');
+      this.setTooltip(t('sensors.lt_bh1750_lux.tooltip'));
     }
   };
 
@@ -212,7 +218,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_ENV);
-      this.setTooltip('เริ่มต้น PMS Dust Sensor (Serial)');
+      this.setTooltip(t('sensors.lt_pms_begin.tooltip'));
     }
   };
 
@@ -223,7 +229,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_ENV);
-      this.setTooltip('อ่านข้อมูลจาก PMS Dust sensor');
+      this.setTooltip(t('sensors.lt_pms_read.tooltip'));
     }
   };
 
@@ -233,7 +239,7 @@ module.exports = function(Blockly) {
         .appendField('PMS PM2.5 (µg/m³)');
       this.setOutput(true, 'Number');
       this.setColour(C_ENV);
-      this.setTooltip('ค่าฝุ่น PM2.5 (µg/m³)');
+      this.setTooltip(t('sensors.lt_pms_pm25.tooltip'));
     }
   };
 
@@ -243,7 +249,7 @@ module.exports = function(Blockly) {
         .appendField('PMS PM10 (µg/m³)');
       this.setOutput(true, 'Number');
       this.setColour(C_ENV);
-      this.setTooltip('ค่าฝุ่น PM10 (µg/m³)');
+      this.setTooltip(t('sensors.lt_pms_pm10.tooltip'));
     }
   };
 
@@ -253,12 +259,12 @@ module.exports = function(Blockly) {
         .appendField('PMS PM100 (µg/m³)');
       this.setOutput(true, 'Number');
       this.setColour(C_ENV);
-      this.setTooltip('ค่าฝุ่น PM100 (µg/m³)');
+      this.setTooltip(t('sensors.lt_pms_pm100.tooltip'));
     }
   };
 
   // ================================================================
-  // 🧭 การเคลื่อนไหว/ทิศทาง — สี ม่วง 4527A0
+  // 🧭 Motion / Direction — 4527A0 deep purple
   // ================================================================
 
   // ── MPU6050 ──
@@ -269,7 +275,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_MOTION);
-      this.setTooltip('เริ่มต้น MPU6050 Gyro+Accelerometer (I2C 0x68)');
+      this.setTooltip(t('sensors.lt_mpu6050_begin.tooltip'));
     }
   };
 
@@ -280,7 +286,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_MOTION);
-      this.setTooltip('อ่านข้อมูลใหม่จาก MPU6050 (ใส่ใน loop)');
+      this.setTooltip(t('sensors.lt_mpu6050_update.tooltip'));
     }
   };
 
@@ -294,7 +300,7 @@ module.exports = function(Blockly) {
         .appendField('(m/s²)');
       this.setOutput(true, 'Number');
       this.setColour(C_MOTION);
-      this.setTooltip('ค่า Accelerometer X/Y/Z (m/s²)');
+      this.setTooltip(t('sensors.lt_mpu6050_accel.tooltip'));
     }
   };
 
@@ -308,7 +314,7 @@ module.exports = function(Blockly) {
         .appendField('(°/s)');
       this.setOutput(true, 'Number');
       this.setColour(C_MOTION);
-      this.setTooltip('ค่า Gyroscope X/Y/Z (°/s)');
+      this.setTooltip(t('sensors.lt_mpu6050_gyro.tooltip'));
     }
   };
 
@@ -318,7 +324,7 @@ module.exports = function(Blockly) {
         .appendField('MPU6050 temperature (°C)');
       this.setOutput(true, 'Number');
       this.setColour(C_MOTION);
-      this.setTooltip('อ่านอุณหภูมิภายใน MPU6050');
+      this.setTooltip(t('sensors.lt_mpu6050_temp.tooltip'));
     }
   };
 
@@ -333,7 +339,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_MOTION);
-      this.setTooltip('เริ่มต้น HMC5883L หรือ QMC5883L Compass (I2C)');
+      this.setTooltip(t('sensors.lt_compass_begin.tooltip'));
     }
   };
 
@@ -344,7 +350,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_MOTION);
-      this.setTooltip('อ่านค่าจาก Compass sensor');
+      this.setTooltip(t('sensors.lt_compass_read.tooltip'));
     }
   };
 
@@ -354,7 +360,7 @@ module.exports = function(Blockly) {
         .appendField('Compass heading (°)');
       this.setOutput(true, 'Number');
       this.setColour(C_MOTION);
-      this.setTooltip('ทิศทางแม่เหล็ก (0-360°)');
+      this.setTooltip(t('sensors.lt_compass_heading.tooltip'));
     }
   };
 
@@ -367,12 +373,12 @@ module.exports = function(Blockly) {
         ]), 'AXIS');
       this.setOutput(true, 'Number');
       this.setColour(C_MOTION);
-      this.setTooltip('ค่าแกน X/Y/Z ของ Compass (gauss)');
+      this.setTooltip(t('sensors.lt_compass_axis.tooltip'));
     }
   };
 
   // ================================================================
-  // 📡 ระยะทาง — สี เขียวเทอร์ควอยซ์ 00695C
+  // 📡 Distance — 00695C turquoise
   // ================================================================
 
   Blockly.Blocks['lt_ultrasonic_begin'] = {
@@ -385,7 +391,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_DIST);
-      this.setTooltip('ตั้งค่า Ultrasonic sensor (HC-SR04)');
+      this.setTooltip(t('sensors.lt_ultrasonic_begin.tooltip'));
     }
   };
 
@@ -395,7 +401,7 @@ module.exports = function(Blockly) {
         .appendField('Ultrasonic distance (cm)');
       this.setOutput(true, 'Number');
       this.setColour(C_DIST);
-      this.setTooltip('อ่านระยะทาง (เซนติเมตร) จาก HC-SR04');
+      this.setTooltip(t('sensors.lt_ultrasonic_cm.tooltip'));
     }
   };
 
@@ -405,12 +411,12 @@ module.exports = function(Blockly) {
         .appendField('Ultrasonic distance (inch)');
       this.setOutput(true, 'Number');
       this.setColour(C_DIST);
-      this.setTooltip('อ่านระยะทาง (นิ้ว) จาก HC-SR04');
+      this.setTooltip(t('sensors.lt_ultrasonic_inch.tooltip'));
     }
   };
 
   // ================================================================
-  // 🕐 เวลา RTC — สี ส้มเข้ม E65100
+  // 🕐 RTC — E65100 deep orange
   // ================================================================
 
   Blockly.Blocks['lt_rtc_begin'] = {
@@ -423,7 +429,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_RTC);
-      this.setTooltip('เริ่มต้น RTC Module DS1307 / DS3231 (I2C)');
+      this.setTooltip(t('sensors.lt_rtc_begin.tooltip'));
     }
   };
 
@@ -446,7 +452,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_RTC);
-      this.setTooltip('ตั้งเวลา RTC');
+      this.setTooltip(t('sensors.lt_rtc_set_time.tooltip'));
     }
   };
 
@@ -461,7 +467,7 @@ module.exports = function(Blockly) {
         ]), 'FIELD');
       this.setOutput(true, 'Number');
       this.setColour(C_RTC);
-      this.setTooltip('อ่านเวลาจาก RTC');
+      this.setTooltip(t('sensors.lt_rtc_now.tooltip'));
     }
   };
 
@@ -471,12 +477,12 @@ module.exports = function(Blockly) {
         .appendField('RTC datetime string');
       this.setOutput(true, 'String');
       this.setColour(C_RTC);
-      this.setTooltip('คืนค่าวันเวลาเป็น String เช่น "2025-01-15 14:30:00"');
+      this.setTooltip(t('sensors.lt_rtc_datetime_string.tooltip'));
     }
   };
 
   // ================================================================
-  // 🔊 เสียง/MP3 — สี เขียวมะกอก 558B2F
+  // 🔊 Audio / MP3 — 558B2F olive green
   // ================================================================
 
   Blockly.Blocks['lt_dfplayer_begin'] = {
@@ -489,7 +495,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_AUDIO);
-      this.setTooltip('เริ่มต้น DFPlayer Mini MP3');
+      this.setTooltip(t('sensors.lt_dfplayer_begin.tooltip'));
     }
   };
 
@@ -502,7 +508,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_AUDIO);
-      this.setTooltip('เล่นไฟล์เพลงหมายเลขที่กำหนด (1-999)');
+      this.setTooltip(t('sensors.lt_dfplayer_play.tooltip'));
     }
   };
 
@@ -516,7 +522,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_AUDIO);
-      this.setTooltip('ตั้งระดับเสียง 0-30');
+      this.setTooltip(t('sensors.lt_dfplayer_volume.tooltip'));
     }
   };
 
@@ -527,7 +533,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_AUDIO);
-      this.setTooltip('หยุดเล่นชั่วคราว');
+      this.setTooltip(t('sensors.lt_dfplayer_pause.tooltip'));
     }
   };
 
@@ -538,7 +544,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_AUDIO);
-      this.setTooltip('หยุดเล่น');
+      this.setTooltip(t('sensors.lt_dfplayer_stop.tooltip'));
     }
   };
 
@@ -549,7 +555,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_AUDIO);
-      this.setTooltip('เล่นเพลงถัดไป');
+      this.setTooltip(t('sensors.lt_dfplayer_next.tooltip'));
     }
   };
 
@@ -560,12 +566,12 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_AUDIO);
-      this.setTooltip('เล่นเพลงก่อนหน้า');
+      this.setTooltip(t('sensors.lt_dfplayer_prev.tooltip'));
     }
   };
 
   // ================================================================
-  // 📺 จอ LCD I2C — สี น้ำเงินสว่าง 2979FF
+  // 📺 LCD I2C — 2979FF bright blue
   // ================================================================
 
   Blockly.Blocks['lt_lcd_begin'] = {
@@ -580,7 +586,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_LCD);
-      this.setTooltip('เริ่มต้น LCD I2C (0x27 หรือ 0x3F)');
+      this.setTooltip(t('sensors.lt_lcd_begin.tooltip'));
     }
   };
 
@@ -596,7 +602,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_LCD);
-      this.setTooltip('แสดงข้อความบน LCD ที่ตำแหน่ง col, row');
+      this.setTooltip(t('sensors.lt_lcd_print.tooltip'));
     }
   };
 
@@ -607,7 +613,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_LCD);
-      this.setTooltip('ลบข้อความทั้งหมดบน LCD');
+      this.setTooltip(t('sensors.lt_lcd_clear.tooltip'));
     }
   };
 
@@ -621,7 +627,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_LCD);
-      this.setTooltip('เปิด/ปิดไฟหลัง LCD');
+      this.setTooltip(t('sensors.lt_lcd_backlight.tooltip'));
     }
   };
 

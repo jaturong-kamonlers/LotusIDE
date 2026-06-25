@@ -1,0 +1,13 @@
+{
+  "id": "com.lotus.controller.ps4",
+  "name": "PS4 Controller",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "ใช้จอย PlayStation 4 (DualShock 4) ผ่าน Bluetooth Classic — รองรับ LotusDevkit และ LotusDevkit4Wheels",
+  "author": "Lotus IDE",
+  "license": "LGPL-2.1",
+  "category": "Other",
+  "platforms": ["arduino-esp32"],
+  "icon": "icon.svg",
+  "keywords": ["ps4", "playstation", "controller", "gamepad", "bluetooth", "dualshock"]
+}

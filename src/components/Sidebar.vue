@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar">
     <div class="sidebar-bottom">
-      <v-btn icon="mdi-help-circle-outline" variant="text" size="small" title="ช่วยเหลือ" />
+      <v-btn icon="mdi-help-circle-outline" variant="text" size="small" :title="t('sidebar.help_tooltip')" />
       <span class="version-text">v1.0.0</span>
     </div>
   </div>
@@ -9,7 +9,9 @@
 
 <script setup>
 import { useAppStore } from '../stores/app'
+import { useT } from '../i18n/useT'
 const appStore = useAppStore()
+const t = useT()
 </script>
 
 <style scoped>

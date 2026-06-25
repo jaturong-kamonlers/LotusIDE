@@ -1,5 +1,6 @@
 module.exports = function(Blockly){
   'use strict';
+var t = Blockly.lotus.t;
   var basic_colour = Blockly.Msg.BASIC_HUE;
 
   // =============================================
@@ -14,7 +15,7 @@ module.exports = function(Blockly){
       this.appendStatementInput("BODY")
           .appendField("do");
       this.setColour(basic_colour);
-      this.setTooltip("ฟังก์ชันที่ไม่รับค่า และไม่ส่งค่ากลับ  →  void myFunction() { }");
+      this.setTooltip(t("func.define_void.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -29,7 +30,7 @@ module.exports = function(Blockly){
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(basic_colour);
-      this.setTooltip("เรียกใช้ฟังก์ชันที่ไม่รับค่า ไม่ส่งค่ากลับ");
+      this.setTooltip(t("func.call_void.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -54,7 +55,7 @@ module.exports = function(Blockly){
       this.appendStatementInput("BODY")
           .appendField("do");
       this.setColour(basic_colour);
-      this.setTooltip("ฟังก์ชันที่รับค่า แต่ไม่ส่งค่ากลับ  →  void myFunction(int x) { }");
+      this.setTooltip(t("func.define_param.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -71,7 +72,7 @@ module.exports = function(Blockly){
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(basic_colour);
-      this.setTooltip("เรียกใช้ฟังก์ชันที่รับค่า แต่ไม่ส่งค่ากลับ");
+      this.setTooltip(t("func.call_param.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -96,7 +97,7 @@ module.exports = function(Blockly){
       this.appendValueInput("RETURN_VAL")
           .appendField("return");
       this.setColour(basic_colour);
-      this.setTooltip("ฟังก์ชันที่ไม่รับค่า แต่ส่งค่ากลับ  →  int myFunction() { return val; }");
+      this.setTooltip(t("func.define_return.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -110,7 +111,7 @@ module.exports = function(Blockly){
       this.setInputsInline(true);
       this.setOutput(true, null);
       this.setColour(basic_colour);
-      this.setTooltip("เรียกใช้ฟังก์ชันที่ส่งค่ากลับ (ไม่รับ parameter)");
+      this.setTooltip(t("func.call_return.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -143,7 +144,7 @@ module.exports = function(Blockly){
       this.appendValueInput("RETURN_VAL")
           .appendField("return");
       this.setColour(basic_colour);
-      this.setTooltip("ฟังก์ชันที่รับค่า และส่งค่ากลับ  →  int myFunction(int x) { return val; }");
+      this.setTooltip(t("func.define_param_return.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -159,7 +160,7 @@ module.exports = function(Blockly){
       this.setInputsInline(true);
       this.setOutput(true, null);
       this.setColour(basic_colour);
-      this.setTooltip("เรียกใช้ฟังก์ชันที่รับค่า และส่งค่ากลับ");
+      this.setTooltip(t("func.call_param_return.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -174,7 +175,7 @@ module.exports = function(Blockly){
       this.setInputsInline(true);
       this.setPreviousStatement(true, null);
       this.setColour(basic_colour);
-      this.setTooltip("ส่งค่ากลับออกจากฟังก์ชัน (ใช้ได้เฉพาะภายในฟังก์ชัน)");
+      this.setTooltip(t("func.return_statement.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -189,7 +190,7 @@ module.exports = function(Blockly){
           .appendField(new Blockly.FieldTextInput("x"), "PARAMNAME");
       this.setOutput(true, null);
       this.setColour(basic_colour);
-      this.setTooltip("ดึงค่า parameter ที่ส่งเข้ามาในฟังก์ชัน ชื่อต้องตรงกับที่กำหนดไว้");
+      this.setTooltip(t("func.get_param.tooltip"));
       this.setHelpUrl("");
     }
   };

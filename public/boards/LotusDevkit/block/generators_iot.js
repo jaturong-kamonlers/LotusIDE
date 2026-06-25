@@ -43,7 +43,8 @@ module.exports = function(Blockly) {
 	  return;
 	}
 	#END
-	
+
+	#SETUP
 	Serial.begin(115200);
 	display.setFont(ArialMT_Plain_10);
 	display.drawString(0, 0, String(String("Reading config.")));
@@ -135,6 +136,7 @@ module.exports = function(Blockly) {
 	  Serial.println(WiFi.subnetMask());
 	  Blynk.config(blynk_token, server, port);
 	  timer.setInterval(30000L, reconnecting);
+	#END
 	`;
     return code;
   };

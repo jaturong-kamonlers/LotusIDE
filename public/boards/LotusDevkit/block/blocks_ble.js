@@ -6,6 +6,7 @@
 
 module.exports = function(Blockly) {
   'use strict';
+var t = Blockly.lotus.t;
 
   var ble_colour = '#0082FC';
 
@@ -17,7 +18,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(ble_colour);
-      this.setTooltip('เริ่มต้น BLE Server และตั้งชื่ออุปกรณ์');
+      this.setTooltip(t("ble.lotus_ble_begin.tooltip"));
     }
   };
 
@@ -28,7 +29,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(ble_colour);
-      this.setTooltip('เริ่มประกาศสัญญาณ BLE ให้อุปกรณ์อื่นค้นพบได้');
+      this.setTooltip(t("ble.lotus_ble_advertise_start.tooltip"));
     }
   };
 
@@ -39,7 +40,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(ble_colour);
-      this.setTooltip('หยุดประกาศสัญญาณ BLE');
+      this.setTooltip(t("ble.lotus_ble_advertise_stop.tooltip"));
     }
   };
 
@@ -51,7 +52,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(ble_colour);
-      this.setTooltip('ส่งข้อความผ่าน BLE Notification');
+      this.setTooltip(t("ble.lotus_ble_send_string.tooltip"));
     }
   };
 
@@ -64,7 +65,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(ble_colour);
-      this.setTooltip('ส่งตัวเลขผ่าน BLE Notification');
+      this.setTooltip(t("ble.lotus_ble_send_number.tooltip"));
     }
   };
 
@@ -74,7 +75,7 @@ module.exports = function(Blockly) {
         .appendField('BLE received text');
       this.setOutput(true, 'String');
       this.setColour(ble_colour);
-      this.setTooltip('อ่านข้อความล่าสุดที่ได้รับจาก BLE client');
+      this.setTooltip(t("ble.lotus_ble_received_string.tooltip"));
     }
   };
 
@@ -84,7 +85,7 @@ module.exports = function(Blockly) {
         .appendField('BLE connected?');
       this.setOutput(true, 'Boolean');
       this.setColour(ble_colour);
-      this.setTooltip('คืนค่า true ถ้ามี BLE client เชื่อมต่ออยู่');
+      this.setTooltip(t("ble.lotus_ble_is_connected.tooltip"));
     }
   };
 
@@ -94,7 +95,7 @@ module.exports = function(Blockly) {
         .appendField('BLE has new data?');
       this.setOutput(true, 'Boolean');
       this.setColour(ble_colour);
-      this.setTooltip('คืนค่า true ถ้ามีข้อมูลใหม่จาก BLE client');
+      this.setTooltip(t("ble.lotus_ble_has_data.tooltip"));
     }
   };
 
@@ -104,7 +105,7 @@ module.exports = function(Blockly) {
         .appendField('BLE when received data');
       this.appendStatementInput('DO').setCheck(null);
       this.setColour(ble_colour);
-      this.setTooltip('ทำงานเมื่อได้รับข้อมูลจาก BLE client');
+      this.setTooltip(t("ble.lotus_ble_on_received.tooltip"));
     }
   };
 
@@ -115,7 +116,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(ble_colour);
-      this.setTooltip('ล้างบัฟเฟอร์ข้อมูลที่รับมา');
+      this.setTooltip(t("ble.lotus_ble_clear.tooltip"));
     }
   };
 

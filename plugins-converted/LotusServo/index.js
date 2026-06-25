@@ -34,7 +34,10 @@ lotus.register({
       message0: '%1 Servo angle %2 Â°',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'SRV1' },
-        { type: 'input_value', name: 'ANGLE', check: 'Number' },
+        {
+          type: 'input_value', name: 'ANGLE', check: 'Number',
+          shadow: { type: 'math_number', fields: { NUM: 90 } },
+        },
       ],
       inputsInline: true,
       previousStatement: null,
@@ -47,7 +50,10 @@ lotus.register({
       message0: '%1 Servo pulse %2 Î¼s',
       args0: [
         { type: 'field_variable', name: 'INSTANCE', variable: 'SRV1' },
-        { type: 'input_value', name: 'US', check: 'Number' },
+        {
+          type: 'input_value', name: 'US', check: 'Number',
+          shadow: { type: 'math_number', fields: { NUM: 1500 } },
+        },
       ],
       inputsInline: true,
       previousStatement: null,

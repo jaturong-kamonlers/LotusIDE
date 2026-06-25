@@ -171,7 +171,7 @@ Blockly.Blocks['i2c128x64_display_print'] = {
         .appendField(", Y");
     this.appendDummyInput()
         .appendField(")  size")
-        .appendField(new Blockly.FieldDropdown([["1: size 10pt","1"], ["2: size 16pt","2"], ["3: size 30pt","3"]]), "font");
+        .appendField(new Blockly.FieldDropdown([["1 (10pt)","1"], ["2 (16pt)","2"], ["3 (24pt)","3"]]), "font");
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
@@ -194,7 +194,7 @@ Blockly.Blocks['i2c128x64_hilight_text'] = {
         .appendField(", Y");
     this.appendDummyInput()
         .appendField(")  size")
-        .appendField(new Blockly.FieldDropdown([["1: size 10pt","1"], ["2: size 16pt","2"], ["3: size 30pt","3"]]), "font");
+        .appendField(new Blockly.FieldDropdown([["1 (10pt)","1"], ["2 (16pt)","2"], ["3 (24pt)","3"]]), "font");
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
@@ -217,7 +217,7 @@ Blockly.Blocks['i2c128x64_display_print_display'] = {
         .appendField(", Y");
     this.appendDummyInput()
         .appendField(")  font")
-        .appendField(new Blockly.FieldDropdown([["Arial_MT_10pt","ArialMT_Plain_10"], ["Arial_MT_16pt","ArialMT_Plain_16"], ["Arial_MT_24pt","ArialMT_Plain_24"]]), "font");
+        .appendField(new Blockly.FieldDropdown([["1 (10pt)","ArialMT_Plain_10"], ["2 (16pt)","ArialMT_Plain_16"], ["3 (24pt)","ArialMT_Plain_24"]]), "font");
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
@@ -238,7 +238,7 @@ Blockly.Blocks['i2c128x64_display_print_display_center'] = {
         .appendField("at (Y");
     this.appendDummyInput()
         .appendField(")  font")
-        .appendField(new Blockly.FieldDropdown([["Arial_MT_10pt","ArialMT_Plain_10"], ["Arial_MT_16pt","ArialMT_Plain_16"], ["Arial_MT_24pt","ArialMT_Plain_24"]]), "font");
+        .appendField(new Blockly.FieldDropdown([["1 (10pt)","ArialMT_Plain_10"], ["2 (16pt)","ArialMT_Plain_16"], ["3 (24pt)","ArialMT_Plain_24"]]), "font");
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
@@ -256,7 +256,7 @@ Blockly.Blocks['i2c128x64_display_print_display_center_one'] = {
 
     this.appendDummyInput()
         .appendField(" font")
-        .appendField(new Blockly.FieldDropdown([["Arial_MT_10pt","ArialMT_Plain_10"], ["Arial_MT_16pt","ArialMT_Plain_16"], ["Arial_MT_24pt","ArialMT_Plain_24"]]), "font");
+        .appendField(new Blockly.FieldDropdown([["1 (10pt)","ArialMT_Plain_10"], ["2 (16pt)","ArialMT_Plain_16"], ["3 (24pt)","ArialMT_Plain_24"]]), "font");
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
@@ -285,7 +285,7 @@ Blockly.Blocks['i2c128x64_display_print_scroll_left'] = {
         .appendField(new Blockly.FieldDropdown([["LEFT","LEFT"], ["RIGHT","RIGHT"], ["UP","UP"], ["DOWN","DOWN"]]), "dir");
     this.appendDummyInput()
         .appendField(" size")
-        .appendField(new Blockly.FieldDropdown([["1: size 10pt","1"], ["2: size 16pt","2"], ["3: size 30pt","3"]]), "font");
+        .appendField(new Blockly.FieldDropdown([["1 (10pt)","1"], ["2 (16pt)","2"], ["3 (24pt)","3"]]), "font");
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
@@ -308,7 +308,7 @@ Blockly.Blocks['i2c128x64_display_print_number'] = {
         .appendField(", Y");
     this.appendDummyInput()
         .appendField(")  font")
-        .appendField(new Blockly.FieldDropdown([["1: size 10pt","1"], ["2: size 16pt","2"], ["3: size 30pt","3"]]), "font");
+        .appendField(new Blockly.FieldDropdown([["1 (10pt)","1"], ["2 (16pt)","2"], ["3 (24pt)","3"]]), "font");
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
@@ -331,7 +331,7 @@ Blockly.Blocks['i2c128x64_display_print_number_display'] = {
         .appendField(", Y");
     this.appendDummyInput()
         .appendField(")  font")
-        .appendField(new Blockly.FieldDropdown([["Arial_MT_10pt","ArialMT_Plain_10"], ["Arial_MT_16pt","ArialMT_Plain_16"], ["Arial_MT_24pt","ArialMT_Plain_24"]]), "font");
+        .appendField(new Blockly.FieldDropdown([["1 (10pt)","ArialMT_Plain_10"], ["2 (16pt)","ArialMT_Plain_16"], ["3 (24pt)","ArialMT_Plain_24"]]), "font");
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);

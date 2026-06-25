@@ -5,8 +5,20 @@ module.exports = {
   icon: '/icons/iot.svg',
   blocks: [
 
+    // ── WiFi (Station + HTTP + AP) ────────────────────────────────
+    { xml: '<label text="WiFi" web-class="headline"></label>' },
+    'lt_wifi_begin',
+    'lt_wifi_is_connected',
+    'lt_wifi_local_ip',
+    'lt_wifi_rssi',
+    { xml: '<block type="lt_http_get"><value name="URL"><shadow type="text"><field name="TEXT">https://api.kls.ac.th/time</field></shadow></value></block>' },
+    { xml: '<block type="lt_http_post"><value name="URL"><shadow type="text"><field name="TEXT">https://api.kls.ac.th/log</field></shadow></value><value name="BODY"><shadow type="text"><field name="TEXT">value=42</field></shadow></value></block>' },
+    'lt_wifi_ap_begin',
+    'lt_wifi_ap_ip',
+    'lt_wifi_ap_clients',
+
     // ── MQTT ──────────────────────────────────────────────────────
-    { xml: '<label text="MQTT" web-class="headline"></label>' },
+    { xml: '<sep gap="32"></sep><label text="MQTT" web-class="headline"></label>' },
     'lt_mqtt_begin',
     'lt_mqtt_loop',
     { xml: '<block type="lt_mqtt_publish"><value name="TOPIC"><shadow type="text"><field name="TEXT">lotus/data</field></shadow></value><value name="VALUE"><shadow type="text"><field name="TEXT">hello</field></shadow></value></block>' },

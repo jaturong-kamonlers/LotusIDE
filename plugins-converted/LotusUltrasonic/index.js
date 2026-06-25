@@ -21,7 +21,10 @@ lotus.register({
       message0: '%1 Detected within %2 cm',
       args0: [
         { type: 'field_variable', name: 'instance', variable: 'US1' },
-        { type: 'input_value', name: 'DIST', check: 'Number' },
+        {
+          type: 'input_value', name: 'DIST', check: 'Number',
+          shadow: { type: 'math_number', fields: { NUM: 30 } },
+        },
       ],
       inputsInline: true,
       output: 'Boolean',

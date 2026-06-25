@@ -58,10 +58,10 @@
           </div>
 
           <div class="text-body-2 mb-3">
-            <strong>License:</strong> ฟรีสำหรับใช้งานทุกกรณี รวมการศึกษา
-            อนุญาตให้แจกจ่ายตัวติดตั้งทางการได้ตามไม่ดัดแปลง
-            และพัฒนา Plugin / Board ของตนเองได้เสรี
-            ห้ามดัดแปลงตัว IDE หรือใช้เครื่องหมายการค้า "Lotus" เป็นแบรนด์อื่น
+            <strong>{{ t('menu.about.license_para1') }}</strong><br>
+            {{ t('menu.about.license_para2') }}<br>
+            {{ t('menu.about.license_para3') }}<br>
+            {{ t('menu.about.license_para4') }}
           </div>
 
           <div class="d-flex flex-wrap ga-2 mb-3">
@@ -82,7 +82,7 @@
           <div class="text-caption text-medium-emphasis">
             Built on Electron, Vue, Vuetify, Blockly, arduino-cli.
             Plugin/board ecosystem inspired by KBProIDE (MIT, © tookit).
-            ดูรายการลิขสิทธิ์ครบถ้วนได้ที่ "Third-Party Notices"
+            {{ t('menu.about.third_party') }}
           </div>
         </v-card-text>
         <v-card-actions>
@@ -99,6 +99,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useAppStore } from '../stores/app'
 import { useSerialStore } from '../stores/serial'
 import { useLibraryManagerStore } from '../stores/libraryManager'
+import { useT } from '../i18n/useT'
+
+const t = useT()
 
 const appStore = useAppStore()
 const serialStore = useSerialStore()
@@ -231,7 +234,7 @@ const menus = computed(() => [
       { label: 'Plugin Setup...', icon: 'mdi-puzzle-outline',  action: () => appStore.showPluginManager = true },
       { label: 'GitHub',           icon: 'mdi-github',          action: () => appStore.showGithubManager = true },
       '---',
-      { label: 'ตรวจสุขภาพ ESP32...', icon: 'mdi-stethoscope', action: () => appStore.showDiagnoseEsp32 = true },
+      { label: t('menu.diagnose_esp32'), icon: 'mdi-stethoscope', action: () => appStore.showDiagnoseEsp32 = true },
       '---',
       {
         label: 'Include Library', icon: 'mdi-library-outline',

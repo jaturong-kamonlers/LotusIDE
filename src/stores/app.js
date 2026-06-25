@@ -43,6 +43,19 @@ export const useAppStore = defineStore('app', () => {
     if (typeof localStorage !== 'undefined') localStorage.setItem('lotus.soundEnabled', String(v))
   })
 
+  // UI language ('en' | 'th') — English default per Phase 1 i18n migration.
+  // Read by t() in src/i18n/useT.js. Persisted across restarts.
+  const language = ref(
+    typeof localStorage !== 'undefined'
+      ? (localStorage.getItem('lotus.language') || 'en')
+      : 'en',
+  )
+  watch(language, (v) => {
+    if (typeof localStorage !== 'undefined') localStorage.setItem('lotus.language', v)
+  })
+  function setLanguage(lang) { language.value = (lang === 'th' ? 'th' : 'en') }
+  function toggleLanguage() { setLanguage(language.value === 'en' ? 'th' : 'en') }
+
   // Last board id chosen by the user, restored next launch.
   watch(selectedBoard, (b) => {
     if (typeof localStorage === 'undefined') return
@@ -100,7 +113,8 @@ export const useAppStore = defineStore('app', () => {
     currentFile, isDirty, compiling, uploading,
     consoleLog, showSerial, showBoardSelector, showPluginManager, showBoardManager, showLibraryManager, showGithubManager, showUpdater, showImportUrl, showDiagnoseEsp32, arduinoCode, showConsole,
     workspaceJson, loadWorkspaceRequest, showCode, showJson, soundEnabled,
+    language,
     boardPlatform, canUpload,
-    log, clearLog, selectBoard, loadBoards,
+    log, clearLog, selectBoard, loadBoards, setLanguage, toggleLanguage,
   }
 })

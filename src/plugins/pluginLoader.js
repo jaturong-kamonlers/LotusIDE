@@ -59,6 +59,21 @@ function validatePayload(p) {
   for (const b of p.blocks) {
     if (!isObj(b))           throw new Error('Every block must be an object')
     if (!isStr(b.type))      throw new Error('Every block must have a string `type`')
+    // Shadow defaults are only meaningful on input_value sockets. Reject them
+    // on fields so plugin authors notice the mistake instead of getting silent
+    // no-ops at runtime.
+    for (const arg of (b.args0 || [])) {
+      if (!isObj(arg) || arg.shadow == null) continue
+      if (arg.type !== 'input_value') {
+        throw new Error(`Shadow on "${b.type}.${arg.name}" only allowed on input_value (got ${arg.type})`)
+      }
+      if (!isObj(arg.shadow) || !isStr(arg.shadow.type)) {
+        throw new Error(`Shadow on "${b.type}.${arg.name}" must have a string "type"`)
+      }
+      if (arg.shadow.fields != null && !isObj(arg.shadow.fields)) {
+        throw new Error(`Shadow.fields on "${b.type}.${arg.name}" must be an object map`)
+      }
+    }
   }
 
   if (p.generators != null && !isObj(p.generators)) {
@@ -166,14 +181,36 @@ export async function loadPlugin({ manifest, entrySource, iconUrl }) {
 
   const payload = validatePayload(await loadInWorker(entrySource))
 
-  // Register Blockly blocks
+  // Register Blockly blocks. Shadow defaults are stored separately and the
+  // shadow field is stripped from args0 before jsonInit — Blockly's block
+  // init doesn't understand shadows (they belong in toolbox XML, not block
+  // shape), so leaving them in would just be dead weight in every block clone.
   const blockTypes = []
+  const shadowsByBlock = new Map()  // blockType → { inputName: { type, fields } }
   for (const def of payload.blocks) {
     if (Blockly.Blocks[def.type]) {
       throw new Error(`Block type "${def.type}" is already registered by another source`)
     }
+    let cleanDef = def
+    if (Array.isArray(def.args0)) {
+      const shadowMap = {}
+      let hadShadow = false
+      const cleanArgs = def.args0.map(arg => {
+        if (arg && arg.shadow) {
+          shadowMap[arg.name] = arg.shadow
+          hadShadow = true
+          const { shadow, ...rest } = arg
+          return rest
+        }
+        return arg
+      })
+      if (hadShadow) {
+        cleanDef = { ...def, args0: cleanArgs }
+        shadowsByBlock.set(def.type, shadowMap)
+      }
+    }
     Blockly.Blocks[def.type] = {
-      init() { this.jsonInit(def) },
+      init() { this.jsonInit(cleanDef) },
     }
     blockTypes.push(def.type)
   }
@@ -198,6 +235,10 @@ export async function loadPlugin({ manifest, entrySource, iconUrl }) {
     category: manifest.category || null,
     platforms: Array.isArray(manifest.platforms) ? manifest.platforms.slice() : null,
     iconUrl: iconUrl || null,
+    // Per-block shadow defaults. Consumed by getPluginToolboxCategories() to
+    // pre-populate input_value sockets in the toolbox so students don't see
+    // empty puzzle holes.
+    shadows: shadowsByBlock,
   }
   registry.set(manifest.id, descriptor)
   return descriptor
@@ -245,6 +286,21 @@ const CATEGORY_COLOURS = {
 //   - If `currentPlatform` is provided, plugins whose `platforms[]`
 //     doesn't include it are skipped — the toolbox refreshes after every
 //     board change so this stays in sync.
+// Build a toolbox block entry, attaching `inputs: { NAME: { shadow } }` when
+// the plugin declared shadow defaults for that block. Blockly's JSON toolbox
+// format reads this and renders a pre-filled, replaceable child block in the
+// socket — the exact UX of the hand-written XML shadows in the board menu
+// groups (e.g. public/boards/LotusDevkit/block/menu/config.group.ble.js).
+function buildBlockEntry(descriptor, type) {
+  const sh = descriptor.shadows?.get(type)
+  if (!sh) return { kind: 'block', type }
+  const inputs = {}
+  for (const [inputName, shadowDef] of Object.entries(sh)) {
+    inputs[inputName] = { shadow: shadowDef }
+  }
+  return Object.keys(inputs).length ? { kind: 'block', type, inputs } : { kind: 'block', type }
+}
+
 export function getPluginToolboxCategories(currentPlatform = null) {
   const compatible = [...registry.values()].filter(d => {
     if (!d.platforms || !currentPlatform) return true
@@ -261,7 +317,7 @@ export function getPluginToolboxCategories(currentPlatform = null) {
         name: d.toolbox.name,
         colour: String(d.toolbox.color || '#7E57C2'),
         toolboxitemid: `plugin-cat-${d.manifest.id}`,
-        contents: d.blockTypes.map(t => ({ kind: 'block', type: t })),
+        contents: d.blockTypes.map(t => buildBlockEntry(d, t)),
       })
       continue
     }
@@ -285,7 +341,7 @@ export function getPluginToolboxCategories(currentPlatform = null) {
       text: `── ${d.toolbox.name || d.manifest.name || d.manifest.id} ──`,
       'web-class': 'lotus-plugin-divider',
     })
-    cat.contents.push(...d.blockTypes.map(t => ({ kind: 'block', type: t })))
+    cat.contents.push(...d.blockTypes.map(t => buildBlockEntry(d, t)))
   }
 
   return [...grouped.values(), ...ungrouped]

@@ -3,27 +3,25 @@
     <v-card class="dx-card">
       <v-card-title class="dx-header">
         <v-icon class="mr-2" color="primary">mdi-stethoscope</v-icon>
-        ตรวจสุขภาพ ESP32
+        {{ t('diag.title') }}
         <v-spacer />
         <v-btn icon="mdi-close" variant="text" size="small" :disabled="busy" @click="close" />
       </v-card-title>
 
       <v-card-text class="pa-4">
         <p class="dx-intro">
-          ใช้เมื่อ compile บอร์ดตระกูล ESP32 แล้ว error
-          (เช่น “cannot find the path specified”, “header not found”,
-          หรือ compile ช้าผิดปกติ) — รายการด้านล่างเช็คให้ครบทุกจุดที่เคยพบปัญหา
+          {{ t('diag.intro') }}
         </p>
 
         <div v-if="state === 'idle'" class="dx-cta">
           <v-btn color="primary" variant="flat" size="large" @click="runCheck">
-            <v-icon start>mdi-play</v-icon>เริ่มตรวจ
+            <v-icon start>mdi-play</v-icon>{{ t('diag.start') }}
           </v-btn>
         </div>
 
         <div v-else-if="state === 'running'" class="dx-running">
           <v-progress-circular indeterminate color="primary" size="36" />
-          <div class="dx-running-text">กำลังตรวจระบบ…</div>
+          <div class="dx-running-text">{{ t('diag.running') }}</div>
         </div>
 
         <div v-else-if="state === 'done'">
@@ -33,15 +31,15 @@
             </v-icon>
             <div>
               <div class="dx-summary-line">
-                {{ report.ok ? 'ทุกอย่างปกติ' : 'พบปัญหา ' + failCount + ' จุด' }}
+                {{ report.ok ? t('diag.summary_ok') : t('diag.summary_problems', failCount) }}
               </div>
               <div class="dx-summary-sub">
-                ตรวจเมื่อ {{ formatTime(report.generatedAt) }}
+                {{ t('diag.checked_at', formatTime(report.generatedAt)) }}
               </div>
             </div>
             <v-spacer />
             <v-btn variant="tonal" size="small" @click="copyReport">
-              <v-icon start>mdi-content-copy</v-icon>คัดลอกรายงาน
+              <v-icon start>mdi-content-copy</v-icon>{{ t('diag.copy_report') }}
             </v-btn>
           </div>
 
@@ -63,21 +61,21 @@
                     <v-btn size="x-small" variant="flat" color="warning"
                       :loading="busyKind === 'clearCache'" :disabled="busy"
                       @click="doClearCache">
-                      <v-icon start size="14">mdi-broom</v-icon>ล้าง build cache
+                      <v-icon start size="14">mdi-broom</v-icon>{{ t('diag.clear_cache_btn') }}
                     </v-btn>
                   </template>
                   <template v-else-if="c.fix.kind === 'reinstallEsp32'">
                     <v-btn size="x-small" variant="flat" color="error"
                       :loading="busyKind === 'reinstallEsp32'" :disabled="busy"
                       @click="doRemoveEsp32">
-                      <v-icon start size="14">mdi-refresh</v-icon>ลบ ESP32 core เพื่อติดตั้งใหม่
+                      <v-icon start size="14">mdi-refresh</v-icon>{{ t('diag.reinstall_core_btn') }}
                     </v-btn>
                   </template>
                   <template v-else-if="c.fix.kind === 'addDefenderExclusion'">
                     <v-btn size="x-small" variant="flat" color="primary"
                       :loading="busyKind === 'addDefenderExclusion'" :disabled="busy"
                       @click="doAddDefenderExclusion">
-                      <v-icon start size="14">mdi-shield-check-outline</v-icon>เพิ่มข้อยกเว้น Defender (ต้องอนุญาต UAC)
+                      <v-icon start size="14">mdi-shield-check-outline</v-icon>{{ t('diag.defender_btn') }}
                     </v-btn>
                   </template>
                   <template v-else>
@@ -101,10 +99,10 @@
 
       <v-card-actions v-if="state === 'done'" class="pa-3">
         <v-btn variant="text" :disabled="busy" @click="runCheck">
-          <v-icon start>mdi-refresh</v-icon>ตรวจอีกครั้ง
+          <v-icon start>mdi-refresh</v-icon>{{ t('diag.recheck') }}
         </v-btn>
         <v-spacer />
-        <v-btn variant="tonal" color="primary" :disabled="busy" @click="close">ปิด</v-btn>
+        <v-btn variant="tonal" color="primary" :disabled="busy" @click="close">{{ t('diag.close') }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -113,8 +111,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useAppStore } from '../stores/app'
+import { useT } from '../i18n/useT'
 
 const appStore = useAppStore()
+const t = useT()
 const open = computed({
   get: () => appStore.showDiagnoseEsp32,
   set: (v) => { appStore.showDiagnoseEsp32 = v },
@@ -161,9 +161,7 @@ async function doClearCache() {
   busyKind.value = 'clearCache'
   try {
     const r = await window.lotusAPI.diagnostics.clearBuildCache()
-    fixNote.value = r?.ok
-      ? 'ล้าง build cache เรียบร้อย — ลอง compile อีกครั้ง'
-      : 'ลบ cache ไม่สำเร็จ (อาจมีไฟล์กำลังถูกใช้)'
+    fixNote.value = r?.ok ? t('diag.cleared_ok') : t('diag.cleared_fail')
     appStore.log(fixNote.value, r?.ok ? 'success' : 'error')
     await runCheck()
   } finally {
@@ -176,13 +174,13 @@ async function doAddDefenderExclusion() {
   try {
     const r = await window.lotusAPI.diagnostics.addDefenderExclusion()
     if (r?.ok) {
-      fixNote.value = 'เพิ่มข้อยกเว้นเรียบร้อย — Defender จะข้าม folder LotusIDE แล้ว ลอง compile ใหม่จะเร็วขึ้น'
+      fixNote.value = t('diag.defender_ok')
       appStore.log(fixNote.value, 'success')
     } else if (r?.cancelled) {
-      fixNote.value = 'คุณยกเลิก UAC — ยังไม่ได้เพิ่ม exclusion'
+      fixNote.value = t('diag.defender_cancel')
       appStore.log(fixNote.value, 'info')
     } else {
-      fixNote.value = 'เพิ่มข้อยกเว้นไม่สำเร็จ: ' + (r?.error || 'unknown')
+      fixNote.value = t('diag.defender_fail', r?.error || 'unknown')
       appStore.log(fixNote.value, 'error')
     }
     // Defender preferences sometimes need a beat to propagate.
@@ -194,17 +192,15 @@ async function doAddDefenderExclusion() {
 }
 
 async function doRemoveEsp32() {
-  if (!window.confirm(
-    'ลบ ESP32 core ปัจจุบันออก (~600 MB) แล้วต้องดาวน์โหลดใหม่ ดำเนินการต่อไหม?'
-  )) return
+  if (!window.confirm(t('diag.confirm_remove_core'))) return
   busyKind.value = 'reinstallEsp32'
   try {
     const r = await window.lotusAPI.diagnostics.removeEsp32Core()
     if (r?.ok) {
-      fixNote.value = 'ลบ ESP32 core แล้ว — เปิด Lotus → Manage Boards → Cores แล้วกด Download ESP32'
+      fixNote.value = t('diag.removed_core_ok')
       appStore.log(fixNote.value, 'success')
     } else {
-      fixNote.value = 'ลบไม่สำเร็จ (อาจมีไฟล์กำลังถูกใช้) — ปิด LotusIDE แล้วลบโฟลเดอร์ manual'
+      fixNote.value = t('diag.removed_core_fail')
       appStore.log(fixNote.value, 'error')
     }
     await runCheck()
@@ -230,9 +226,9 @@ async function copyReport() {
   const text = lines.join('\n')
   try {
     await navigator.clipboard.writeText(text)
-    appStore.log('คัดลอกรายงานแล้ว', 'success')
+    appStore.log(t('diag.copy_success'), 'success')
   } catch {
-    appStore.log('คัดลอกไม่สำเร็จ', 'error')
+    appStore.log(t('diag.copy_fail'), 'error')
   }
 }
 

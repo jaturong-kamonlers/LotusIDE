@@ -1,5 +1,6 @@
 ﻿module.exports = function(Blockly) {
   'use strict';
+var t = Blockly.lotus.t;
   
   var sensor_colour = Blockly.Msg.SENSOR_HUE || 230;  // สีฟ้าสำหรับเซนเซอร์
 
@@ -11,7 +12,7 @@
       this.setInputsInline(true);
       this.setOutput(true, "Number");
       this.setColour(sensor_colour);
-      this.setTooltip("ตรวจสอบว่ากดปุ่มสีเขียวหรือไม่ (คืนค่า 1 ถ้ากด, 0 ถ้าไม่กด)");
+      this.setTooltip(t("legacy.button_1_status.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -23,7 +24,7 @@
       this.setInputsInline(true);
       this.setOutput(true, "Number");
       this.setColour(sensor_colour);
-      this.setTooltip("ตรวจสอบว่ากดปุ่มสีแดงหรือไม่ (คืนค่า 1 ถ้ากด, 0 ถ้าไม่กด)");
+      this.setTooltip(t("legacy.button_2_status.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -44,7 +45,7 @@
       this.setInputsInline(true);
       this.setOutput(true, "Number");
       this.setColour(sensor_colour);
-      this.setTooltip("อ่านค่า analog จากขาที่เลือก (ค่า 0-1023)");
+      this.setTooltip(t("legacy.analog_sensor.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -65,7 +66,7 @@
       this.setInputsInline(true);
       this.setOutput(true, "Number");
       this.setColour(sensor_colour);
-      this.setTooltip("อ่านค่า digital จากขาที่เลือก (0 หรือ 1) โดยใช้ค่า threshold 500");
+      this.setTooltip(t("legacy.digital_sensor.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -83,7 +84,7 @@
       this.setInputsInline(true);
       this.setOutput(true, "Number");
       this.setColour(sensor_colour);
-      this.setTooltip("อ่านค่าสี RGB จากเซนเซอร์ TCS34725");
+      this.setTooltip(t("legacy.TCS_read_rgb.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -96,7 +97,7 @@
       this.setInputsInline(true);
       this.setOutput(true, "Number");
       this.setColour(sensor_colour);
-      this.setTooltip("อ่านค่าจาก Knob (ตัวต้านทานปรับค่าได้) ค่า 0-1023");
+      this.setTooltip(t("legacy.Knob_status.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -110,7 +111,7 @@
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(sensor_colour);
-      this.setTooltip("รอจนกว่าจะกดปุ่มเริ่มต้น (GPIO27)");
+      this.setTooltip(t("legacy.sw1_press.tooltip"));
     }
   };
 
@@ -122,7 +123,7 @@
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(315);  // สีม่วงสำหรับ output
-      this.setTooltip("ทำให้ Buzzer ส่งเสียงดัง 200 มิลลิวินาที");
+      this.setTooltip(t("legacy.WIT_beep.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -138,7 +139,7 @@
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(315);
-      this.setTooltip("ทำให้ Buzzer ส่งเสียงดังตามระยะเวลาที่กำหนด (มิลลิวินาที)");
+      this.setTooltip(t("legacy.WIT_beep_delay.tooltip"));
     }
   };
 
@@ -149,7 +150,7 @@
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(315);
-      this.setTooltip("เปิด Buzzer (ดังต่อเนื่อง)");
+      this.setTooltip(t("legacy.WIT_beep_on.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -161,7 +162,7 @@
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(315);
-      this.setTooltip("ปิด Buzzer (เงียบ)");
+      this.setTooltip(t("legacy.WIT_beep_off.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -174,7 +175,7 @@
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(sensor_colour);
-      this.setTooltip("เริ่มต้นการทำงานของเซนเซอร์ BMP280 (ต้องใส่ใน Setup)");
+      this.setTooltip(t("legacy.bmp280_begin.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -185,7 +186,7 @@
           .appendField("BMP280 temperature (°C)");
       this.setOutput(true, "Number");
       this.setColour(sensor_colour);
-      this.setTooltip("อ่านค่าอุณหภูมิจาก BMP280 (องศาเซลเซียส)");
+      this.setTooltip(t("legacy.bmp280_read_temperature.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -196,7 +197,7 @@
           .appendField("BMP280 pressure (hPa)");
       this.setOutput(true, "Number");
       this.setColour(sensor_colour);
-      this.setTooltip("อ่านค่าความกดอากาศจาก BMP280 (hPa - เฮกโตปาสกาล)");
+      this.setTooltip(t("legacy.bmp280_read_pressure.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -207,7 +208,7 @@
           .appendField("BMP280 altitude (m)");
       this.setOutput(true, "Number");
       this.setColour(sensor_colour);
-      this.setTooltip("อ่านค่าความสูงจาก BMP280 (เมตร) คำนวณจากความกดอากาศที่ระดับน้ำทะเล 1013.25 hPa");
+      this.setTooltip(t("legacy.bmp280_read_altitude.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -228,7 +229,7 @@
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(sensor_colour);
-      this.setTooltip("อ่านค่าจาก BMP280 ทั้งหมดและเก็บไว้ในตัวแปร");
+      this.setTooltip(t("legacy.bmp280_read_all.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -241,7 +242,7 @@
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(sensor_colour);
-      this.setTooltip("เริ่มต้นการทำงานของเซนเซอร์วัดอุณหภูมิอินฟราเรด MLX90614 (ต้องใส่ใน Setup)");
+      this.setTooltip(t("legacy.mlx90614_begin.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -252,7 +253,7 @@
           .appendField("MLX90614 object temp (°C)");
       this.setOutput(true, "Number");
       this.setColour(sensor_colour);
-      this.setTooltip("อ่านค่าอุณหภูมิของวัตถุจาก MLX90614 (องศาเซลเซียส)");
+      this.setTooltip(t("legacy.mlx90614_read_object.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -263,7 +264,7 @@
           .appendField("MLX90614 ambient temp (°C)");
       this.setOutput(true, "Number");
       this.setColour(sensor_colour);
-      this.setTooltip("อ่านค่าอุณหภูมิแวดล้อมจาก MLX90614 (องศาเซลเซียส)");
+      this.setTooltip(t("legacy.mlx90614_read_ambient.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -281,7 +282,7 @@
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(sensor_colour);
-      this.setTooltip("อ่านค่าอุณหภูมิจาก MLX90614 ทั้งสองค่าและเก็บไว้ในตัวแปร");
+      this.setTooltip(t("legacy.mlx90614_read_both.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -292,7 +293,7 @@
           .appendField("MLX90614 object temp (°F)");
       this.setOutput(true, "Number");
       this.setColour(sensor_colour);
-      this.setTooltip("อ่านค่าอุณหภูมิของวัตถุจาก MLX90614 (องศาฟาเรนไฮต์)");
+      this.setTooltip(t("legacy.mlx90614_read_object_f.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -303,7 +304,7 @@
           .appendField("MLX90614 ambient temp (°F)");
       this.setOutput(true, "Number");
       this.setColour(sensor_colour);
-      this.setTooltip("อ่านค่าอุณหภูมิแวดล้อมจาก MLX90614 (องศาฟาเรนไฮต์)");
+      this.setTooltip(t("legacy.mlx90614_read_ambient_f.tooltip"));
       this.setHelpUrl("");
     }
   };

@@ -185,9 +185,19 @@ void LotusDevkit() {
   // Read sensor for 0-1023 (2^10=1024)
   analogReadResolution(10);
 
+  // Force MLX90614 out of factory-default PWM mode into SMBus mode by holding
+  // SCL LOW for >2ms before Wire init. Without this, MLX NACKs every read and
+  // returns -999 — even though I2C scanners may still see its address.
+  // Datasheet §8.3.3.1.
+  pinMode(I2C_SCL, OUTPUT);
+  digitalWrite(I2C_SCL, LOW);
+  delay(5);
+  pinMode(I2C_SCL, INPUT_PULLUP);
+  delay(50);
+
   // Initialize I2C - ทำครั้งเดียว
   Wire.begin(I2C_SDA, I2C_SCL);
-  Wire.setClock(100000);  // 100kHz I2C clock
+  Wire.setClock(50000);  // 50kHz — SMBus-friendly for MLX90614 (was 100kHz)
   delay(100);
 
   // Initialize pins
@@ -249,6 +259,12 @@ void LotusDevkit() {
   // above sets CENTER; without this reset, drawString(0, 0, "Hello world!")
   // centers around x=0 and "Hello" falls off-screen left.
   display.setTextAlignment(TEXT_ALIGN_LEFT);
+
+  // SSD1306Wire::init() bumps Wire to 700kHz for fast OLED refresh, which is
+  // way too fast for MLX90614 SMBus reads (they then return -999). Restore
+  // the slow MLX-safe clock as the LAST thing in board init so MLX wins.
+  // Trade-off: OLED redraw is ~14× slower but visually still fine.
+  Wire.setClock(50000);
 }
 
 // ===== Wait for Start Button =====

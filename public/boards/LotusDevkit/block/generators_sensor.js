@@ -205,17 +205,19 @@ module.exports = function(Blockly) {
   // hoisted by finish()'s marker extraction. _tcs_read() throttles I2C reads
   // to once per 100 ms so calling the block 3 times (R + G + B) in one frame
   // only does one sensor read.
+  // Uses the board-level `tcs` instance declared in LotusDevkit.h
+  // (GAIN_1X, 50MS integration — keep board's choice rather than overriding
+  // to GAIN_4X like the old generator did, which made colour values
+  // 4× brighter and diverge from any other code reading `tcs`).
+  // Board constructor already calls tcs.begin(), so no extra init needed.
   Blockly.JavaScript['TCS_read_rgb'] = function(block) {
     var ch = block.getFieldValue('color') || '1';
     Blockly.JavaScript.definitions_['__lotus_tcs34725__'] =
-      '#EXTINC\n#include <Adafruit_TCS34725.h>\n#END\n' +
-      '#VARIABLE\nAdafruit_TCS34725 _tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);\n#END\n' +
-      '#SETUP\n_tcs.begin();\n#END\n' +
       '#FUNCTION\n' +
       'uint16_t _tcs_read(uint8_t ch) {\n' +
       '  static uint32_t lastT = 0;\n' +
       '  static uint16_t r=0, g=0, b=0, c=0;\n' +
-      '  if (millis() - lastT > 100) { _tcs.getRawData(&r, &g, &b, &c); lastT = millis(); }\n' +
+      '  if (millis() - lastT > 100) { tcs.getRawData(&r, &g, &b, &c); lastT = millis(); }\n' +
       '  if (ch == 1) return r;\n' +
       '  if (ch == 2) return g;\n' +
       '  return b;\n' +

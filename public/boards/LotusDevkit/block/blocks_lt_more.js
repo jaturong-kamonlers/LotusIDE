@@ -10,6 +10,7 @@
 
 module.exports = function(Blockly) {
   'use strict';
+var t = Blockly.lotus.t;
 
   var C_BLYNK1  = '#1565C0';
   var C_BLYNK2  = '#00ACC1';
@@ -37,7 +38,7 @@ Blockly.Blocks["blynk_iot_virtual_write"] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(315);
-    this.setTooltip("ส่งค่าไปยัง Virtual Pin บน Blynk App");
+    this.setTooltip(t("iotmore.blynk_iot_virtual_write.tooltip"));
     this.setHelpUrl("");
   }
 };
@@ -50,7 +51,7 @@ Blockly.Blocks["blynk_iot_virtual_read"] = {
     this.setInputsInline(true);
     this.setOutput(true, "Number");
     this.setColour(315);
-    this.setTooltip("อ่านค่าจาก Virtual Pin บน Blynk App");
+    this.setTooltip(t("iotmore.blynk_iot_virtual_read.tooltip"));
     this.setHelpUrl("");
   }
 };
@@ -64,7 +65,7 @@ Blockly.Blocks["blynk_iot_on_virtual_write"] = {
     this.appendStatementInput("DO")
       .setCheck(null);
     this.setColour(315);
-    this.setTooltip("ทำงานเมื่อมีค่าส่งมาจาก Blynk App ที่ Virtual Pin");
+    this.setTooltip(t("iotmore.blynk_iot_on_virtual_write.tooltip"));
     this.setHelpUrl("");
   }
 };
@@ -77,7 +78,7 @@ Blockly.Blocks["blynk_iot_sync_all"] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(315);
-    this.setTooltip("ขอให้ Blynk Server ส่งค่าล่าสุดของ Virtual Pins ทั้งหมด");
+    this.setTooltip(t("iotmore.blynk_iot_sync_all.tooltip"));
     this.setHelpUrl("");
   }
 };
@@ -91,7 +92,7 @@ Blockly.Blocks["blynk_iot_sync_virtual"] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(315);
-    this.setTooltip("ขอให้ Blynk Server ส่งค่าล่าสุดของ Virtual Pin ที่ระบุ");
+    this.setTooltip(t("iotmore.blynk_iot_sync_virtual.tooltip"));
     this.setHelpUrl("");
   }
 };
@@ -107,7 +108,7 @@ Blockly.Blocks["blynk_iot_push"] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(315);
-    this.setTooltip("ส่งการแจ้งเตือนแบบ Push ไปยัง Blynk App");
+    this.setTooltip(t("iotmore.blynk_iot_push.tooltip"));
     this.setHelpUrl("");
   }
 };
@@ -123,7 +124,7 @@ Blockly.Blocks["blynk_iot_notify"] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(315);
-    this.setTooltip("ส่งการแจ้งเตือนไปยัง Blynk App");
+    this.setTooltip(t("iotmore.blynk_iot_notify.tooltip"));
     this.setHelpUrl("");
   }
 };
@@ -139,7 +140,7 @@ Blockly.Blocks["blynk_iot_tweet"] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(315);
-    this.setTooltip("ส่งทวีตผ่าน Blynk (ต้องเชื่อมต่อ Twitter แล้ว)");
+    this.setTooltip(t("iotmore.blynk_iot_tweet.tooltip"));
     this.setHelpUrl("");
   }
 };
@@ -152,7 +153,7 @@ Blockly.Blocks["blynk_iot_run"] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(315);
-    this.setTooltip("เรียกใน loop() เพื่อให้ Blynk ทำงาน");
+    this.setTooltip(t("iotmore.blynk_iot_run.tooltip"));
     this.setHelpUrl("");
   }
 };
@@ -164,7 +165,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
     this.setInputsInline(true);
     this.setOutput(true, "Boolean");
     this.setColour(315);
-    this.setTooltip("ตรวจสอบสถานะการเชื่อมต่อ Blynk");
+    this.setTooltip(t("iotmore.blynk_iot_connected.tooltip"));
     this.setHelpUrl("");
   }
 };
@@ -185,7 +186,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_BLYNK2);
-      this.setTooltip('เชื่อมต่อ Blynk 2.0');
+      this.setTooltip(t("iotmore.lt_blynk2_begin.tooltip"));
     }
   };
 
@@ -196,7 +197,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_BLYNK2);
-      this.setTooltip('ใส่ใน loop()');
+      this.setTooltip(t("iotmore.in_loop"));
     }
   };
 
@@ -210,7 +211,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_BLYNK2);
-      this.setTooltip('ส่งค่าไปยัง Virtual Pin');
+      this.setTooltip(t("iotmore.lt_blynk2_set_virtual.tooltip"));
     }
   };
 
@@ -221,7 +222,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
         .appendField(new Blockly.FieldNumber(0, 0, 255), 'PIN');
       this.setOutput(true, null);
       this.setColour(C_BLYNK2);
-      this.setTooltip('อ่านค่าจาก Virtual Pin');
+      this.setTooltip(t("iotmore.lt_blynk2_get_virtual.tooltip"));
     }
   };
 
@@ -233,7 +234,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
         .appendField('received');
       this.appendStatementInput('DO').setCheck(null);
       this.setColour(C_BLYNK2);
-      this.setTooltip('ทำงานเมื่อ Blynk ส่งค่ามา');
+      this.setTooltip(t("iotmore.lt_blynk2_on_write.tooltip"));
     }
   };
 
@@ -243,7 +244,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
         .appendField('Blynk2 connected?');
       this.setOutput(true, 'Boolean');
       this.setColour(C_BLYNK2);
-      this.setTooltip('true ถ้าเชื่อมต่อ Blynk 2.0 สำเร็จ');
+      this.setTooltip(t("iotmore.lt_blynk2_connected.tooltip"));
     }
   };
 
@@ -270,7 +271,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_NETPIE);
-      this.setTooltip('ตั้งค่าและเชื่อมต่อ NETPIE 2020');
+      this.setTooltip(t("iotmore.lt_netpie_begin.tooltip"));
     }
   };
 
@@ -281,7 +282,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_NETPIE);
-      this.setTooltip('ใส่ใน loop()');
+      this.setTooltip(t("iotmore.in_loop"));
     }
   };
 
@@ -296,7 +297,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_NETPIE);
-      this.setTooltip('ส่งข้อมูลไปยัง NETPIE 2020');
+      this.setTooltip(t("iotmore.lt_netpie_publish.tooltip"));
     }
   };
 
@@ -306,7 +307,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
         .appendField('NETPIE2020 when message received');
       this.appendStatementInput('DO').setCheck(null);
       this.setColour(C_NETPIE);
-      this.setTooltip('ทำงานเมื่อได้รับข้อมูลจาก NETPIE 2020');
+      this.setTooltip(t("iotmore.lt_netpie_on_message.tooltip"));
     }
   };
 
@@ -316,7 +317,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
         .appendField('NETPIE2020 topic');
       this.setOutput(true, 'String');
       this.setColour(C_NETPIE);
-      this.setTooltip('Topic ของข้อความล่าสุด');
+      this.setTooltip(t("iotmore.lt_netpie_msg_topic.tooltip"));
     }
   };
 
@@ -326,7 +327,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
         .appendField('NETPIE2020 payload');
       this.setOutput(true, 'String');
       this.setColour(C_NETPIE);
-      this.setTooltip('Payload ของข้อความล่าสุด');
+      this.setTooltip(t("iotmore.lt_netpie_msg_payload.tooltip"));
     }
   };
 
@@ -336,7 +337,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
         .appendField('NETPIE2020 connected?');
       this.setOutput(true, 'Boolean');
       this.setColour(C_NETPIE);
-      this.setTooltip('true ถ้าเชื่อมต่อ NETPIE 2020 สำเร็จ');
+      this.setTooltip(t("iotmore.lt_netpie_connected.tooltip"));
     }
   };
 
@@ -356,7 +357,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_UDP);
-      this.setTooltip('เปิด UDP Socket บน port ที่กำหนด');
+      this.setTooltip(t("iotmore.lt_udp_begin.tooltip"));
     }
   };
 
@@ -372,7 +373,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(C_UDP);
-      this.setTooltip('ส่งข้อมูลผ่าน UDP ไปยัง IP:Port');
+      this.setTooltip(t("iotmore.lt_udp_send.tooltip"));
     }
   };
 
@@ -382,7 +383,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
         .appendField('UDP received data');
       this.setOutput(true, 'String');
       this.setColour(C_UDP);
-      this.setTooltip('อ่านข้อมูล UDP ที่ได้รับล่าสุด');
+      this.setTooltip(t("iotmore.lt_udp_receive.tooltip"));
     }
   };
 
@@ -392,7 +393,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
         .appendField('UDP remote IP');
       this.setOutput(true, 'String');
       this.setColour(C_UDP);
-      this.setTooltip('IP address ของผู้ส่ง UDP');
+      this.setTooltip(t("iotmore.lt_udp_remote_ip.tooltip"));
     }
   };
 
@@ -402,7 +403,7 @@ Blockly.Blocks["blynk_iot_connected"] = {
         .appendField('UDP packet size');
       this.setOutput(true, 'Number');
       this.setColour(C_UDP);
-      this.setTooltip('ขนาด UDP packet (0 = ยังไม่มีข้อมูล)');
+      this.setTooltip(t("iotmore.lt_udp_packet_size.tooltip"));
     }
   };
 

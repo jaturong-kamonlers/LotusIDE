@@ -1,0 +1,13 @@
+{
+  "id": "com.lotus.controller.ps3",
+  "name": "PS3 Controller",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "ใช้จอย PlayStation 3 (DualShock 3) ผ่าน Bluetooth Classic — รองรับ LotusDevkit และ LotusDevkit4Wheels",
+  "author": "Lotus IDE",
+  "license": "MIT",
+  "category": "Other",
+  "platforms": ["arduino-esp32"],
+  "icon": "icon.svg",
+  "keywords": ["ps3", "playstation", "controller", "gamepad", "bluetooth", "dualshock"]
+}

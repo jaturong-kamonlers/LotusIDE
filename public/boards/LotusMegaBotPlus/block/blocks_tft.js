@@ -69,7 +69,7 @@ module.exports = function(Blockly){
       this.appendDummyInput()
           .appendField("size")
           .appendField(new Blockly.FieldDropdown([
-            ["1","1"],["2","2"],["3","3"],["4","4"]
+            ["1 (6×8 px)","1"],["2 (12×16 px)","2"],["3 (18×24 px)","3"],["4 (24×32 px)","4"]
           ]), "SZ");
       this.setInputsInline(true);
       this.setPreviousStatement(true, null);
@@ -153,7 +153,7 @@ module.exports = function(Blockly){
       this.appendDummyInput()
           .appendField("size")
           .appendField(new Blockly.FieldDropdown([
-            ["1","1"],["2","2"],["3","3"],["4","4"]
+            ["1 (6×8 px)","1"],["2 (12×16 px)","2"],["3 (18×24 px)","3"],["4 (24×32 px)","4"]
           ]), "SZ");
       this.setInputsInline(true);
       this.setPreviousStatement(true, null);

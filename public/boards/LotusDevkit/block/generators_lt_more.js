@@ -102,10 +102,14 @@ Blockly.JavaScript["blynk_iot_connected"] = function(block) {
     var pass  = block.getFieldValue('PASS');
     var code  = '#EXTINC\n#include <BlynkSimpleEsp32.h>\n#END\n';
     code += '#VARIABLE\nchar _blynk2_auth[] = "' + token + '";\n#END\n';
+    // #SETUP wrap — WiFi.begin + Blynk.begin must run once at startup,
+    // not at wherever the user happens to drop the block.
+    code += '#SETUP\n';
     code += 'WiFi.begin("' + ssid + '", "' + pass + '");\n';
     code += 'while(WiFi.status()!=WL_CONNECTED){ delay(500); }\n';
     code += 'Blynk.begin(_blynk2_auth, "' + ssid + '", "' + pass
           + '", "blynk.cloud", 80);\n';
+    code += '#END\n';
     return code;
   };
 
@@ -156,10 +160,14 @@ Blockly.JavaScript["blynk_iot_connected"] = function(block) {
     code += '    _npClient.connect("' + cid + '","' + token + '","' + secret + '");\n';
     code += '    if(!_npClient.connected()) delay(5000);\n  }\n}\n';
     code += '#END\n';
+    // #SETUP wrap — keep WiFi + broker handshake in setup() even if user
+    // drops the block in loop or at top-level.
+    code += '#SETUP\n';
     code += 'WiFi.begin("' + ssid + '","' + pass + '");\n';
     code += 'while(WiFi.status()!=WL_CONNECTED){ delay(500); }\n';
     code += '_npClient.setServer("broker.netpie.io",1883);\n';
     code += '_npClient.setCallback(_npCB);\n_npReconnect();\n';
+    code += '#END\n';
     return code;
   };
 
@@ -203,7 +211,9 @@ Blockly.JavaScript["blynk_iot_connected"] = function(block) {
     code += '    if(len>0){ _udpBuf[len]=0; _udpData=String(_udpBuf); }\n';
     code += '  }\n}\n';
     code += '#END\n';
-    code += '_udp.begin(' + port + ');\n';
+    // #SETUP wrap — _udp.begin() opens the UDP socket once; calling it
+    // every loop iteration would close-and-reopen the socket constantly.
+    code += '#SETUP\n_udp.begin(' + port + ');\n#END\n';
     return code;
   };
 

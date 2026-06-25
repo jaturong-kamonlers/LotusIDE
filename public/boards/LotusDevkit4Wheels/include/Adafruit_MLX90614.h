@@ -63,6 +63,18 @@ public:
         return (temp < -70 || temp > 380) ? -999.0f : temp;
     }
     
+    // Fahrenheit variants — propagate the -999 sentinel so legacy
+    // mlx90614_read_object_f / _ambient_f blocks compile and stay consistent
+    // with the Celsius versions on read failure.
+    float readObjectTempF()  {
+        float c = readObjectTempC();
+        return (c == -999.0f) ? -999.0f : (c * 1.8f + 32.0f);
+    }
+    float readAmbientTempF() {
+        float c = readAmbientTempC();
+        return (c == -999.0f) ? -999.0f : (c * 1.8f + 32.0f);
+    }
+
     bool isWorking() { return _working; }
 
 private:

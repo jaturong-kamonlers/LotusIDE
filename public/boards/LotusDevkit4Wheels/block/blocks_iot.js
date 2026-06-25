@@ -1,6 +1,8 @@
 module.exports = function(Blockly) {
   "use strict";
 
+  var t = Blockly.lotus.t;
+
   // ── Blynk 1.0 begin ─────────────────────────────────────────────────────
   // Server: rail.kls.ac.th Port: 8080 (เปลี่ยนได้)
   Blockly.Blocks["blynk_iot_setup_code"] = {
@@ -20,7 +22,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(315);
-      this.setTooltip("เชื่อมต่อ Blynk 1.0 — Server: rail.kls.ac.th Port: 8080");
+      this.setTooltip(t("iotsetup.blynk_iot_setup_code.tooltip"));
       this.setHelpUrl("");
     }
   };
@@ -33,7 +35,7 @@ module.exports = function(Blockly) {
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(315);
-      this.setTooltip("เรียกใน loop() เพื่อให้ Blynk ทำงาน");
+      this.setTooltip(t("iotmore.blynk_iot_run.tooltip"));
       this.setHelpUrl("");
     }
   };
