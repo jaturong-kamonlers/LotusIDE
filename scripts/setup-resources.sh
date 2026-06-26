@@ -107,11 +107,23 @@ else
   yellow "core update-index"
   "$ARDUINO_CLI_BIN" core update-index
 
+  # Arduino DUE (arduino:sam) toolchain is x86-only — arduino-cli on Linux
+  # arm64 (Jetson Nano + arm64 Raspberry Pi) reports "platform is not
+  # available for your OS" because the gcc-arm-none-eabi toolchain inside
+  # the SAM core package has no arm64 build. Skip it on arm64 hosts; the
+  # AVR + ESP32 cores still install fine. LotusDueBot board users on arm64
+  # are out of luck for now (DueBot itself is rare in classroom).
+  uname_m="$(uname -m)"
   if [[ $WITH_ESP32 -eq 1 ]]; then
-    cores=(arduino:avr arduino:sam esp32:esp32)
+    cores=(arduino:avr esp32:esp32)
   else
-    cores=(arduino:avr arduino:sam)
+    cores=(arduino:avr)
     gray "skipping esp32:esp32 (--no-esp32 / Slim SKU)"
+  fi
+  if [[ "$uname_m" == "aarch64" || "$uname_m" == "arm64" ]]; then
+    gray "skipping arduino:sam (no arm64 toolchain — LotusDueBot unavailable on this host)"
+  else
+    cores+=(arduino:sam)
   fi
   for core in "${cores[@]}"; do
     yellow "installing $core"
