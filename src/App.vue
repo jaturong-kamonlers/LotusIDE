@@ -85,6 +85,21 @@ onMounted(() => {
         }
       }).catch(() => { /* startup check is best-effort */ })
     }
+
+    // Windows-only: detect Defender-mangled ESP32 bundle. When real-time
+    // scanning quarantines xtensa-esp32-elf-gcc.exe during NSIS extract, the
+    // installer "succeeds" but the toolchain is half-installed (only esp-rv32
+    // present, no gcc.exe), and the first ESP32 compile silently fails with
+    // "cannot find the path specified". Surface it on launch so the user
+    // doesn't have to wait until they hit the compile error.
+    if (window.lotusAPI.platform === 'win32' && window.lotusAPI.diagnostics?.bundleHealth) {
+      window.lotusAPI.diagnostics.bundleHealth().then((r) => {
+        if (!r || r.skipped || !r.corrupt) return
+        appStore.log('ตรวจพบ ESP32 toolchain ติดตั้งไม่ครบ (อาจถูก Windows Defender quarantine ระหว่างติดตั้ง)', 'error')
+        appStore.log('  วิธีแก้: เปิดเมนู Lotus → ตรวจสุขภาพ ESP32 → กด "เพิ่ม/ยกเว้น DEFENDER" แล้วกด "ลบ ESP32 CORE เพื่อติดตั้งใหม่"', 'info')
+        appStore.showDiagnoseEsp32 = true
+      }).catch(() => { /* startup check is best-effort */ })
+    }
   }
 })
 </script>

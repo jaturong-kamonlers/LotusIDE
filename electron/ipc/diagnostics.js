@@ -36,6 +36,20 @@ function paths() {
   return { userData, cliData, esp32Pkg, esp32Hardware, esp32Tools, buildCache }
 }
 
+// Bundled arduino-cli data dir — only present in the Full SKU installer where
+// ESP32 core ships pre-extracted. Mirrors electron/ipc/arduino.js's
+// BUNDLED_DATA_DIR calculation. Used by the post-install startup check that
+// detects Defender-mangled bundles (e.g. xtensa-esp32-elf-gcc.exe missing
+// because real-time scanning quarantined it during NSIS extraction).
+function bundlePaths() {
+  const base = app.isPackaged
+    ? path.join(process.resourcesPath, 'app', 'resources')
+    : path.join(__dirname, '..', '..', 'resources')
+  const cliData    = path.join(base, 'arduino-cli', 'data')
+  const esp32Tools = path.join(cliData, 'packages', 'esp32', 'tools')
+  return { base, cliData, esp32Tools }
+}
+
 function safeListDirs(dir) {
   try {
     return fs.readdirSync(dir, { withFileTypes: true })
@@ -419,6 +433,36 @@ function rmrf(p) {
   try { fs.rmSync(p, { recursive: true, force: true }); return true }
   catch { return false }
 }
+
+// Startup health check for the bundled ESP32 toolchain (Full SKU). Detects
+// the failure mode where Windows Defender real-time scanning quarantines
+// xtensa-esp32-elf-gcc.exe (or other large GCC binaries) mid-extraction
+// during NSIS install — leaving an `esp-rv32`-only toolchain that compile
+// fails on with "cannot find the path specified". Renderer calls this once
+// per launch on Windows from App.vue's onMounted; if `corrupt` is true the
+// console logs a pointer to the ตรวจสุขภาพ ESP32 dialog.
+//
+// Returns:
+//   { skipped: true }                         // non-Windows
+//   { skipped: true, reason: 'no-bundle' }    // Slim SKU (no bundled ESP32)
+//   { corrupt: bool, bundleGcc, seededGcc }   // Full SKU
+ipcMain.handle('diagnostics:bundleHealth', async () => {
+  if (!IS_WIN) return { skipped: true, reason: 'not-windows' }
+  const B = bundlePaths()
+  // Slim SKU never ships the bundled esp32 tools dir — nothing to verify.
+  if (!fs.existsSync(B.esp32Tools)) return { skipped: true, reason: 'no-bundle' }
+
+  const bundleGcc = checkGccPresent(B.esp32Tools)
+  const P = paths()
+  const seededGcc = fs.existsSync(P.esp32Tools) ? checkGccPresent(P.esp32Tools) : { found: null }
+
+  // `found === false` means we saw a gcc folder but no .exe inside — the
+  // signature of a Defender quarantine. `found === null` (no gcc folder at
+  // all) is treated as "not a Full bundle" rather than corruption, because a
+  // legitimately Slim install legitimately has no tools/ to inspect.
+  const corrupt = bundleGcc.found === false || seededGcc.found === false
+  return { corrupt, bundleGcc, seededGcc, bundleEsp32Tools: B.esp32Tools }
+})
 
 ipcMain.handle('diagnostics:clearBuildCache', async () => {
   const cache = path.join(os.tmpdir(), 'lotus_build')
