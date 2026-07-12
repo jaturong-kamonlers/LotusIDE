@@ -19,14 +19,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useAppStore } from '../stores/app'
+import { ref, onMounted } from 'vue'
 
-const appStore = useAppStore()
 const emit = defineEmits(['done'])
 const progress = ref(0)
 const leaving = ref(false)
-let audio = null
 
 onMounted(() => {
   const start = Date.now()
@@ -38,21 +35,10 @@ onMounted(() => {
   }
   requestAnimationFrame(tick)
 
-  if (appStore.soundEnabled) {
-    audio = new Audio('sounds/open.mp3')
-    audio.volume = 0.7
-    audio.play().catch(() => {})
-  }
-
   setTimeout(() => {
     leaving.value = true
-    if (audio) { audio.pause(); audio.currentTime = 0 }
     setTimeout(() => emit('done'), 600)
   }, duration)
-})
-
-onBeforeUnmount(() => {
-  if (audio) { audio.pause(); audio = null }
 })
 </script>
 
