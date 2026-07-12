@@ -2,6 +2,9 @@ module.exports = function(Blockly) {
   'use strict';
 
   // ─── MPU6050 ────────────────────────────────────────────────────────────────
+  // MPU6050 needs update() every loop so accel/gyro reads see fresh data;
+  // #LOOP_EXT_CODE injects it into loop() regardless of block position, and
+  // #SETUP hoists begin() to setup() so it runs once, not per loop iteration.
   Blockly.JavaScript['lt_mpu6050_begin'] = function(block) {
     return `#EXTINC
 \t#include "MPU6050.h"
@@ -9,7 +12,12 @@ module.exports = function(Blockly) {
 \t#VARIABLE
 \tMPU6050 _mpu;
 \t#END
-\t_mpu.begin();\n`;
+\t#LOOP_EXT_CODE
+\t_mpu.update();
+\t#END
+\t#SETUP
+\t_mpu.begin();
+\t#END\n`;
   };
   Blockly.JavaScript['lt_mpu6050_update'] = function(block) {
     return `_mpu.update();\n`;
@@ -125,7 +133,9 @@ module.exports = function(Blockly) {
 \t  return pulseIn(_us_echo,HIGH,30000)/58.0;
 \t}
 \t#END
-\tpinMode(_us_trig,OUTPUT); pinMode(_us_echo,INPUT);\n`;
+\t#SETUP
+\tpinMode(_us_trig,OUTPUT); pinMode(_us_echo,INPUT);
+\t#END\n`;
   };
   Blockly.JavaScript['lt_ultrasonic_cm'] = function(block) {
     return [`_us_read_cm()`, Blockly.JavaScript.ORDER_ATOMIC];
@@ -144,7 +154,9 @@ module.exports = function(Blockly) {
 \tRTC_${type} _rtc;
 \tDateTime _rtcNow;
 \t#END
-\t_rtc.begin();\n`;
+\t#SETUP
+\t_rtc.begin();
+\t#END\n`;
   };
   Blockly.JavaScript['lt_rtc_now'] = function(block) {
     var field = block.getFieldValue('FIELD') || 'hour';
@@ -179,7 +191,9 @@ module.exports = function(Blockly) {
 \t#VARIABLE
 \tLiquidCrystal_I2C _lcd(${addr},${col},${row});
 \t#END
-\t_lcd.init(); _lcd.backlight();\n`;
+\t#SETUP
+\t_lcd.init(); _lcd.backlight();
+\t#END\n`;
   };
   Blockly.JavaScript['lt_lcd_clear'] = function(block) {
     return `_lcd.clear();\n`;
@@ -219,7 +233,9 @@ module.exports = function(Blockly) {
 \t#VARIABLE
 \tAdafruit_HMC5883_Unified _compass(12345);
 \t#END
-\t_compass.begin();\n`;
+\t#SETUP
+\t_compass.begin();
+\t#END\n`;
     } else {
       return `#EXTINC
 \t#include "QMC5883LCompass.h"
@@ -227,7 +243,9 @@ module.exports = function(Blockly) {
 \t#VARIABLE
 \tQMC5883LCompass _compass;
 \t#END
-\t_compass.init();\n`;
+\t#SETUP
+\t_compass.init();
+\t#END\n`;
     }
   };
   Blockly.JavaScript['lt_compass_read'] = function(block) {
@@ -254,7 +272,9 @@ module.exports = function(Blockly) {
 \tPMS _pms(_pmsSerial);
 \tPMS::DATA _pmsData;
 \t#END
-\t_pmsSerial.begin(9600,SERIAL_8N1,${rx},${tx});\n`;
+\t#SETUP
+\t_pmsSerial.begin(9600,SERIAL_8N1,${rx},${tx});
+\t#END\n`;
   };
   Blockly.JavaScript['lt_pms_read'] = function(block) {
     return `_pms.readUntil(_pmsData);\n`;
@@ -280,8 +300,10 @@ module.exports = function(Blockly) {
 \tHardwareSerial _dfSerial(2);
 \tDFRobotDFPlayerMini _dfPlayer;
 \t#END
+\t#SETUP
 \t_dfSerial.begin(9600,SERIAL_8N1,${rx},${tx});
-\t_dfPlayer.begin(_dfSerial);\n`;
+\t_dfPlayer.begin(_dfSerial);
+\t#END\n`;
   };
   Blockly.JavaScript['lt_dfplayer_play'] = function(block) {
     var num = Blockly.JavaScript.valueToCode(block,'NUM',Blockly.JavaScript.ORDER_ATOMIC)||'1';
